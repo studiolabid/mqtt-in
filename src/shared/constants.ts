@@ -7,6 +7,9 @@ import type { AppSettings, MqttProtocol, MqttProtocolVersion } from './models'
 
 export const APP_NAME = 'mqtt-in'
 
+/** The app's former name: its profile folder is migrated once, and its client ids recognized. */
+export const LEGACY_APP_NAME = 'mqtey'
+
 /** The studio behind mqtt-in (the "Powered by" credit). */
 export const APP_VENDOR = { name: 'studiolab.id', url: 'https://studiolab.id' } as const
 

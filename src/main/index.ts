@@ -7,11 +7,12 @@
 import { join } from 'node:path'
 import { app, BrowserWindow, dialog, Menu, nativeTheme, safeStorage, session } from 'electron'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { APP_NAME } from '@shared/defaults'
+import { APP_NAME, LEGACY_APP_NAME } from '@shared/defaults'
 import { AUTOMATION_APP_USER_MODEL_ID, isAutomationRun, resolveUserDataDir } from './app-identity'
 import { registerAppScheme, serveAppProtocol } from './app-protocol'
 import { createWindowEventSink, registerIpc } from './ipc'
 import { createMainLog, logUncaughtErrors } from './main-log'
+import { migrateLegacyProfile } from './profile-migration'
 import { errorMessage } from './utils/errors'
 import { buildAppMenu } from './menu'
 import { secondInstanceAction } from './second-instance'
@@ -76,6 +77,14 @@ if (background && !isolated) {
   console.error('[app] MQTTIN_E2E=1 needs MQTTIN_USER_DATA_DIR (an isolated profile). Quitting.')
   app.exit(2)
 } else if (app.requestSingleInstanceLock()) {
+  if (!isolated && !background) {
+    // First start after the rename: bring the data of the former app name along (synchronous,
+    // before the app is ready; see profile-migration.ts). Only the instance holding the lock.
+    const legacy = join(app.getPath('appData'), LEGACY_APP_NAME)
+    const outcome = migrateLegacyProfile(legacy, app.getPath('userData'))
+    if (outcome.migrated) mainLog.append('profile-migrated', { from: legacy, files: outcome.files })
+    else if (outcome.reason === 'failed') mainLog.append('profile-migration-failed', outcome)
+  }
   start()
 } else {
   app.quit()
