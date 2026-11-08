@@ -30,7 +30,9 @@ export default {
 
     await step('connect a workspace', async () => {
       await ctx.launch({
-        seed: seedConnections([connectionProfile({ id: ID, name: 'Crash test', port: ctx.broker.port })])
+        seed: seedConnections([
+          connectionProfile({ id: ID, name: 'Crash test', port: ctx.broker.port })
+        ])
       })
       await openWorkspace(ctx.page, ID)
       await ctx.click('workspace-connect')
@@ -51,7 +53,9 @@ export default {
           const rejection = current.includes(
             '[unhandledRejection] Error: e2e: unhandled rejection in main'
           )
-          const uncaught = /\[uncaughtException\] Error: e2e: uncaught in main\n\s+at /.test(current)
+          const uncaught = /\[uncaughtException\] Error: e2e: uncaught in main\n\s+at /.test(
+            current
+          )
           return rejection && uncaught ? current : null
         },
         { timeout: 5_000, label: 'both errors in main.log' }

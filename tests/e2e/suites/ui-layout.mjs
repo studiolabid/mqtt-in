@@ -41,7 +41,10 @@ export default {
     /** Raises `count` toasts and checks them against every visible action target. */
     const checkToasts = async (where, count) => {
       for (let i = 0; i < count; i++) {
-        await pushStorageNotice(ctx.app, `Toast ${i + 1} at ${where}: long enough to wrap onto a second line.`)
+        await pushStorageNotice(
+          ctx.app,
+          `Toast ${i + 1} at ${where}: long enough to wrap onto a second line.`
+        )
       }
       await page().waitForFunction(
         (n) => document.querySelectorAll('[data-sonner-toast]').length >= n,
@@ -55,14 +58,19 @@ export default {
       for (const toast of toasts) {
         for (const target of targets) if (intersects(toast, target)) hits.push(target.name)
       }
-      if (hits.length > 0) throw new Error(`${where}: toasts cover ${[...new Set(hits)].join(', ')}`)
+      if (hits.length > 0)
+        throw new Error(`${where}: toasts cover ${[...new Set(hits)].join(', ')}`)
       const bottom = Math.max(...toasts.map((t) => t.bottom))
       const left = Math.min(...toasts.map((t) => t.left))
       const width = Math.max(...toasts.map((t) => t.width))
       if (bottom > view.h - 28 || Math.abs(left - 12) > 1 || width > 340.5) {
-        throw new Error(`${where}: toasts at left ${left}, bottom ${bottom} of ${view.h}, ${width} px wide`)
+        throw new Error(
+          `${where}: toasts at left ${left}, bottom ${bottom} of ${view.h}, ${width} px wide`
+        )
       }
-      ctx.log(`${where} (${view.w}×${view.h}): ${toasts.length} toasts clear of ${targets.map((t) => t.name).join(', ')}`)
+      ctx.log(
+        `${where} (${view.w}×${view.h}): ${toasts.length} toasts clear of ${targets.map((t) => t.name).join(', ')}`
+      )
     }
 
     await step('launch, connect, subscribe and receive messages', async () => {
@@ -90,32 +98,44 @@ export default {
         throw new Error(`summary line "${placement.summary}"`)
       }
       await capture('lay-01-message-detail')
-      await page().locator(tid('message-detail')).getByRole('button', { name: /^Close/ }).click()
+      await page()
+        .locator(tid('message-detail'))
+        .getByRole('button', { name: /^Close/ })
+        .click()
       await ctx.waitForTestId('message-detail', { state: 'hidden' })
     })
 
-    await step('subscription rows show their counter; a centre click filters (UX-06/16)', async () => {
-      const first = page().locator(tid('subscription-item')).first()
-      const second = page().locator(tid('subscription-item')).nth(1)
-      await first.locator(tid('subscription-count')).waitFor()
-      const box = await first.boundingBox()
-      await page().mouse.click(box.x + box.width / 2, box.y + box.height / 2)
-      await ctx.waitForTestId('subscription-item', { extra: '[data-filtered="true"]' })
-      if (await page().locator(tid('subscription-dialog')).isVisible()) {
-        throw new Error('the click at the row centre opened the edit dialog')
+    await step(
+      'subscription rows show their counter; a centre click filters (UX-06/16)',
+      async () => {
+        const first = page().locator(tid('subscription-item')).first()
+        const second = page().locator(tid('subscription-item')).nth(1)
+        await first.locator(tid('subscription-count')).waitFor()
+        const box = await first.boundingBox()
+        await page().mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+        await ctx.waitForTestId('subscription-item', { extra: '[data-filtered="true"]' })
+        if (await page().locator(tid('subscription-dialog')).isVisible()) {
+          throw new Error('the click at the row centre opened the edit dialog')
+        }
+        // The filtered row must look different from a merely hovered one (UX-08).
+        const secondBox = await second.boundingBox()
+        await page().mouse.move(
+          secondBox.x + secondBox.width / 2,
+          secondBox.y + secondBox.height / 2
+        )
+        await sleep(250)
+        const filtered = await first.evaluate((el) => getComputedStyle(el).backgroundColor)
+        const hovered = await second.evaluate((el) => getComputedStyle(el).backgroundColor)
+        if (filtered === hovered) throw new Error(`filtered and hovered rows share ${filtered}`)
+        await shotNow(ctx, 'lay-02-subscription-filtered')
+        await page().mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+        await ctx.waitForTestId('subscription-item', {
+          extra: '[data-filtered="true"]',
+          state: 'hidden'
+        })
+        await page().mouse.move(1, 1)
       }
-      // The filtered row must look different from a merely hovered one (UX-08).
-      const secondBox = await second.boundingBox()
-      await page().mouse.move(secondBox.x + secondBox.width / 2, secondBox.y + secondBox.height / 2)
-      await sleep(250)
-      const filtered = await first.evaluate((el) => getComputedStyle(el).backgroundColor)
-      const hovered = await second.evaluate((el) => getComputedStyle(el).backgroundColor)
-      if (filtered === hovered) throw new Error(`filtered and hovered rows share ${filtered}`)
-      await shotNow(ctx, 'lay-02-subscription-filtered')
-      await page().mouse.click(box.x + box.width / 2, box.y + box.height / 2)
-      await ctx.waitForTestId('subscription-item', { extra: '[data-filtered="true"]', state: 'hidden' })
-      await page().mouse.move(1, 1)
-    })
+    )
 
     await step('a 21-character topic filter fits its field (UX-10)', async () => {
       const input = page().locator(tid('message-topic-filter'))
@@ -185,7 +205,9 @@ export default {
       await setZoom(ctx.app, 1.5)
       await sleep(300)
       const list = await heightOf(page(), tid('message-list'))
-      ctx.log(`message list ${Math.round(list)} px, publisher ${Math.round(await heightOf(page(), tid('publisher-panel')))} px`)
+      ctx.log(
+        `message list ${Math.round(list)} px, publisher ${Math.round(await heightOf(page(), tid('publisher-panel')))} px`
+      )
       if (list < 104) throw new Error(`the message list is ${list} px at 150 %`)
       await expectPublisherHeaderFits(page(), 'zoom 150 %')
       await captureWindow(ctx, 'lay-08-zoom-150')
@@ -212,33 +234,42 @@ export default {
         throw new Error(`the publisher is ${publisher} px, ${before.publisher} px before zooming`)
       }
       const layout = await page().evaluate(() => localStorage.getItem('mqtey.workspace.layout'))
-      if (layout !== before.layout) throw new Error(`zoom changed the layout: ${before.layout} → ${layout}`)
+      if (layout !== before.layout)
+        throw new Error(`zoom changed the layout: ${before.layout} → ${layout}`)
     })
 
-    await step('at the minimum size the chart empty state stays below the tabs (UX-11)', async () => {
-      const size = await setWindowSize(ctx.app, 960, 600)
-      await showTab(ctx, 'topics')
-      await (await treeRow(ctx, 'e2e/text')).click()
-      await ctx.click('topic-tab-chart')
-      await page().locator(`${tid('topic-detail')} [data-slot="empty-state"]`).first().waitFor()
-      await sleep(300)
-      const geometry = await page().evaluate(() => {
-        const detail = document.querySelector('[data-testid="topic-detail"]')
-        const empty = [...detail.querySelectorAll('[data-slot="empty-state"]')].find(
-          (el) => el.getBoundingClientRect().height > 0
-        )
-        const tabs = detail.querySelector('[role="tablist"]')
-        return {
-          contentTop: empty?.firstElementChild?.getBoundingClientRect().top,
-          boxTop: empty?.parentElement?.getBoundingClientRect().top,
-          tabsBottom: tabs?.getBoundingClientRect().bottom
+    await step(
+      'at the minimum size the chart empty state stays below the tabs (UX-11)',
+      async () => {
+        const size = await setWindowSize(ctx.app, 960, 600)
+        await showTab(ctx, 'topics')
+        await (await treeRow(ctx, 'e2e/text')).click()
+        await ctx.click('topic-tab-chart')
+        await page()
+          .locator(`${tid('topic-detail')} [data-slot="empty-state"]`)
+          .first()
+          .waitFor()
+        await sleep(300)
+        const geometry = await page().evaluate(() => {
+          const detail = document.querySelector('[data-testid="topic-detail"]')
+          const empty = [...detail.querySelectorAll('[data-slot="empty-state"]')].find(
+            (el) => el.getBoundingClientRect().height > 0
+          )
+          const tabs = detail.querySelector('[role="tablist"]')
+          return {
+            contentTop: empty?.firstElementChild?.getBoundingClientRect().top,
+            boxTop: empty?.parentElement?.getBoundingClientRect().top,
+            tabsBottom: tabs?.getBoundingClientRect().bottom
+          }
+        })
+        ctx.log(`${size.width}×${size.height}: ${JSON.stringify(geometry)}`)
+        if (!(
+          geometry.contentTop >= geometry.boxTop && geometry.contentTop >= geometry.tabsBottom
+        )) {
+          throw new Error(`the empty state overlaps the tabs: ${JSON.stringify(geometry)}`)
         }
-      })
-      ctx.log(`${size.width}×${size.height}: ${JSON.stringify(geometry)}`)
-      if (!(geometry.contentTop >= geometry.boxTop && geometry.contentTop >= geometry.tabsBottom)) {
-        throw new Error(`the empty state overlaps the tabs: ${JSON.stringify(geometry)}`)
+        await capture('lay-10-empty-state-960x600')
       }
-      await capture('lay-10-empty-state-960x600')
-    })
+    )
   }
 }

@@ -11,7 +11,14 @@ export const rectOf = (page, selector) =>
     const el = document.querySelector(sel)
     if (!el) return null
     const r = el.getBoundingClientRect()
-    return { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height }
+    return {
+      left: r.left,
+      top: r.top,
+      right: r.right,
+      bottom: r.bottom,
+      width: r.width,
+      height: r.height
+    }
   }, selector)
 
 /** Height of the first match in CSS px (-1 when missing). */
@@ -86,7 +93,11 @@ export const publisherHeader = (page) =>
       const r = el.getBoundingClientRect()
       let left = r.left
       let right = r.right
-      for (let node = el.parentElement; node && node !== panel.parentElement; node = node.parentElement) {
+      for (
+        let node = el.parentElement;
+        node && node !== panel.parentElement;
+        node = node.parentElement
+      ) {
         if (getComputedStyle(node).overflowX !== 'visible') {
           const c = node.getBoundingClientRect()
           left = Math.max(left, c.left)
@@ -147,9 +158,7 @@ export const detailPayloadPlacement = (page) =>
       inside: Boolean(s && l && l.height > 0 && l.top >= s.top && l.bottom <= s.bottom),
       lineTop: l ? Math.round(l.top - (s?.top ?? 0)) : null,
       scrollerHeight: s ? Math.round(s.height) : null,
-      summary: (
-        detail?.querySelector('[data-testid="message-detail-summary"]')?.textContent ?? ''
-      )
+      summary: (detail?.querySelector('[data-testid="message-detail-summary"]')?.textContent ?? '')
         .replace(/\s+/g, ' ')
         .trim()
     }

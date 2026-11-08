@@ -16,7 +16,10 @@ const WIN_STYLE = join(E2E_DIR, 'win-style.ps1')
  * Polls `probe` until it returns a truthy value (returned) or `timeout` ms pass (throws with the
  * last value). A probe that throws counts as falsy.
  */
-export async function waitFor(probe, { timeout = 15_000, interval = 100, label = 'condition' } = {}) {
+export async function waitFor(
+  probe,
+  { timeout = 15_000, interval = 100, label = 'condition' } = {}
+) {
   const until = Date.now() + timeout
   let last
   for (;;) {
@@ -27,7 +30,9 @@ export async function waitFor(probe, { timeout = 15_000, interval = 100, label =
       last = `threw: ${String(error?.message ?? error).split('\n')[0]}`
     }
     if (Date.now() > until) {
-      throw new Error(`timed out after ${timeout} ms waiting for ${label} (last: ${JSON.stringify(last)})`)
+      throw new Error(
+        `timed out after ${timeout} ms waiting for ${label} (last: ${JSON.stringify(last)})`
+      )
     }
     await sleep(interval)
   }
@@ -161,6 +166,9 @@ export const toast = (page, text) => page.locator('[data-sonner-toast]', { hasTe
 /** Fails with `message` (plus the details) unless `condition` holds. */
 export function expect(condition, message, details) {
   if (condition) return
-  const suffix = details === undefined ? '' : `: ${typeof details === 'string' ? details : JSON.stringify(details)}`
+  const suffix =
+    details === undefined
+      ? ''
+      : `: ${typeof details === 'string' ? details : JSON.stringify(details)}`
   throw new Error(`${message}${suffix}`)
 }

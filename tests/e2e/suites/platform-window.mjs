@@ -25,20 +25,50 @@ const SAFE = {
   focused: false,
   devToolsOpened: false,
   windows: 1,
-  native: { hwnd: '42', exStyle: WS_EX_TOOLWINDOW | 0x100, title: AUTOMATION_TITLE, foreground: false },
+  native: {
+    hwnd: '42',
+    exStyle: WS_EX_TOOLWINDOW | 0x100,
+    title: AUTOMATION_TITLE,
+    foreground: false
+  },
   processWindows: [{ hwnd: '42', title: AUTOMATION_TITLE, className: 'Chrome_WidgetWin_1' }]
 }
 
 /** Unsafe variants and the problem each must produce. */
 const UNSAFE = [
-  ['a normal app window (WS_EX_WINDOWEDGE only)', { native: { ...SAFE.native, exStyle: 0x100 } }, /WS_EX_TOOLWINDOW/],
-  ['WS_EX_APPWINDOW set', { native: { ...SAFE.native, exStyle: SAFE.native.exStyle | WS_EX_APPWINDOW } }, /WS_EX_APPWINDOW/],
+  [
+    'a normal app window (WS_EX_WINDOWEDGE only)',
+    { native: { ...SAFE.native, exStyle: 0x100 } },
+    /WS_EX_TOOLWINDOW/
+  ],
+  [
+    'WS_EX_APPWINDOW set',
+    { native: { ...SAFE.native, exStyle: SAFE.native.exStyle | WS_EX_APPWINDOW } },
+    /WS_EX_APPWINDOW/
+  ],
   ['the plain app title', { title: 'mqtey' }, /title is "mqtey"/],
-  ['bounds on a display', { bounds: { x: 100, y: 100, width: 1280, height: 800 } }, /overlap a display/],
-  ['partly on a display', { bounds: { x: -1279, y: 0, width: 1280, height: 800 } }, /overlap a display/],
+  [
+    'bounds on a display',
+    { bounds: { x: 100, y: 100, width: 1280, height: 800 } },
+    /overlap a display/
+  ],
+  [
+    'partly on a display',
+    { bounds: { x: -1279, y: 0, width: 1280, height: 800 } },
+    /overlap a display/
+  ],
   ['focused', { focused: true }, /has the focus/],
   ['the foreground window', { native: { ...SAFE.native, foreground: true } }, /foreground window/],
-  ['a second visible window', { processWindows: [...SAFE.processWindows, { hwnd: '7', title: 'DevTools', className: 'Chrome_WidgetWin_1' }] }, /other windows/],
+  [
+    'a second visible window',
+    {
+      processWindows: [
+        ...SAFE.processWindows,
+        { hwnd: '7', title: 'DevTools', className: 'Chrome_WidgetWin_1' }
+      ]
+    },
+    /other windows/
+  ],
   ['two app windows', { windows: 2 }, /2 windows/],
   ['DevTools open', { devToolsOpened: true }, /DevTools/],
   ['no style read', { native: null }, /could not be read/]

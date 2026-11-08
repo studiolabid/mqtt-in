@@ -11,7 +11,9 @@ const WIN_INI = process.platform === 'win32' ? 'file:///C:/Windows/win.ini' : 'f
 
 /** A page for the IPC guard: it calls the bridge and records the answer in window.__ipc. */
 export const IPC_PAGE =
-  '<!doctype html><title>file page</title><script>' +
+  '<!doctype html><meta http-equiv="Content-Security-Policy" ' +
+  `content="default-src 'none'; script-src 'unsafe-inline'">` +
+  '<title>file page</title><script>' +
   'window.__ipc = "pending";' +
   'window.mqtey.connections.list().then(' +
   '(list) => { window.__ipc = "allowed:" + list.length },' +
@@ -48,7 +50,8 @@ export function probeLocalFiles({ winIni, scriptUrl }) {
       try {
         const request = new XMLHttpRequest()
         request.open('GET', url)
-        request.onload = () => resolve(`loaded ${request.status}: ${request.responseText.slice(0, 40)}`)
+        request.onload = () =>
+          resolve(`loaded ${request.status}: ${request.responseText.slice(0, 40)}`)
         request.onerror = () => resolve('error')
         request.send()
       } catch (error) {
@@ -88,7 +91,9 @@ export function probeAppFrame(src) {
     }
     f.onload = () => {
       try {
-        done(f.contentDocument?.querySelector('#app') ? 'the app loaded in a frame' : 'no app document')
+        done(
+          f.contentDocument?.querySelector('#app') ? 'the app loaded in a frame' : 'no app document'
+        )
       } catch {
         done('no readable document (cross-origin)')
       }

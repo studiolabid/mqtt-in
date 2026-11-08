@@ -28,7 +28,8 @@ import {
 } from '../lib/platform-mqtt.mjs'
 
 const V5_HINT = 'The broker does not support MQTT 5.0 — switch this connection to MQTT 3.1.1'
-const TLS_HINT = /TLS handshake failed — the broker closed the connection\. Is this port TLS-enabled \(usually 8883\)\?/
+const TLS_HINT =
+  /TLS handshake failed — the broker closed the connection\. Is this port TLS-enabled \(usually 8883\)\?/
 /** {"id": 9007199254740993, "z": -0} as MessagePack: a uint64 and a float64 -0. */
 const MSGPACK_HEX = '82a26964cf0020000000000001a17acb8000000000000000'
 
@@ -57,7 +58,13 @@ export default {
     await step('launch with saved connections', async () => {
       await ctx.launch({
         seed: seedConnections([
-          connectionProfile({ id: 'tls', name: 'mqtts on a plain port', protocol: 'mqtts', port, reconnectPeriod: 200 }),
+          connectionProfile({
+            id: 'tls',
+            name: 'mqtts on a plain port',
+            protocol: 'mqtts',
+            port,
+            reconnectPeriod: 200
+          }),
           connectionProfile({
             id: 'plain',
             name: 'aedes 3.1.1',
@@ -133,7 +140,10 @@ export default {
       await ctx.fill('publish-topic', 'probe/msgpack')
       await ctx.page.keyboard.press('Escape')
       await ctx.click('publish-format')
-      await ctx.page.getByRole('option', { name: /MessagePack/ }).first().click()
+      await ctx.page
+        .getByRole('option', { name: /MessagePack/ })
+        .first()
+        .click()
       await ctx.page.locator(tid('publish-payload', ' .cm-content')).click()
       await ctx.page.keyboard.press('ControlOrMeta+A')
       await ctx.page.keyboard.insertText('{"id": 9007199254740993, "z": -0}')
@@ -143,7 +153,10 @@ export default {
         { timeout: 10_000, label: 'the raw subscriber to receive probe/msgpack' }
       )
       log(message.hex)
-      expect(message.hex === MSGPACK_HEX, 'the bytes differ', { got: message.hex, want: MSGPACK_HEX })
+      expect(message.hex === MSGPACK_HEX, 'the bytes differ', {
+        got: message.hex,
+        want: MSGPACK_HEX
+      })
       await ctx.waitForTestId('message-row', {
         extra: '[data-topic="probe/msgpack"][data-direction="in"]'
       })
@@ -169,7 +182,12 @@ export default {
       await waitSession(page, 'plain', (s) => s.status === 'reconnecting')
       const during = await sent()
       await ctx.sleep(500)
-      const restarted = await ctx.startBroker({ port })
+      // The same port again (the closed broker's sockets may hold it for a moment).
+      const restarted = await waitFor(() => ctx.startBroker({ port }).catch(() => null), {
+        timeout: 10_000,
+        interval: 250,
+        label: `a broker listening on port ${port} again`
+      })
       await waitSession(page, 'plain', (s) => s.status === 'connected', { timeout: 30_000 })
       const raw = await ctx.rawClient(restarted.url)
       const received = await collectHex(raw, 'probe/job')
@@ -179,9 +197,17 @@ export default {
       log(`sent ${during} before the restart, ${resumed} on reconnect, ${await sent()} now`)
       await ctx.shot('mqtt-repeat-after-restart')
       const label = await page.locator(tid('publish-repeat')).first().getAttribute('aria-label')
-      expect(/^Repeat publishing: Every 100 ms · \d+ sent$/.test(label ?? ''), 'no live pill', label)
+      expect(
+        /^Repeat publishing: Every 100 ms · \d+ sent$/.test(label ?? ''),
+        'no live pill',
+        label
+      )
       const states = (await repeatEvents(page)).filter((e) => e.jobId === job.jobId)
-      expect(states.every((e) => e.state === 'running'), 'the job left running', states.at(-1))
+      expect(
+        states.every((e) => e.state === 'running'),
+        'the job left running',
+        states.at(-1)
+      )
       await ctx.click('publish-repeat-stop')
       const last = await waitFor(
         async () => {

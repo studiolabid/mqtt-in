@@ -72,27 +72,36 @@ export default {
         window.mqtey.connections.exportToFile(undefined, { includeSecrets: false })
       )
       expect(written === plain, 'the export did not go to the chosen file', written)
+      const saveDialogs = await nativeCalls(ctx.app, 'showSaveDialog')
+      expect(saveDialogs.length === 1, 'the save dialog stub was not used', saveDialogs)
       const text = ctx.handle.readFile('export-default.json') ?? ''
       expect(text.includes('"ops"') && !text.includes('SECRET'), 'the default export has secrets')
       const secrets = join(ctx.handle.userData, 'export-secrets.json')
       await nextDialogResult(ctx.app, 'showSaveDialog', { canceled: false, filePath: secrets })
-      await page.evaluate(() => window.mqtey.connections.exportToFile(undefined, { includeSecrets: true }))
+      await page.evaluate(() =>
+        window.mqtey.connections.exportToFile(undefined, { includeSecrets: true })
+      )
       expect(
         (ctx.handle.readFile('export-secrets.json') ?? '').includes('hunter2-SECRET'),
         'includeSecrets: true left the password out'
       )
       const invalid = await outcome(
-        page.evaluate(() => window.mqtey.connections.exportToFile(undefined, { includeSecrets: 'yes' }))
+        page.evaluate(() =>
+          window.mqtey.connections.exportToFile(undefined, { includeSecrets: 'yes' })
+        )
       )
       expect(!invalid.ok && /Invalid export options/.test(invalid.error), 'bad options', invalid)
       const reveal = await outcome(
         page.evaluate((path) => window.mqtey.app.showItemInFolder(path), plain)
       )
       expect(reveal.ok, 'an exported file cannot be revealed', reveal)
-      await waitFor(() => ctx.handle.output().includes(`not opening the file manager for ${plain}`), {
-        timeout: 5_000,
-        label: "main's 'not opening the file manager' line"
-      })
+      await waitFor(
+        () => ctx.handle.output().includes(`not opening the file manager for ${plain}`),
+        {
+          timeout: 5_000,
+          label: "main's 'not opening the file manager' line"
+        }
+      )
       const shell = await nativeCalls(ctx.app, 'showItemInFolder')
       expect(shell.length === 0, 'shell.showItemInFolder was called', shell)
     })
@@ -112,6 +121,8 @@ export default {
       )
       await nextDialogResult(ctx.app, 'showOpenDialog', { canceled: false, filePaths: [file] })
       const result = await ctx.page.evaluate(() => window.mqtey.connections.importFromFile())
+      const openDialogs = await nativeCalls(ctx.app, 'showOpenDialog')
+      expect(openDialogs.length === 1, 'the open dialog stub was not used', openDialogs)
       log(`imported ${result?.imported?.length}, skipped ${JSON.stringify(result?.skipped)}`)
       expect(
         result?.imported?.length === 1 &&
@@ -170,7 +181,10 @@ export default {
         "no 'restored-backup' notice for the damaged copy",
         notice
       )
-      expect(ctx.handle.readFile('data/connections.json') === SAVED_TEXT, 'the file is not restored')
+      expect(
+        ctx.handle.readFile('data/connections.json') === SAVED_TEXT,
+        'the file is not restored'
+      )
       await ctx.page.locator(ctx.tid('connection-item')).nth(1).waitFor()
       await toast(ctx.page, 'Saved connections restored from backup').waitFor({ timeout: 10_000 })
       await ctx.capture('storage-restored-backup')
@@ -179,7 +193,9 @@ export default {
     })
 
     await step('a damaged connections.json without a backup is reported', async () => {
-      await ctx.launch({ seed: { 'data/connections.json': '[{"id":"x","name":"Broken", "host": "lo' } })
+      await ctx.launch({
+        seed: { 'data/connections.json': '[{"id":"x","name":"Broken", "host": "lo' }
+      })
       const notice = (await notices(ctx.page)).find((n) => n.file === 'connections.json')
       expect(
         notice?.kind === 'corrupt' && CORRUPT_COPY.test(notice.path ?? ''),

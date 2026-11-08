@@ -6,7 +6,8 @@ import { sleep, tid } from '../kit.mjs'
 import { keyboardFocus, openPalette, showTab } from './ui.mjs'
 
 /** A box-shadow layer that draws a ring: a visible colour with a spread of at least 1 px. */
-const RING = /(rgba?\([^)]*\)|oklch\([^)]*\)|oklab\([^)]*\)|color\([^)]*\)|#[0-9a-f]+)\s+0px 0px 0px ([1-9]\d*(?:\.\d+)?)px/gi
+const RING =
+  /(rgba?\([^)]*\)|oklch\([^)]*\)|oklab\([^)]*\)|color\([^)]*\)|#[0-9a-f]+)\s+0px 0px 0px ([1-9]\d*(?:\.\d+)?)px/gi
 const TRANSPARENT = /^rgba\(0, 0, 0, 0\)$|^transparent$|\/ 0\)$/
 
 /**
@@ -21,7 +22,9 @@ export async function fieldStyles(page, locator, wrapper = null) {
       const style = getComputedStyle(box)
       return { border: style.borderTopColor, shadow: style.boxShadow }
     }, wrapper)
-  await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur())
+  await page.evaluate(
+    () => document.activeElement instanceof HTMLElement && document.activeElement.blur()
+  )
   await page.mouse.move(1, 1)
   await sleep(250)
   const idle = await read()
@@ -30,7 +33,13 @@ export async function fieldStyles(page, locator, wrapper = null) {
   const focus = await read()
   const rings = [...focus.shadow.matchAll(RING)].filter(([, color]) => !TRANSPARENT.test(color))
   const ring = rings.map(([, color, spread]) => `${color} ${spread}`).join(', ')
-  return { border: idle.border, focused: focus.shadow, focusBorder: focus.border, ring, visible: ring !== '' }
+  return {
+    border: idle.border,
+    focused: focus.shadow,
+    focusBorder: focus.border,
+    ring,
+    visible: ring !== ''
+  }
 }
 
 /** True for a colour drawn with partial alpha ('oklch(… / 0.5)', 'rgba(…, 0.5)'). */
@@ -76,6 +85,30 @@ export const runningEnterAnimations = (page, delayMs = 0) =>
   }, delayMs)
 
 /**
+ * Records the durations (s) of the 'enter' animations started while `action` runs (an
+ * animationstart listener, so no timing window can miss one). Resolves the list.
+ */
+export async function enterAnimationDurations(page, action) {
+  await page.evaluate(() => {
+    const seen = (window.__enterAnimations = [])
+    window.__onEnter = (event) => {
+      if (event.animationName !== 'enter') return
+      seen.push(parseFloat(getComputedStyle(event.target).animationDuration) || 0)
+    }
+    document.addEventListener('animationstart', window.__onEnter, true)
+  })
+  try {
+    await action()
+    await sleep(250)
+    return await page.evaluate(() => window.__enterAnimations.slice())
+  } finally {
+    await page.evaluate(() =>
+      document.removeEventListener('animationstart', window.__onEnter, true)
+    )
+  }
+}
+
+/**
  * Visible elements whose own text is drawn in the raw --primary colour while the accent has a
  * separate, contrast-safe --primary-text shade ('tag[testid or class] "text"'). [] when the two
  * tokens are equal (nothing to tell apart).
@@ -97,7 +130,8 @@ export const rawAccentText = (page) =>
       const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim() !== '')
       if (!own || !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue
       if (getComputedStyle(el).color !== primary) continue
-      const id = el.getAttribute('data-testid') ?? String(el.getAttribute('class') ?? '').slice(0, 80)
+      const id =
+        el.getAttribute('data-testid') ?? String(el.getAttribute('class') ?? '').slice(0, 80)
       found.push(`${el.tagName.toLowerCase()}[${id}] "${el.textContent.trim().slice(0, 30)}"`)
     }
     return found
@@ -107,7 +141,10 @@ async function pickAccent(ctx, accent) {
   await ctx.click('open-settings')
   await ctx.waitForTestId('settings')
   await ctx.click(`settings-accent-${accent}`)
-  await ctx.page.waitForFunction((value) => document.documentElement.dataset.accent === value, accent)
+  await ctx.page.waitForFunction(
+    (value) => document.documentElement.dataset.accent === value,
+    accent
+  )
 }
 
 /**
@@ -133,7 +170,8 @@ export async function accentTextScan(ctx, accent) {
     document.body.append(probe)
     return probe.isConnected
   })
-  const seen = planted && (await rawAccentText(page)).some((text) => text.includes('e2e accent probe'))
+  const seen =
+    planted && (await rawAccentText(page)).some((text) => text.includes('e2e accent probe'))
   await page.evaluate(() => {
     for (const el of document.querySelectorAll('span')) {
       if (el.textContent === 'e2e accent probe') el.remove()
@@ -158,7 +196,12 @@ export async function accentTextScan(ctx, accent) {
   await scan('palette')
   await ctx.pressEscapeUntilHidden('command-palette')
   await page.locator(`${tid('publish-panel')} button[aria-label="Template variables"]`).click()
-  await page.locator('[role="dialog"][aria-label="Template variables"], [aria-label="Template variables"][data-state="open"]').first().waitFor()
+  await page
+    .locator(
+      '[role="dialog"][aria-label="Template variables"], [aria-label="Template variables"][data-state="open"]'
+    )
+    .first()
+    .waitFor()
   await scan('template variables')
   await page.keyboard.press('Escape')
   await ctx.click('publish-repeat')

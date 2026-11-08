@@ -91,7 +91,11 @@ export default {
         log(result)
         expect(result !== 'the app loaded in a frame', 'the app loaded inside a frame')
       },
-      { allowErrors: [/violates the following Content Security Policy directive: "frame-src 'none'"/] }
+      {
+        allowErrors: [
+          /violates the following Content Security Policy directive: "frame-src 'none'"/
+        ]
+      }
     )
 
     await step(
@@ -125,13 +129,10 @@ export default {
         }
         const opened = await nativeCalls(ctx.app, 'openExternal')
         expect(opened.length === 0, 'a blocked navigation opened the browser', opened)
-        await ctx.page.evaluate(
-          (file) => {
-            window.open('https://example.com/x')
-            window.open(file)
-          },
-          WIN_INI
-        )
+        await ctx.page.evaluate((file) => {
+          window.open('https://example.com/x')
+          window.open(file)
+        }, WIN_INI)
         const calls = await waitFor(
           async () => {
             const list = await nativeCalls(ctx.app, 'openExternal')
@@ -176,9 +177,16 @@ export default {
     await step('a missing page fails to load without a dialog', async () => {
       const result = await loadFromMain(ctx.app, 'app://mqtey/missing.html')
       log(result)
-      expect(/ERR_FAILED \(-2\)/.test(result), 'the missing page did not fail with ERR_FAILED', result)
+      expect(
+        /ERR_FAILED \(-2\)/.test(result),
+        'the missing page did not fail with ERR_FAILED',
+        result
+      )
       const line = await waitFor(
-        () => mainLog(ctx.handle).split('\n').find((l) => l.includes('[did-fail-load]') && l.includes('missing.html')),
+        () =>
+          mainLog(ctx.handle)
+            .split('\n')
+            .find((l) => l.includes('[did-fail-load]') && l.includes('missing.html')),
         { timeout: 5_000, label: "'[did-fail-load]' in main.log" }
       )
       log(line.slice(0, 160))

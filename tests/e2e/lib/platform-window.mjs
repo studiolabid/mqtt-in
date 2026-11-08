@@ -40,7 +40,9 @@ export function automationWindowProblems(facts, platform = process.platform) {
   }
   const shown = (facts.displays ?? []).find((display) => overlaps(facts.bounds, display))
   if (shown) {
-    problems.push(`its bounds ${JSON.stringify(facts.bounds)} overlap a display ${JSON.stringify(shown)}`)
+    problems.push(
+      `its bounds ${JSON.stringify(facts.bounds)} overlap a display ${JSON.stringify(shown)}`
+    )
   }
   if (facts.focused) problems.push('it has the focus')
   if (facts.devToolsOpened) problems.push('DevTools are open')

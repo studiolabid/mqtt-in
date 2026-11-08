@@ -5,12 +5,7 @@
  * remembered across a reload. Before FA-01 nothing but a drag brought the publisher back.
  */
 import { sleep, tid } from '../kit.mjs'
-import {
-  createConnection,
-  publishAll,
-  subscribe,
-  waitForRow
-} from '../lib/ui.mjs'
+import { createConnection, publishAll, subscribe, waitForRow } from '../lib/ui.mjs'
 import { heightOf } from '../lib/ui-geometry.mjs'
 
 /** A collapsed publisher shows its 40 px header only; an expanded one is at least 150 px. */
@@ -39,12 +34,15 @@ export default {
         await sleep(50)
         h = await height()
       }
-      if (!ok(h)) throw new Error(`${how}: publisher is ${h} px, expected ${collapsed ? '≤ 41' : '> 150'}`)
+      if (!ok(h))
+        throw new Error(`${how}: publisher is ${h} px, expected ${collapsed ? '≤ 41' : '> 150'}`)
       const label = await toggle().getAttribute('aria-label')
       const expanded = await toggle().getAttribute('aria-expanded')
       const want = collapsed ? 'Show publisher' : 'Collapse publisher'
       if (label !== want || expanded !== String(!collapsed)) {
-        throw new Error(`${how}: toggle says "${label}" (aria-expanded ${expanded}), want "${want}"`)
+        throw new Error(
+          `${how}: toggle says "${label}" (aria-expanded ${expanded}), want "${want}"`
+        )
       }
       ctx.log(`${how}: ${Math.round(h)} px, toggle "${label}"`)
     }
@@ -94,7 +92,8 @@ export default {
         )
         .then(() => true)
         .catch(() => false)
-      if (!remembered) throw new Error(`expanding is not remembered: ${JSON.stringify(await layout())}`)
+      if (!remembered)
+        throw new Error(`expanding is not remembered: ${JSON.stringify(await layout())}`)
     })
 
     await step('a double-click on the resize handle collapses and expands it', async () => {
@@ -137,7 +136,9 @@ export default {
       await expectState(true, 'collapsed once more')
       await ctx.fill('publish-topic', 'e2e/other')
       await ctx.page.keyboard.press('Escape')
-      const row = ctx.page.locator(tid('message-row', `[data-topic="${TOPIC}"][data-direction="in"]`))
+      const row = ctx.page.locator(
+        tid('message-row', `[data-topic="${TOPIC}"][data-direction="in"]`)
+      )
       await row.first().click({ button: 'right' })
       await ctx.page.getByRole('menuitem', { name: 'Edit & publish' }).click()
       await expectState(false, "after the menu's 'Edit & publish'")

@@ -209,7 +209,12 @@ export async function pushStorageNotice(app, message) {
         win.webContents.send('app:event:storage-notice', notice)
       }
     },
-    { kind: 'write-failed', file: `e2e-${noticeSeq}.json`, message, timestamp: Date.now() + noticeSeq }
+    {
+      kind: 'write-failed',
+      file: `e2e-${noticeSeq}.json`,
+      message,
+      timestamp: Date.now() + noticeSeq
+    }
   )
 }
 
@@ -244,7 +249,8 @@ export async function holdDialog(app, method) {
   }, method)
   return {
     /** Calls waiting for an answer. */
-    pending: () => app.evaluate((_e, name) => globalThis.__mqteyE2E.holds[name].pending.length, method),
+    pending: () =>
+      app.evaluate((_e, name) => globalThis.__mqteyE2E.holds[name].pending.length, method),
     release: (result) =>
       app.evaluate(
         ({ dialog }, { name, value }) => {

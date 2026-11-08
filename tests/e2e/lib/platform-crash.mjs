@@ -50,7 +50,8 @@ export async function restartRenderer(ctx, connectionId, { how = 'crash', timeou
   let hwnd
   if (how === 'crash') {
     const gate = await activationGate(ctx.app)
-    if (!gate.safe) throw new Error(`refusing to crash a window that can be activated: ${gate.reason}`)
+    if (!gate.safe)
+      throw new Error(`refusing to crash a window that can be activated: ${gate.reason}`)
     hwnd = gate.facts.hwnd
   } else {
     hwnd = await nativeHandle(ctx.app)

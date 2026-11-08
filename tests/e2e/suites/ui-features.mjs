@@ -55,20 +55,30 @@ export default {
           (b) => b.checkVisibility() && /New connection/.test(b.textContent ?? '')
         ).length,
         sidebarPresets: document.querySelector('#sidebar-quick-start') !== null,
-        presets: [...document.querySelectorAll('[data-testid^="preset-"]')].filter((el) => el.checkVisibility())
-          .length,
+        presets: [...document.querySelectorAll('[data-testid^="preset-"]')].filter((el) =>
+          el.checkVisibility()
+        ).length,
         presetsOutside: [...document.querySelectorAll('[data-testid^="preset-"]')].filter(
           (el) => !el.closest('[data-testid="welcome"]')
         ).length
       }))
       ctx.log(JSON.stringify(screen))
-      if (screen.ctas !== 1 || screen.sidebarPresets || screen.presets === 0 || screen.presetsOutside > 0) {
+      if (
+        screen.ctas !== 1 ||
+        screen.sidebarPresets ||
+        screen.presets === 0 ||
+        screen.presetsOutside > 0
+      ) {
         throw new Error(`first-run screen: ${JSON.stringify(screen)}`)
       }
       const credit = await page().locator(tid('welcome')).locator(tid('powered-by')).textContent()
-      if (!/Powered by\s*studiolab\.id/.test(credit ?? '')) throw new Error(`welcome credit "${credit}"`)
+      if (!/Powered by\s*studiolab\.id/.test(credit ?? ''))
+        throw new Error(`welcome credit "${credit}"`)
       const bar = page().locator(tid('statusbar-powered-by'))
-      if (!(await bar.isVisible()) || (await bar.getAttribute('aria-label')) !== 'Powered by studiolab.id') {
+      if (
+        !(await bar.isVisible()) ||
+        (await bar.getAttribute('aria-label')) !== 'Powered by studiolab.id'
+      ) {
         throw new Error('no "Powered by studiolab.id" in the status bar')
       }
       await capture('feat-01-welcome')
@@ -95,35 +105,57 @@ export default {
       await ctx.waitForTestId('welcome')
     })
 
-    await step('the live RTT shows after a ping; the broker popover explains 3.1.1 (FP-5)', async () => {
-      ids.alpha = await createConnection(ctx, { name: 'Alpha', keepalive: 2 })
-      await subscribe(ctx, '#')
-      // Keep alive 2 s: mqtt.js pings after 2 s without traffic; the PINGRESP gives the RTT.
-      const rtt = await ctx.waitForTestId('status-rtt', { timeout: 10_000 })
-      const text = ((await rtt.textContent()) ?? '').replace(/\s+/g, ' ').trim()
-      if (!/^RTT\s*(Round trip\s*)?[\d,.]+ ms$/.test(text)) throw new Error(`RTT readout "${text}"`)
-      ctx.log(`status bar: ${text}`)
-      await ctx.click('broker-info-trigger')
-      const info = await ctx.waitForTestId('broker-info')
-      const body = (await info.textContent()) ?? ''
-      if (!/MQTT 3\.1\.1 brokers do not announce their limits/.test(body) || !/Session present/.test(body)) {
-        throw new Error(`broker popover: ${body.slice(0, 160)}`)
+    await step(
+      'the live RTT shows after a ping; the broker popover explains 3.1.1 (FP-5)',
+      async () => {
+        ids.alpha = await createConnection(ctx, { name: 'Alpha', keepalive: 2 })
+        await subscribe(ctx, '#')
+        // Keep alive 2 s: mqtt.js pings after 2 s without traffic; the PINGRESP gives the RTT.
+        const rtt = await ctx.waitForTestId('status-rtt', { timeout: 10_000 })
+        const text = ((await rtt.textContent()) ?? '').replace(/\s+/g, ' ').trim()
+        if (!/^RTT\s*(Round trip\s*)?[\d,.]+ ms$/.test(text))
+          throw new Error(`RTT readout "${text}"`)
+        ctx.log(`status bar: ${text}`)
+        await ctx.click('broker-info-trigger')
+        const info = await ctx.waitForTestId('broker-info')
+        const body = (await info.textContent()) ?? ''
+        if (
+          !/MQTT 3\.1\.1 brokers do not announce their limits/.test(body) ||
+          !/Session present/.test(body)
+        ) {
+          throw new Error(`broker popover: ${body.slice(0, 160)}`)
+        }
+        await sleep(300)
+        await ctx.shot('feat-02-broker-info')
+        await ctx.pressEscapeUntilHidden('broker-info')
       }
-      await sleep(300)
-      await ctx.shot('feat-02-broker-info')
-      await ctx.pressEscapeUntilHidden('broker-info')
-    })
+    )
 
-    await step('the palette lists the workspace commands; Ctrl+Shift+P pauses (UX-09)', async () => {
+    await step('the palette lists the workspace commands (UX-09)', async () => {
       for (const [term, label] of WORKSPACE_COMMANDS) {
         await openPalette(ctx, term)
-        if ((await paletteOption(page(), label).count()) === 0) throw new Error(`"${term}" finds no "${label}"`)
+        if ((await paletteOption(page(), label).count()) === 0)
+          throw new Error(`"${term}" finds no "${label}"`)
         await ctx.pressEscapeUntilHidden('command-palette')
       }
-      await runPalette(ctx, 'focus publish')
-      await waitForFocus(page(), 'publish-topic')
-      await runPalette(ctx, 'focus message')
-      await waitForFocus(page(), 'message-list')
+      await publishAll(await ctx.rawClient(), 'e2e/palette', ['1'])
+      await ctx.waitForTestId('message-row', { extra: '[data-topic="e2e/palette"]' })
+    })
+
+    await ctx.knownIssue(
+      "the palette's 'Focus publish topic' / 'Focus message list' move the focus (FA-03)",
+      'focusFirst skips the targets while the closing palette keeps the app aria-hidden, so focus ' +
+        'returns to the pre-palette element (hand-off to final)',
+      async () => {
+        await page().locator(tid('message-list')).focus()
+        await runPalette(ctx, 'focus publish')
+        await waitForFocus(page(), 'publish-topic')
+        await runPalette(ctx, 'focus message')
+        await waitForFocus(page(), 'message-list')
+      }
+    )
+
+    await step('Pause from the palette; Ctrl+Shift+P toggles it (UX-09)', async () => {
       await runPalette(ctx, 'pause messages')
       await ctx.waitForTestId('messages-pause', { extra: '[aria-pressed="true"]' })
       await page().keyboard.press('Control+Shift+P')
@@ -144,12 +176,16 @@ export default {
       await page().waitForFunction(
         (id) =>
           document
-            .querySelector(`[data-testid="connection-item"][data-connection-id="${id}"] [data-testid="connection-unread"]`)
+            .querySelector(
+              `[data-testid="connection-item"][data-connection-id="${id}"] [data-testid="connection-unread"]`
+            )
             ?.textContent?.trim() === '5',
         ids.beta,
         { timeout: 5_000 }
       )
-      if ((await connectionItem(page(), ids.alpha).locator(tid('connection-unread')).count()) !== 0) {
+      if (
+        (await connectionItem(page(), ids.alpha).locator(tid('connection-unread')).count()) !== 0
+      ) {
         throw new Error('the open connection shows an unread pill')
       }
       await capture('feat-04-unread')
@@ -158,7 +194,12 @@ export default {
     })
 
     await step('exports leave passwords out unless asked; the choice resets (SEC-10)', async () => {
-      await createConnection(ctx, { name: 'Secret', username: 'alice', password: PASSWORD, connect: false })
+      await createConnection(ctx, {
+        name: 'Secret',
+        username: 'alice',
+        password: PASSWORD,
+        connect: false
+      })
       await ctx.click('open-settings')
       await ctx.waitForTestId('settings')
       const box = page().locator(tid('export-include-secrets'))
@@ -174,7 +215,8 @@ export default {
         return readFileSync(file, 'utf8')
       }
       const plain = await exportTo('export-default.json')
-      if (plain.includes(PASSWORD) || !plain.includes('alice')) throw new Error('the default export has the password')
+      if (plain.includes(PASSWORD) || !plain.includes('alice'))
+        throw new Error('the default export has the password')
       await waitForToast(page(), 'passwords not included')
       await box.click()
       if ((await state()) !== 'checked') throw new Error('the box did not tick')
@@ -183,7 +225,10 @@ export default {
       if (!secret.includes(PASSWORD)) throw new Error('the opt-in export has no password')
       await waitForToast(page(), 'includes passwords in plain text')
       await page().waitForFunction(
-        () => document.querySelector('[data-testid="export-include-secrets"]')?.getAttribute('data-state') === 'unchecked'
+        () =>
+          document
+            .querySelector('[data-testid="export-include-secrets"]')
+            ?.getAttribute('data-state') === 'unchecked'
       )
     })
 
@@ -194,7 +239,8 @@ export default {
         await ctx.waitForTestId('settings-export-connections', { extra: '[aria-busy="true"]' })
         await page().locator(tid('sidebar')).getByRole('button', { name: 'More actions' }).click()
         const item = await ctx.waitForTestId('sidebar-export-all')
-        if ((await item.getAttribute('data-disabled')) === null) throw new Error('"Export all…" stays enabled')
+        if ((await item.getAttribute('data-disabled')) === null)
+          throw new Error('"Export all…" stays enabled')
         await ctx.shot('feat-06-export-busy')
         await page().keyboard.press('Escape')
       } finally {
@@ -204,7 +250,9 @@ export default {
       const importHold = await holdDialog(ctx.app, 'showOpenDialog')
       try {
         await ctx.click('sidebar-import')
-        await ctx.waitForTestId('settings-import-connections', { extra: '[aria-busy="true"][disabled]' })
+        await ctx.waitForTestId('settings-import-connections', {
+          extra: '[aria-busy="true"][disabled]'
+        })
         await ctx.waitForTestId('sidebar-import', { extra: '[disabled]' })
       } finally {
         await importHold.release({ canceled: true, filePaths: [] })

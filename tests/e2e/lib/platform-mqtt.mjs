@@ -39,8 +39,7 @@ export const recordEvents = (page) =>
 /** The recorded statuses of one connection, in order. */
 export const statusesOf = (page, id) =>
   page.evaluate(
-    (connectionId) =>
-      window.__e2eStatus.filter((e) => e.id === connectionId).map((e) => e.status),
+    (connectionId) => window.__e2eStatus.filter((e) => e.id === connectionId).map((e) => e.status),
     id
   )
 

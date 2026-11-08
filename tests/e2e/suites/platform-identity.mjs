@@ -44,8 +44,16 @@ export default {
       expect(main.name === 'mqtey', 'app.getName() is not mqtey', main.name)
       expect(info.name === 'mqtey', 'AppInfo.name is not mqtey', info.name)
       expect(info.version === VERSION, `AppInfo.version is not ${VERSION}`, info.version)
-      expect(samePath(main.userData, handle.userData), 'userData is not the override', main.userData)
-      expect(samePath(info.userDataPath, handle.userData), 'AppInfo.userDataPath', info.userDataPath)
+      expect(
+        samePath(main.userData, handle.userData),
+        'userData is not the override',
+        main.userData
+      )
+      expect(
+        samePath(info.userDataPath, handle.userData),
+        'AppInfo.userDataPath',
+        info.userDataPath
+      )
     })
 
     await step('a second launch on the same profile quits at once', async () => {
@@ -58,7 +66,10 @@ export default {
         stderr: second.stderr.slice(0, 300)
       })
       const first = await ctx.app.evaluate(({ BrowserWindow }) =>
-        BrowserWindow.getAllWindows().map((win) => ({ title: win.getTitle(), visible: win.isVisible() }))
+        BrowserWindow.getAllWindows().map((win) => ({
+          title: win.getTitle(),
+          visible: win.isVisible()
+        }))
       )
       expect(first.length === 1, 'the first instance does not have exactly one window', first)
       expect(first[0].title === AUTOMATION_TITLE, 'the first window changed its title', first)
@@ -78,7 +89,9 @@ export default {
           env,
           timeout: QUIT_TIMEOUT
         })
-        log(`exit code ${guarded.code} after ${guarded.ms} ms: ${guarded.stderr.trim().split('\n')[0]}`)
+        log(
+          `exit code ${guarded.code} after ${guarded.ms} ms: ${guarded.stderr.trim().split('\n')[0]}`
+        )
         expect(!guarded.timedOut, 'the guarded launch kept running')
         expect(guarded.code === 2, 'the guarded launch did not exit with code 2', {
           code: guarded.code,
