@@ -59,6 +59,7 @@ function createSafeApi(raw: MqttInApi): MqttInApi {
       startRepeat: (id, options) => mqtt.startRepeat(id, toPlain(options)),
       stopRepeat: (jobId) => mqtt.stopRepeat(jobId),
       getSessions: () => mqtt.getSessions(),
+      test: (profile) => mqtt.test(toPlain(profile)),
       onStatus: (listener) => mqtt.onStatus(listener),
       onMessages: (listener) => mqtt.onMessages(listener),
       onSubscription: (listener) => mqtt.onSubscription(listener),

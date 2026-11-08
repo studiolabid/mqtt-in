@@ -14,13 +14,13 @@
  */
 import { computed, nextTick, ref, watch, type Component } from 'vue'
 import { toast } from 'vue-sonner'
-import type { ConnectionProfile } from '@shared/models'
+import type { ConnectionProfile, ConnectionTestResult } from '@shared/models'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { hostPlatform } from '@/composables/useHotkey'
 import { useNavigation } from '@/composables/useNavigation'
 import { ACTION_TOAST_DURATION } from '@/lib/toast-options'
-import { errorMessage } from '@/services/api'
+import { api, errorMessage } from '@/services/api'
 import { useConnectionsStore } from '@/stores/connections'
 import { useSessionsStore } from '@/stores/sessions'
 import { useUiStore } from '@/stores/ui'
@@ -70,6 +70,8 @@ const { section } = form
 const editingId = ref<string | null>(null)
 const saving = ref<SaveIntent | null>(null)
 const saveError = ref<string | null>(null)
+const testing = ref(false)
+const testResult = ref<ConnectionTestResult | null>(null)
 const body = ref<HTMLElement | null>(null)
 /** Bumped on every (re)initialization: a pending "discard?" prompt must not close a newer form. */
 let generation = 0
@@ -95,6 +97,7 @@ function start(id: string | null, preset: Partial<ConnectionProfile> | null): vo
   generation += 1
   saving.value = null
   saveError.value = null
+  testResult.value = null
   if (id === null) {
     editingId.value = null
     form.reset(connections.create(preset ?? undefined), 'create')
@@ -167,6 +170,39 @@ async function submit(intent: SaveIntent): Promise<void> {
     toast.success(`Saved “${saved.name}”`)
   }
 }
+
+/** One CONNECT with the current (unsaved) settings; the result shows in the footer. */
+async function test(): Promise<void> {
+  if (testing.value || saving.value !== null) return
+  const invalid = form.validate()
+  if (invalid) {
+    section.value = invalid
+    focusFirstInvalid()
+    return
+  }
+  const current = generation
+  testing.value = true
+  testResult.value = null
+  try {
+    const result = await api.mqtt.test(form.build())
+    if (current === generation) testResult.value = result
+  } catch (err) {
+    if (current === generation) {
+      testResult.value = { ok: false, message: errorMessage(err), clientId: '', durationMs: 0 }
+    }
+  } finally {
+    testing.value = false
+  }
+}
+
+// A result describes the settings it was made with: any edit clears it.
+watch(
+  () => form.draft.value,
+  () => {
+    testResult.value = null
+  },
+  { deep: true }
+)
 
 function focusFirstInvalid(): void {
   // The section's panel mounts on the next render.
@@ -258,7 +294,10 @@ function onKeydown(event: KeyboardEvent): void {
         :save-error="saveError"
         :primary-label="primaryLabel"
         :reconnect-hint="live"
+        :testing="testing"
+        :test-result="testResult"
         @cancel="requestClose"
+        @test="test"
         @save="submit"
       />
     </DialogContent>

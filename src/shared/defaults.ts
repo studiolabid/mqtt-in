@@ -3,7 +3,7 @@
  * of `./constants` (re-exported: import everything from `@shared/defaults`).
  * Safe to import from main, preload and renderer.
  */
-import { APP_NAME, DEFAULT_PORTS, NEUTRAL_COLOR, PALETTE } from './constants'
+import { DEFAULT_PORTS, NEUTRAL_COLOR, PALETTE } from './constants'
 import type { ConnectionProfile, MqttProtocol, Subscription } from './models'
 
 export * from './constants'

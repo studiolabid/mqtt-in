@@ -65,6 +65,16 @@ export interface SubscriptionEvent {
   timestamp: number
 }
 
+/** The outcome of `mqtt.test()`: one CONNECT with the dialog's settings, then a clean DISCONNECT. */
+export interface ConnectionTestResult {
+  ok: boolean
+  /** `Connected`, or why it failed (e.g. `Connection refused: not authorized`). */
+  message: string
+  /** The client id the test used (a generated one when the profile's could disturb a session). */
+  clientId: string
+  durationMs: number
+}
+
 export interface SessionSnapshot {
   connectionId: string
   status: ConnectionStatus

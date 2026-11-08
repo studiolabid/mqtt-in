@@ -187,6 +187,12 @@ export function createFakeBridge(): FakeBridge {
       })
     },
     mqtt: {
+      test: vi.fn(async () => ({
+        ok: true,
+        message: 'Connected',
+        clientId: 'test',
+        durationMs: 1
+      })),
       connect: vi.fn(async () => undefined),
       disconnect: vi.fn(async () => undefined),
       subscribe: vi.fn(async (connectionId: string, sub: Subscription) => ({

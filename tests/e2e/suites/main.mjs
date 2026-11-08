@@ -58,6 +58,16 @@ export default {
       await shot('03-connection-filled')
     })
 
+    await step('test the connection before saving', async () => {
+      await click('connection-test')
+      await waitForTestId('connection-test-result', { extra: '[data-ok="true"]' })
+      await shot('03b-connection-tested')
+      // Any edit clears the result (it describes the settings it was made with).
+      await fill('connection-name', 'E2E broker ')
+      await waitForTestId('connection-test-result', { state: 'hidden' })
+      await fill('connection-name', 'E2E broker')
+    })
+
     await step('save and connect', async () => {
       await click('connection-save-connect')
       await waitForTestId('connection-form', { state: 'hidden' })

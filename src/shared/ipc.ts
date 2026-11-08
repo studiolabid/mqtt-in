@@ -11,6 +11,7 @@ import type {
   AppInfo,
   AppSettings,
   ConnectionProfile,
+  ConnectionTestResult,
   ExportConnectionsOptions,
   ImportConnectionsResult,
   LogEntry,
@@ -52,6 +53,7 @@ export const IPC = {
   mqttRepeatStart: 'mqtt:repeat-start',
   mqttRepeatStop: 'mqtt:repeat-stop',
   mqttSessions: 'mqtt:sessions',
+  mqttTest: 'mqtt:test',
 
   dialogPickFile: 'dialog:pick-file',
   dialogOpenFile: 'dialog:open-file',
@@ -133,6 +135,11 @@ export interface MqttInApi {
     stopRepeat(jobId: string): Promise<void>
     /** Current state of every session known to the main process (survives renderer reloads). */
     getSessions(): Promise<SessionSnapshot[]>
+    /**
+     * Connects once with `profile` (saved or not), then disconnects cleanly. Never rejects for
+     * broker or network problems: the result says what happened.
+     */
+    test(profile: ConnectionProfile): Promise<ConnectionTestResult>
 
     onStatus(listener: (event: StatusEvent) => void): Unsubscribe
     /** Batched (~50 ms) incoming AND outgoing messages, in order. */

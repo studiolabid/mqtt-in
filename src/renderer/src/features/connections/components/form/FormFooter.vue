@@ -1,6 +1,10 @@
 <script setup lang="ts">
-/** Dialog footer: status line (save error, validation, reconnect hint) and the actions. */
-import { CircleAlertIcon, RefreshCwIcon } from '@lucide/vue'
+/**
+ * Dialog footer: status line (save error, test result, validation, reconnect hint) and the
+ * actions, including "Test connection" (one CONNECT with the current settings, nothing saved).
+ */
+import { CircleAlertIcon, CircleCheckIcon, PlugZapIcon, RefreshCwIcon } from '@lucide/vue'
+import type { ConnectionTestResult } from '@shared/models'
 import { KbdShortcut } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -15,9 +19,12 @@ defineProps<{
   primaryLabel: string
   /** Edited while the session is live: changes apply after a reconnect. */
   reconnectHint: boolean
+  testing: boolean
+  /** The last test of the current settings (cleared when a field changes). */
+  testResult: ConnectionTestResult | null
 }>()
 
-const emit = defineEmits<{ cancel: []; save: [intent: SaveIntent] }>()
+const emit = defineEmits<{ cancel: []; save: [intent: SaveIntent]; test: [] }>()
 
 const { errorCount } = useConnectionForm()
 const platform = hostPlatform()
@@ -30,6 +37,26 @@ const platform = hostPlatform()
         <CircleAlertIcon class="size-3.5 shrink-0" aria-hidden="true" />
         <span class="truncate select-text" :title="saveError">{{ saveError }}</span>
       </p>
+      <p v-else-if="testing" class="flex items-center gap-1.5 text-muted-foreground">
+        <Spinner class="size-3.5" />
+        <span class="truncate">Testing the connection…</span>
+      </p>
+      <p
+        v-else-if="testResult"
+        data-testid="connection-test-result"
+        :data-ok="testResult.ok"
+        :role="testResult.ok ? undefined : 'alert'"
+        :class="['flex items-center gap-1.5', testResult.ok ? 'text-success' : 'text-destructive']"
+      >
+        <CircleCheckIcon v-if="testResult.ok" class="size-3.5 shrink-0" aria-hidden="true" />
+        <CircleAlertIcon v-else class="size-3.5 shrink-0" aria-hidden="true" />
+        <span
+          class="truncate select-text"
+          :title="`${testResult.message} (client id ${testResult.clientId})`"
+        >
+          {{ testResult.ok ? `Connected in ${testResult.durationMs} ms` : testResult.message }}
+        </span>
+      </p>
       <p v-else-if="errorCount > 0" class="flex items-center gap-1.5 text-destructive">
         <CircleAlertIcon class="size-3.5 shrink-0" aria-hidden="true" />
         <span class="truncate">
@@ -41,6 +68,17 @@ const platform = hostPlatform()
         <span class="truncate">Reconnect to apply changes</span>
       </p>
     </div>
+    <Button
+      type="button"
+      variant="outline"
+      data-testid="connection-test"
+      :disabled="saving !== null || testing"
+      @click="emit('test')"
+    >
+      <Spinner v-if="testing" />
+      <PlugZapIcon v-else aria-hidden="true" />
+      Test
+    </Button>
     <Button
       type="button"
       variant="ghost"

@@ -4,7 +4,14 @@
 import { IPC } from '@shared/ipc'
 import type { MqttManager } from '../services/mqtt/mqtt-manager'
 import type { RegisterHandler } from './handle'
-import { parseId, parsePublishRequest, parseRepeatOptions, parseSubscription } from './validate'
+import { testConnection } from '../services/mqtt/connection-test'
+import {
+  parseConnectionProfile,
+  parseId,
+  parsePublishRequest,
+  parseRepeatOptions,
+  parseSubscription
+} from './validate'
 
 /** Registers `mqtt.*` (connect, subscribe, publish, repeat jobs, sessions). */
 export function registerMqttIpc(register: RegisterHandler, manager: MqttManager): void {
@@ -35,4 +42,14 @@ export function registerMqttIpc(register: RegisterHandler, manager: MqttManager)
   })
 
   register(IPC.mqttSessions, () => manager.getSessions())
+
+  register(IPC.mqttTest, (_ctx, raw) => {
+    const profile = parseConnectionProfile(raw)
+    const live = manager
+      .getSessions()
+      .some(
+        (s) => s.connectionId === profile.id && s.status !== 'disconnected' && s.status !== 'error'
+      )
+    return testConnection(profile, { live })
+  })
 }

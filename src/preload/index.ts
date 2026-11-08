@@ -52,6 +52,7 @@ const api: MqttInApi = {
     startRepeat: (connectionId, options) => invoke(IPC.mqttRepeatStart, connectionId, options),
     stopRepeat: (jobId) => invoke(IPC.mqttRepeatStop, jobId),
     getSessions: () => invoke(IPC.mqttSessions),
+    test: (profile) => invoke(IPC.mqttTest, profile),
     onStatus: (listener) => on(IPC_EVENTS.status, listener),
     onMessages: (listener) => on(IPC_EVENTS.messages, listener),
     onSubscription: (listener) => on(IPC_EVENTS.subscription, listener),
