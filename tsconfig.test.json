@@ -1,0 +1,21 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.json",
+  "include": [
+    "tests/unit/**/*.ts",
+    "src/renderer/src/env.d.ts",
+    "src/preload/index.d.ts",
+    "node_modules/electron-vite/node.d.ts"
+  ],
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["src/shared/*"],
+      "@/*": ["src/renderer/src/*"],
+      "@renderer/*": ["src/renderer/src/*"]
+    }
+  }
+}

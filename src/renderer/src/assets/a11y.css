@@ -1,0 +1,69 @@
+/*
+ * Accessibility overrides, imported by main.css. Not in a cascade layer on purpose: they must win
+ * over the Tailwind utilities of the generated components (`outline-none`, ring box-shadows,
+ * animations) whatever their specificity.
+ */
+
+/* Windows High Contrast (forced colors). The system palette replaces backgrounds and drops box
+ * shadows, which is how the UI draws focus rings, switch tracks, the active tab underline and
+ * selected rows. Draw those states with outlines in system colors instead (A11Y-02). */
+@media (forced-colors: active) {
+  /* Selected, pressed, current and active states. */
+  [aria-selected='true'],
+  [aria-current='page'],
+  [aria-pressed='true'],
+  [role='tab'][data-state='active'],
+  [data-state='on'] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  /* Switches: a ButtonText frame and thumb; when on, the track fills with Highlight. */
+  [data-slot='switch'] {
+    forced-color-adjust: none;
+    background-color: Canvas;
+    border-color: ButtonText;
+  }
+  [data-slot='switch'][data-state='checked'] {
+    background-color: Highlight;
+    border-color: Highlight;
+  }
+  [data-slot='switch-thumb'] {
+    forced-color-adjust: none;
+    background-color: ButtonText;
+  }
+  [data-slot='switch'][data-state='checked'] [data-slot='switch-thumb'] {
+    background-color: HighlightText;
+  }
+
+  /* Status glyphs are drawn with backgrounds: keep their own colors (their shape tells the
+   * state as well, see StatusDot and SubscriptionStatus). */
+  [data-slot='status-dot'],
+  [data-slot='subscription-status'] {
+    forced-color-adjust: none;
+  }
+
+  /* Keyboard focus, last so that it wins over the state outlines. */
+  :focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion: dialogs, the palette, menus, popovers and tooltips zoom and fade through
+ * tw-animate-css, which has no reduced-motion rule of its own (A11Y-16). End every animation and
+ * transition at once; busy spinners keep turning (they say "working"). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-spin {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
+}

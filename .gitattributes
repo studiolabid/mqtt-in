@@ -1,0 +1,6 @@
+# LF in the repository and in every checkout (.editorconfig and Prettier expect LF)
+* text=auto eol=lf
+
+*.png binary
+*.ico binary
+*.icns binary

@@ -1,0 +1,23 @@
+/*
+ * Syntax colors shared by CodeEditor (CodeMirror HighlightStyle) and JsonInline.
+ * Tuned per mode: every token, punctuation included, clears 4.5:1 on --background, --panel,
+ * --card and --accent (selected rows), and stays inside the sRGB gamut
+ * (tests/unit/renderer/theme-tokens.test.ts). Punctuation stays the quietest color.
+ */
+:root {
+  --syntax-key: oklch(0.48 0.15 264);
+  --syntax-string: oklch(0.52 0.105 158);
+  --syntax-number: oklch(0.53 0.13 52);
+  --syntax-bool: oklch(0.52 0.19 332);
+  --syntax-null: oklch(0.52 0.02 285);
+  --syntax-punct: oklch(0.54 0.012 285);
+}
+
+.dark {
+  --syntax-key: oklch(0.77 0.11 262);
+  --syntax-string: oklch(0.79 0.13 158);
+  --syntax-number: oklch(0.81 0.12 72);
+  --syntax-bool: oklch(0.77 0.14 335);
+  --syntax-null: oklch(0.66 0.02 285);
+  --syntax-punct: oklch(0.68 0.012 285);
+}

@@ -1,0 +1,10 @@
+node_modules
+dist
+out
+# Throwaway builds: `electron-vite build --outDir out-<name>`, electron-builder into dist-<name>
+out-*
+dist-*
+.DS_Store
+.eslintcache
+*.log*
+*.tsbuildinfo

@@ -1,0 +1,69 @@
+appId: com.mqtey.app
+productName: mqtey
+copyright: Copyright © 2026 studiolab.id
+directories:
+  buildResources: build
+# Allowlist: the build (out/), the runtime resources and package.json. electron-builder adds the
+# production node_modules itself; the patterns below trim them (browser bundles, source maps,
+# TypeScript sources, tests, changelogs; LICENSE files stay). Throwaway builds (out-*), sources
+# and source maps never ship. `npm run test:package` (tests/e2e/check-package.mjs) checks the
+# packaged result: this list, the fuses below, the size and a smoke run of mqtey.exe.
+files:
+  - 'out/**'
+  - 'resources/**'
+  - 'package.json'
+  - '!**/*.map'
+  # The renderer's build manifests (out/renderer/.vite) are read by tests/e2e/check-bundle.mjs only.
+  - '!out/renderer/.vite{,/**}'
+  - '!node_modules/mqtt/dist/**'
+  - '!node_modules/**/*.{ts,tsbuildinfo}'
+  - '!node_modules/**/{test,tests,__tests__,benchmarks,example,examples}/**'
+  - '!node_modules/mqtt-packet/test.js'
+  - '!node_modules/**/{CHANGELOG,CONTRIBUTING,HISTORY}*.md'
+asarUnpack:
+  - resources/**
+# The UI is English only: keep one Chromium locale.
+electronLanguages:
+  - en-US
+# The packaged executable is not a general Node runtime and only runs its own, unmodified
+# app.asar. The UI is served from app://mqtey (src/main/app-protocol.ts), so file:// pages need no
+# extra privileges either.
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: false
+win:
+  executableName: mqtey
+  target:
+    - nsis
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  # Created on the first install; a shortcut the user deleted stays deleted on updates.
+  createDesktopShortcut: true
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+mac:
+  category: public.app-category.developer-tools
+  # Hardened runtime. The entitlements allow what V8 needs (JIT), never DYLD_* environment
+  # variables: those would let other code be injected into mqtey and reach its safeStorage key.
+  hardenedRuntime: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  notarize: false
+dmg:
+  artifactName: ${name}-${version}.${ext}
+linux:
+  target:
+    - AppImage
+    - deb
+  maintainer: studiolab.id
+  category: Development
+  synopsis: Fast, beautiful and powerful MQTT client
+appImage:
+  artifactName: ${name}-${version}.${ext}
+npmRebuild: false

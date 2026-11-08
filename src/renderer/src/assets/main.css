@@ -1,0 +1,292 @@
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './a11y.css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* The generated "nova" components style state with base-ui style presence attributes
+ * (`data-open:`, `data-checked:`, `data-horizontal:`…). reka-ui reports the same states as
+ * values (`data-state="open"`, `data-orientation="vertical"`…), so each variant matches both.
+ * Tooltips report their open state as `delayed-open` / `instant-open`. */
+@custom-variant data-open (&:is([data-open], [data-state='open'], [data-state='delayed-open'], [data-state='instant-open']));
+@custom-variant data-closed (&:is([data-closed], [data-state='closed']));
+@custom-variant data-checked (&:is([data-checked], [data-state='checked']));
+@custom-variant data-unchecked (&:is([data-unchecked], [data-state='unchecked']));
+@custom-variant data-active (&:is([data-active], [data-state='active']));
+@custom-variant data-horizontal (&:is([data-horizontal], [data-orientation='horizontal']));
+@custom-variant data-vertical (&:is([data-vertical], [data-orientation='vertical']));
+
+/* ---------------------------------------------------------------------------
+ * Design tokens → Tailwind theme
+ * ------------------------------------------------------------------------- */
+/* Fonts are emitted as runtime variables (static) so custom CSS can use var(--font-mono). */
+@theme static {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:
+    'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono',
+    monospace;
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  /* Borders of text fields and select triggers (`border-input-border`): >= 3:1. */
+  --color-input-border: var(--input-border);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  /* The accent as a text color on the background (`text-primary-text`): AA in every accent. */
+  --color-primary-text: var(--primary-text);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  /* mqtey semantic tokens */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-incoming: var(--incoming);
+  --color-outgoing: var(--outgoing);
+  --color-panel: var(--panel);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ---------------------------------------------------------------------------
+ * Base palette (zinc). The accent tokens (--primary, --primary-foreground, --ring,
+ * --sidebar-primary(-foreground), --primary-text) come from src/lib/accents.ts, the single
+ * source: useThemeSync sets the active accent's values on <html>. The values here equal its
+ * zinc ("Mono", default) entry and apply until the settings are loaded.
+ * Contrast (tests/unit/renderer/theme-tokens.test.ts): text tokens >= 4.5:1 on every surface,
+ * focus rings and --input-border >= 3:1; --border stays subtle (panel separators).
+ * ------------------------------------------------------------------------- */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --panel: oklch(0.985 0.001 286.375);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.51 0.016 286);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.51 0.207 27.3);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --input-border: oklch(0.6 0.01 286);
+  --ring: oklch(0.55 0.015 286);
+  --primary-text: oklch(0.21 0.006 285.885);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.955 0.002 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.55 0.015 286);
+
+  /* Text-safe (>= 4.5:1 on white, on their 15 % tints and on selected rows); also the fills. */
+  --success: oklch(0.49 0.135 149.2);
+  --warning: oklch(0.5 0.12 55);
+  --info: oklch(0.5 0.118 242);
+  --incoming: oklch(0.49 0.105 163.2);
+  --outgoing: oklch(0.51 0.215 262.9);
+}
+
+.dark {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --panel: oklch(0.168 0.006 285.885);
+  --card: oklch(0.185 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.2 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 14%);
+  --input-border: oklch(0.52 0.01 286);
+  --ring: oklch(0.65 0.016 286);
+  --primary-text: oklch(0.92 0.004 286.32);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.158 0.005 285.823);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.92 0.004 286.32);
+  --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-accent: oklch(0.24 0.006 286.033);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.65 0.016 286);
+
+  --success: oklch(0.723 0.192 149.579);
+  --warning: oklch(0.795 0.16 70);
+  --info: oklch(0.685 0.169 237.323);
+  --incoming: oklch(0.765 0.165 162.48);
+  --outgoing: oklch(0.707 0.165 254.624);
+}
+
+/* ---------------------------------------------------------------------------
+ * App-wide utilities
+ * ------------------------------------------------------------------------- */
+
+/* Alt+T (vue-sonner's hotkey) focuses the toast list, which has no size of its own: show the
+ * focus on the toasts it holds. `:focus`, not `:focus-visible`: Chromium does not count a
+ * modifier combo as keyboard focus, and the list (tabindex -1, no height) is focused only by
+ * that hotkey. */
+[data-sonner-toaster]:focus [data-sonner-toast] {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* The highlighted item of a menu, the palette or a select (keyboard or pointer) gets a 2 px bar
+ * in the foreground color besides its faint bg-accent, so the item Enter would run stands out in
+ * the black-and-white look. One rule for every generated item component. */
+@layer components {
+  :is(
+    [data-slot='dropdown-menu-item'],
+    [data-slot='dropdown-menu-checkbox-item'],
+    [data-slot='dropdown-menu-radio-item'],
+    [data-slot='dropdown-menu-sub-trigger'],
+    [data-slot='context-menu-item'],
+    [data-slot='context-menu-checkbox-item'],
+    [data-slot='context-menu-radio-item'],
+    [data-slot='context-menu-sub-trigger'],
+    [data-slot='command-item'],
+    [data-slot='select-item']
+  )[data-highlighted] {
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block: 4px;
+      left: 0;
+      width: 2px;
+      border-radius: 9999px;
+      background-color: var(--foreground);
+    }
+    &[data-variant='destructive']::before {
+      background-color: var(--destructive);
+    }
+  }
+}
+
+/* Frameless window drag regions (title bar). */
+@utility drag-region {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+@utility no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* Slimmer app scrollbar for dense panels, built on the ::-webkit-scrollbar rules below. Do not
+ * use Tailwind's scrollbar-thin / scrollbar-color utilities: the standard scrollbar-width and
+ * scrollbar-color properties switch Chromium back to the native scrollbar (arrow buttons on
+ * Windows) and panels would look inconsistent. */
+@utility scrollbar-slim {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-width: 2px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring;
+  }
+  html,
+  body,
+  #app {
+    height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    overflow: hidden;
+    /* Desktop-app feel: chrome text is not selectable; content opts in with `select-text`. */
+    user-select: none;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+  input,
+  textarea,
+  [contenteditable='true'],
+  .cm-editor {
+    user-select: text;
+  }
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklch, var(--muted-foreground) 28%, transparent);
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  }
+}
