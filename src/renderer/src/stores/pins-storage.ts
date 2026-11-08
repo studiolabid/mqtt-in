@@ -1,5 +1,5 @@
 /**
- * Parsing of the persisted pins ('mqtey.pins'). Internal helper of `usePinsStore`.
+ * Parsing of the persisted pins ('mqtt-in.pins'). Internal helper of `usePinsStore`.
  */
 import type { TopicPin } from './pins'
 

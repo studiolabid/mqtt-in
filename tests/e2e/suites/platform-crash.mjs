@@ -61,7 +61,7 @@ export default {
         { timeout: 5_000, label: 'both errors in main.log' }
       )
       expect(text.length > 0, 'main.log is empty')
-      expect((await ctx.app.evaluate(({ app }) => app.getName())) === 'mqtey', 'main stopped')
+      expect((await ctx.app.evaluate(({ app }) => app.getName())) === 'mqtt-in', 'main stopped')
       const dialogs = (await nativeCalls(ctx.app)).filter((call) => call.name.startsWith('dialog.'))
       expect(dialogs.length === 0, 'a dialog was requested', dialogs)
       await ctx.waitForTestId('workspace-connect', { extra: '[data-status="connected"]' })

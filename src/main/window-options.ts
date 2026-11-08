@@ -10,7 +10,7 @@ import { APP_NAME } from '@shared/defaults'
 export const AUTOMATION_WINDOW_TITLE = `${APP_NAME} (automation)`
 
 export interface WindowChromeInput {
-  /** Automated run (`MQTEY_E2E=1`). */
+  /** Automated run (`MQTTIN_E2E=1`). */
   background: boolean
   platform: NodeJS.Platform
   /** `app.isPackaged`: an installed build, as opposed to a development run. Default false. */
@@ -24,9 +24,9 @@ export interface WindowChrome {
 
 /**
  * The user's window is a normal app window; DevTools (F12) exist in development runs only, so a
- * packaged build never opens a console with the bridge (`window.mqtey`) in reach.
+ * packaged build never opens a console with the bridge (`window.mqttIn`) in reach.
  *
- * An automated run's window must never look like a second open mqtey:
+ * An automated run's window must never look like a second open mqtt-in:
  * - no taskbar button and, on Windows, a tool window (`WS_EX_TOOLWINDOW`), which Alt+Tab,
  *   Task View and the taskbar leave out;
  * - its own title;

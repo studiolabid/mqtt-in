@@ -41,7 +41,7 @@ let dir: string
 let storage: Storage
 
 beforeAll(() => {
-  dir = mkdtempSync(join(tmpdir(), 'mqtey-ipc-registration-'))
+  dir = mkdtempSync(join(tmpdir(), 'mqtt-in-ipc-registration-'))
   storage = createStorage(dir, PLAIN_CIPHER)
   registerIpc({ storage, manager: {} as MqttManager })
 })
@@ -72,9 +72,9 @@ describe('registerIpc', () => {
     ['a file:// page', from(frame('file:///C:/Users/me/evil.html'))],
     [
       'a subframe of the app',
-      from(frame('app://mqtey/index.html', 2), frame('app://mqtey/index.html'))
+      from(frame('app://mqtt-in/index.html', 2), frame('app://mqtt-in/index.html'))
     ],
-    ['a frame that is gone', from(null, frame('app://mqtey/index.html'))]
+    ['a frame that is gone', from(null, frame('app://mqtt-in/index.html'))]
   ])('makes every handler refuse %s', async (_name, event) => {
     for (const [channel, listener] of electron.handlers) {
       await expect(listener(event), channel).rejects.toThrow('Untrusted IPC sender')
@@ -82,10 +82,10 @@ describe('registerIpc', () => {
   })
 
   it("serves the app origin's main frame", async () => {
-    const event = from(frame('app://mqtey/index.html#/settings'))
+    const event = from(frame('app://mqtt-in/index.html#/settings'))
     const settings = await electron.handlers.get(IPC.settingsGet)?.(event)
     expect(settings).toMatchObject({ theme: expect.any(String) })
     expect(await electron.handlers.get(IPC.connectionsList)?.(event)).toEqual([])
-    expect(await electron.handlers.get(IPC.appInfo)?.(event)).toMatchObject({ name: 'mqtey' })
+    expect(await electron.handlers.get(IPC.appInfo)?.(event)).toMatchObject({ name: 'mqtt-in' })
   })
 })

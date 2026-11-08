@@ -1,5 +1,5 @@
 /**
- * Main-process bootstrap: single instance, storage + MQTT services, IPC, menu, the `app://mqtey`
+ * Main-process bootstrap: single instance, storage + MQTT services, IPC, menu, the `app://mqtt-in`
  * origin of the UI, the main window, graceful quit (flush storage, disconnect every session).
  * Unexpected errors and crashed processes go to `<userData>/logs/main.log` (no stack-trace
  * dialogs).
@@ -32,14 +32,14 @@ interface Services {
 /**
  * One identity for every launch mode. Started by its main script (`electron out/main/index.js`),
  * Electron would run as "Electron" with another profile, and so another single-instance lock.
- * `MQTEY_USER_DATA_DIR` isolates the profile (automated runs, parallel test runs).
+ * `MQTTIN_USER_DATA_DIR` isolates the profile (automated runs, parallel test runs).
  */
 app.setName(APP_NAME)
 app.setPath(
   'userData',
   resolveUserDataDir({
     appData: app.getPath('appData'),
-    override: process.env.MQTEY_USER_DATA_DIR,
+    override: process.env.MQTTIN_USER_DATA_DIR,
     name: APP_NAME
   })
 )
@@ -48,11 +48,11 @@ app.setPath(
 const mainLog = createMainLog(join(app.getPath('userData'), 'logs'))
 logUncaughtErrors(mainLog)
 
-/** The UI's own origin (`app://mqtey`): the scheme must be privileged before the app is ready. */
+/** The UI's own origin (`app://mqtt-in`): the scheme must be privileged before the app is ready. */
 registerAppScheme()
 
 /**
- * `MQTEY_E2E=1` (automated runs): an off-screen tool window that never takes focus and has no
+ * `MQTTIN_E2E=1` (automated runs): an off-screen tool window that never takes focus and has no
  * taskbar or Alt+Tab entry (see createMainWindow), no DevTools and no native error boxes, so test
  * runs never appear on the user's desktop.
  */
@@ -64,16 +64,16 @@ if (background) {
   app.commandLine.appendSwitch('disable-backgrounding-occluded-windows')
 }
 
-/** An automated run never touches the user's own profile (or their open mqtey window). */
-const isolated = Boolean(process.env.MQTEY_USER_DATA_DIR?.trim())
+/** An automated run never touches the user's own profile (or their open mqtt-in window). */
+const isolated = Boolean(process.env.MQTTIN_USER_DATA_DIR?.trim())
 
 /**
- * Always a single instance per profile: launching mqtey again focuses the open window instead
+ * Always a single instance per profile: launching mqtt-in again focuses the open window instead
  * of opening a second one. The lock is tied to the userData folder (set above), so isolated
  * test profiles can still run side by side.
  */
 if (background && !isolated) {
-  console.error('[app] MQTEY_E2E=1 needs MQTEY_USER_DATA_DIR (an isolated profile). Quitting.')
+  console.error('[app] MQTTIN_E2E=1 needs MQTTIN_USER_DATA_DIR (an isolated profile). Quitting.')
   app.exit(2)
 } else if (app.requestSingleInstanceLock()) {
   start()
@@ -97,7 +97,7 @@ function start(): void {
   let services: Services | null = null
   let mainWindow: BrowserWindow | null = null
   let quitting = false
-  /** mqtey was launched again while quitting: start again once this process has quit. */
+  /** mqtt-in was launched again while quitting: start again once this process has quit. */
   let relaunchRequested = false
 
   /**
@@ -135,7 +135,7 @@ function start(): void {
     })
   }
 
-  // Someone launched mqtey again (that process quits right away): bring this window forward,
+  // Someone launched mqtt-in again (that process quits right away): bring this window forward,
   // reopen it when it was closed (macOS keeps the app running without windows), or, while this
   // instance is still quitting, start again afterwards (see `secondInstanceAction`).
   app.on('second-instance', () => {
@@ -169,11 +169,11 @@ function start(): void {
     .whenReady()
     .then(() => {
       if (background) {
-        // Never grouped with (or shown as) the user's own mqtey.
+        // Never grouped with (or shown as) the user's own mqtt-in.
         if (process.platform === 'win32') app.setAppUserModelId(AUTOMATION_APP_USER_MODEL_ID)
         app.dock?.hide()
       } else {
-        electronApp.setAppUserModelId('com.mqtey.app')
+        electronApp.setAppUserModelId('com.mqttin.app')
       }
       applySessionPolicy(session.defaultSession)
       serveAppProtocol(join(__dirname, '../renderer'))
@@ -190,7 +190,7 @@ function start(): void {
     .catch((err: unknown) => {
       console.error('[app] Startup failed:', err)
       mainLog.append('startup-failed', err)
-      if (!background) dialog.showErrorBox('mqtey could not start', errorMessage(err))
+      if (!background) dialog.showErrorBox('mqtt-in could not start', errorMessage(err))
       app.exit(1)
     })
 

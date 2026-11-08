@@ -17,7 +17,7 @@ function profile(overrides: Partial<ConnectionProfile> = {}): ConnectionProfile 
   return createConnectionProfile({
     host: 'broker.example.com',
     port: 1883,
-    clientId: 'mqtey_0a1b2c3d',
+    clientId: 'mqttin_0a1b2c3d',
     ...overrides
   })
 }

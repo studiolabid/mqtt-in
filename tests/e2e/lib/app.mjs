@@ -1,6 +1,6 @@
 /**
  * Launching the built app. Enforced here for every launch:
- * - MQTEY_E2E=1 (an off-screen tool window that never takes focus) and MQTEY_USER_DATA_DIR=<a
+ * - MQTTIN_E2E=1 (an off-screen tool window that never takes focus) and MQTTIN_USER_DATA_DIR=<a
  *   fresh temporary profile created by this kit>; ELECTRON_RUN_AS_NODE and ELECTRON_RENDERER_URL
  *   removed. A caller cannot override or remove them;
  * - native dialogs, the shell and the clipboard are stubbed before the UI can use them;
@@ -20,8 +20,8 @@ import { isRunning, killTree, sleep, waitForExit } from './processes.mjs'
 import { assertOffscreen, setWindowSize } from './window.mjs'
 
 const KIT_ENV = [
-  'MQTEY_E2E',
-  'MQTEY_USER_DATA_DIR',
+  'MQTTIN_E2E',
+  'MQTTIN_USER_DATA_DIR',
   'ELECTRON_RUN_AS_NODE',
   'ELECTRON_RENDERER_URL'
 ]
@@ -46,7 +46,7 @@ const slugTag = (tag) =>
 
 /** A fresh, empty profile folder in the OS temp folder. */
 export function createProfile(tag = 'app') {
-  const dir = mkdtempSync(join(tmpdir(), `mqtey-e2e-${slugTag(tag)}-`))
+  const dir = mkdtempSync(join(tmpdir(), `mqtt-in-e2e-${slugTag(tag)}-`))
   profiles.set(keyOf(dir), dir)
   createdProfiles.push(dir)
   return dir
@@ -99,8 +99,8 @@ export function automationEnv(userData, extra = {}) {
     // Windows variable names ignore case: drop every spelling.
     if (KIT_ENV.includes(key.toUpperCase()) || env[key] === undefined) delete env[key]
   }
-  env.MQTEY_E2E = '1'
-  env.MQTEY_USER_DATA_DIR = userData
+  env.MQTTIN_E2E = '1'
+  env.MQTTIN_USER_DATA_DIR = userData
   return env
 }
 
@@ -236,7 +236,7 @@ export async function launchApp(options = {}) {
  * @param {object} [options]
  * @param {string} [options.userData] a kit profile, e.g. the one of an open launchApp handle
  *   (second instance); default: a fresh profile, deleted afterwards (unless keepProfile)
- * @param {boolean} [options.simulateMissingProfile] hide MQTEY_USER_DATA_DIR from the app (see
+ * @param {boolean} [options.simulateMissingProfile] hide MQTTIN_USER_DATA_DIR from the app (see
  *   contain-profile.cjs: the profile stays contained even if the guard is broken)
  */
 export async function spawnApp(options = {}) {

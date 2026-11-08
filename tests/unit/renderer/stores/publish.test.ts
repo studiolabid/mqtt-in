@@ -37,13 +37,18 @@ describe('usePublishStore', () => {
     const store = usePublishStore()
     const draft = store.draft(v5)
     expect(isReactive(draft)).toBe(true)
-    expect(draft).toMatchObject({ topic: 'mqtey/test', format: 'json', qos: 0, useTemplate: true })
+    expect(draft).toMatchObject({
+      topic: 'mqtt-in/test',
+      format: 'json',
+      qos: 0,
+      useTemplate: true
+    })
     draft.topic = 'edited'
     expect(store.draft(v5).topic).toBe('edited')
     store.updateDraft(v5, { qos: 2, retain: true })
     expect(store.draft(v5)).toMatchObject({ topic: 'edited', qos: 2, retain: true })
     store.resetDraft(v5)
-    expect(store.draft(v5).topic).toBe('mqtey/test')
+    expect(store.draft(v5).topic).toBe('mqtt-in/test')
   })
 
   it('publishes the rendered draft and records it in the history', async () => {
@@ -192,7 +197,7 @@ describe('usePublishStore', () => {
   it('tracks repeat job events and stops jobs', async () => {
     const store = usePublishStore()
     const jobId = (await store.startRepeat(v5, { intervalMs: 100, count: 0 })) ?? ''
-    const base = { jobId, connectionId: v5, topic: 'mqtey/test', total: 0, intervalMs: 100 }
+    const base = { jobId, connectionId: v5, topic: 'mqtt-in/test', total: 0, intervalMs: 100 }
     store.handleRepeat({ ...base, state: 'running', sent: 5, timestamp: Date.now() })
     expect(store.activeJobFor(v5)?.sent).toBe(5)
     await expect(store.stopRepeat(jobId)).resolves.toBe(true)
@@ -209,7 +214,7 @@ describe('usePublishStore', () => {
       error: 'gone',
       timestamp: 1
     })
-    expect(toast.error).toHaveBeenCalledWith('Repeat publishing to mqtey/test stopped', {
+    expect(toast.error).toHaveBeenCalledWith('Repeat publishing to mqtt-in/test stopped', {
       description: 'gone'
     })
   })
@@ -292,7 +297,7 @@ describe('usePublishStore', () => {
     store.draft(v5).topic = 'x'
     await store.publish(v4)
     store.prune(new Set([v4]))
-    expect(store.draft(v5).topic).toBe('mqtey/test')
+    expect(store.draft(v5).topic).toBe('mqtt-in/test')
     expect(store.history(v4)).toHaveLength(1)
     await store.startRepeat(v4, { intervalMs: 100, count: 0 })
     store.forget(v4)

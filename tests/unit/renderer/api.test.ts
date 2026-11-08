@@ -11,7 +11,7 @@ describe('api', () => {
 
   it('throws a clear error when the preload bridge is missing', () => {
     expect(isBridgeAvailable()).toBe(false)
-    expect(() => api.connections).toThrow(/window\.mqtey/)
+    expect(() => api.connections).toThrow(/window\.mqttIn/)
     vi.stubGlobal('window', {})
     expect(() => api.mqtt).toThrow(/preload/)
   })
@@ -55,9 +55,9 @@ describe('api', () => {
     off()
     expect(bridge.listeners.storageNotice).toHaveLength(0)
 
-    await api.app.showItemInFolder('C:/exports/mqtey-connections.json')
+    await api.app.showItemInFolder('C:/exports/mqtt-in-connections.json')
     expect(bridge.api.app.showItemInFolder).toHaveBeenCalledWith(
-      'C:/exports/mqtey-connections.json'
+      'C:/exports/mqtt-in-connections.json'
     )
 
     const options = reactive({ includeSecrets: true })

@@ -44,7 +44,7 @@ export function useLogActions(connectionId: MaybeRefOrGetter<string>): LogAction
     const profile = connections.get(toValue(connectionId))
     const target = profile ? ` (${brokerUrl(profile)})` : ''
     return [
-      `mqtey log of ${connectionName()}${target}`,
+      `mqtt-in log of ${connectionName()}${target}`,
       `${entriesLabel(count)}, exported ${logTimestamp(Date.now())}`
     ]
   }

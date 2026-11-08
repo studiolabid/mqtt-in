@@ -19,7 +19,7 @@ function guard<T>(name: string, handler: (payload: T) => void): (payload: T) => 
     try {
       handler(payload)
     } catch (err) {
-      console.error(`[mqtey] ${name} handler failed:`, err)
+      console.error(`[mqtt-in] ${name} handler failed:`, err)
     }
   }
 }

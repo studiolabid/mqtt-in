@@ -6,7 +6,7 @@
 import { pathToFileURL } from 'node:url'
 import { inPage, waitFor } from './platform.mjs'
 
-export const APP_INDEX = 'app://mqtey/index.html'
+export const APP_INDEX = 'app://mqtt-in/index.html'
 const WIN_INI = process.platform === 'win32' ? 'file:///C:/Windows/win.ini' : 'file:///etc/hosts'
 
 /** A page for the IPC guard: it calls the bridge and records the answer in window.__ipc. */
@@ -15,7 +15,7 @@ export const IPC_PAGE =
   `content="default-src 'none'; script-src 'unsafe-inline'">` +
   '<title>file page</title><script>' +
   'window.__ipc = "pending";' +
-  'window.mqtey.connections.list().then(' +
+  'window.mqttIn.connections.list().then(' +
   '(list) => { window.__ipc = "allowed:" + list.length },' +
   '(err) => { window.__ipc = "denied:" + err.message })' +
   '</script>'
@@ -111,13 +111,13 @@ export function probeAppScheme() {
       (error) => `error: ${error.message}`
     )
   return (async () => ({
-    index: await status('app://mqtey/index.html'),
-    encodedDots: await status('app://mqtey/..%2F..%2Fpackage.json'),
-    encodedDots2: await status('app://mqtey/assets/%2e%2e%2f%2e%2e%2fpackage.json'),
-    backslash: await status('app://mqtey/..%5C..%5Cpackage.json'),
-    drive: await status('app://mqtey/C:/Windows/win.ini'),
-    missing: await status('app://mqtey/missing.js'),
-    post: await status('app://mqtey/index.html', { method: 'POST', body: 'x' })
+    index: await status('app://mqtt-in/index.html'),
+    encodedDots: await status('app://mqtt-in/..%2F..%2Fpackage.json'),
+    encodedDots2: await status('app://mqtt-in/assets/%2e%2e%2f%2e%2e%2fpackage.json'),
+    backslash: await status('app://mqtt-in/..%5C..%5Cpackage.json'),
+    drive: await status('app://mqtt-in/C:/Windows/win.ini'),
+    missing: await status('app://mqtt-in/missing.js'),
+    post: await status('app://mqtt-in/index.html', { method: 'POST', body: 'x' })
   }))()
 }
 

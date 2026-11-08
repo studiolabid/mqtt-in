@@ -21,7 +21,7 @@ import {
 import type { ConnectionProfile, MqttProtocol, MqttProtocolVersion } from '@shared/models'
 import { UUID_V4 } from './helpers'
 
-const CLIENT_ID = /^mqtey_[0-9a-f]{8}$/
+const CLIENT_ID = /^mqttin_[0-9a-f]{8}$/
 
 describe('constants', () => {
   it('defines the default port of every transport', () => {
@@ -79,8 +79,8 @@ describe('ids', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  it('generateClientId returns mqtey_ + 8 lower-case hex chars', () => {
-    expect(APP_NAME).toBe('mqtey')
+  it('generateClientId returns mqttin_ + 8 lower-case hex chars', () => {
+    expect(APP_NAME).toBe('mqtt-in')
     const ids = Array.from({ length: 50 }, () => generateClientId())
     for (const id of ids) expect(id).toMatch(CLIENT_ID)
     expect(new Set(ids).size).toBeGreaterThan(45)
@@ -94,17 +94,17 @@ describe('ids', () => {
     expect(generateClientId('sensor')).toMatch(/^sensor_[0-9a-f]{8}$/)
   })
 
-  it('isGeneratedClientId recognizes the ids mqtey generates, and only those', () => {
+  it('isGeneratedClientId recognizes the ids mqtt-in generates, and only those', () => {
     for (let i = 0; i < 20; i++) expect(isGeneratedClientId(generateClientId())).toBe(true)
-    expect(isGeneratedClientId('mqtey_0a1b2c3d')).toBe(true)
+    expect(isGeneratedClientId('mqttin_0a1b2c3d')).toBe(true)
     for (const id of [
       '',
       'plant-gw-1',
-      'mqtey_0A1B2C3D',
-      'mqtey_0a1b2c3',
-      'mqtey_0a1b2c3d4',
-      'xmqtey_0a1b2c3d',
-      'mqtey-0a1b2c3d',
+      'mqttin_0A1B2C3D',
+      'mqttin_0a1b2c3',
+      'mqttin_0a1b2c3d4',
+      'xmqttin_0a1b2c3d',
+      'mqtt-in-0a1b2c3d',
       generateClientId('sensor')
     ]) {
       expect(isGeneratedClientId(id), id).toBe(false)

@@ -235,7 +235,7 @@ export async function pushStatus(app, event) {
  */
 export async function holdDialog(app, method) {
   await app.evaluate(({ dialog }, name) => {
-    const state = globalThis.__mqteyE2E
+    const state = globalThis.__mqttInE2E
     const kitStub = state.stubs[`dialog.${name}`]
     if (typeof kitStub !== 'function' || dialog[name] !== kitStub) {
       throw new Error(`dialog.${name} is not the kit's stub`)
@@ -250,11 +250,11 @@ export async function holdDialog(app, method) {
   return {
     /** Calls waiting for an answer. */
     pending: () =>
-      app.evaluate((_e, name) => globalThis.__mqteyE2E.holds[name].pending.length, method),
+      app.evaluate((_e, name) => globalThis.__mqttInE2E.holds[name].pending.length, method),
     release: (result) =>
       app.evaluate(
         ({ dialog }, { name, value }) => {
-          const hold = globalThis.__mqteyE2E.holds[name]
+          const hold = globalThis.__mqttInE2E.holds[name]
           dialog[name] = hold.kitStub
           for (const resolve of hold.pending.splice(0)) resolve(value)
         },

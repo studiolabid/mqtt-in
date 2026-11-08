@@ -114,8 +114,8 @@ describe('exportFileName', () => {
     expect(exportFileName('..hidden..', 'csv', now)).toBe('hidden-2026-11-08-153012.csv')
   })
 
-  it('falls back to "mqtey" and normalizes the extension', () => {
-    expect(exportFileName('  ///  ', '.CSV', now)).toBe('mqtey-2026-11-08-153012.csv')
+  it('falls back to "mqtt-in" and normalizes the extension', () => {
+    expect(exportFileName('  ///  ', '.CSV', now)).toBe('mqtt-in-2026-11-08-153012.csv')
     expect(exportFileName('x', '', now)).toBe('x-2026-11-08-153012.txt')
   })
 

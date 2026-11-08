@@ -5,9 +5,9 @@
  */
 import type { AppSettings, MqttProtocol, MqttProtocolVersion } from './models'
 
-export const APP_NAME = 'mqtey'
+export const APP_NAME = 'mqtt-in'
 
-/** The studio behind mqtey (the "Powered by" credit). */
+/** The studio behind mqtt-in (the "Powered by" credit). */
 export const APP_VENDOR = { name: 'studiolab.id', url: 'https://studiolab.id' } as const
 
 /** Neutral gray that reads on light and dark: the default color, matching the monochrome look. */

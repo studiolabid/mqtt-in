@@ -15,7 +15,7 @@ vi.mock('electron', () => ({
   dialog: { showErrorBox: electron.showErrorBox }
 }))
 
-const URL = 'app://mqtey/index.html'
+const URL = 'app://mqtt-in/index.html'
 
 function watch(options: { background: boolean; quit?: () => void }): {
   contents: EventEmitter
@@ -53,7 +53,7 @@ describe('watchLoadFailures', () => {
       url: URL
     })
     expect(electron.showErrorBox).toHaveBeenCalledTimes(1)
-    expect(electron.showErrorBox.mock.calls[0][0]).toBe('mqtey could not start')
+    expect(electron.showErrorBox.mock.calls[0][0]).toBe('mqtt-in could not start')
     expect(electron.showErrorBox.mock.calls[0][1]).toContain('ERR_FILE_NOT_FOUND')
     expect(electron.exit).toHaveBeenCalledWith(1)
   })
@@ -85,7 +85,7 @@ describe('watchLoadFailures', () => {
 
   it('ignores subframes', () => {
     const { contents, log } = watch({ background: false })
-    fail(contents, -27, false, 'app://mqtey/frame.html')
+    fail(contents, -27, false, 'app://mqtt-in/frame.html')
     expect(log).not.toHaveBeenCalled()
     expect(electron.showErrorBox).not.toHaveBeenCalled()
   })

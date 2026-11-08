@@ -1,6 +1,6 @@
 /**
- * check-package: the packaged smoke run. mqtey.exe starts in automation mode (MQTEY_E2E=1 and a
- * fresh MQTEY_USER_DATA_DIR; ELECTRON_RUN_AS_NODE and ELECTRON_RENDERER_URL removed), so its
+ * check-package: the packaged smoke run. mqtt-in.exe starts in automation mode (MQTTIN_E2E=1 and a
+ * fresh MQTTIN_USER_DATA_DIR; ELECTRON_RUN_AS_NODE and ELECTRON_RENDERER_URL removed), so its
  * window is an off-screen, unfocused tool window. The inspect fuse is off, so Playwright's
  * _electron cannot drive a packaged build: the app gets --remote-debugging-port and Playwright
  * attaches over CDP. The main process cannot be stubbed this way, so no step may open a native
@@ -16,7 +16,7 @@ import { chromium } from 'playwright'
 import { inspectWindows, onAnyDisplay } from './package-window.mjs'
 
 const TIMEOUT = 20_000
-const AUTOMATION_TITLE = 'mqtey (automation)'
+const AUTOMATION_TITLE = 'mqtt-in (automation)'
 const tid = (id, extra = '') => `[data-testid="${id}"]${extra}`
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms))
 
@@ -30,10 +30,10 @@ async function freePort() {
 
 /** Automation mode on its own profile; refuses to return an environment without both. */
 function automationEnv(profile) {
-  const env = { ...process.env, MQTEY_E2E: '1', MQTEY_USER_DATA_DIR: profile }
+  const env = { ...process.env, MQTTIN_E2E: '1', MQTTIN_USER_DATA_DIR: profile }
   delete env.ELECTRON_RUN_AS_NODE
   delete env.ELECTRON_RENDERER_URL
-  if (env.MQTEY_E2E !== '1' || !env.MQTEY_USER_DATA_DIR) throw new Error('refusing to launch')
+  if (env.MQTTIN_E2E !== '1' || !env.MQTTIN_USER_DATA_DIR) throw new Error('refusing to launch')
   return env
 }
 
@@ -111,7 +111,7 @@ async function toggleTheme(page) {
 
 /** Runs the packaged app once; every result goes through `check`. Always cleans up. */
 export async function smokeRun(exe, { check, artifacts, version }) {
-  const profile = mkdtempSync(join(tmpdir(), 'mqtey-package-profile-'))
+  const profile = mkdtempSync(join(tmpdir(), 'mqtt-in-package-profile-'))
   const broker = await Aedes.createBroker()
   const server = createServer(broker.handle)
   await new Promise((done) => server.listen(0, '127.0.0.1', done))
@@ -157,8 +157,8 @@ export async function smokeRun(exe, { check, artifacts, version }) {
     await sleep(500)
     check('welcome screen', true, `${welcomeMs} ms after spawn`)
     check(
-      'served from app://mqtey/index.html',
-      page.url().startsWith('app://mqtey/index.html'),
+      'served from app://mqtt-in/index.html',
+      page.url().startsWith('app://mqtt-in/index.html'),
       page.url()
     )
     check('no console errors on a full load', errors.length === 0, errors.slice(0, 3).join(' | '))
@@ -176,13 +176,13 @@ export async function smokeRun(exe, { check, artifacts, version }) {
         file,
         credit: text('powered-by').replace(/\s+/g, ' ').trim(),
         statusbar: text('statusbar').replace(/\s+/g, ' '),
-        info: await window.mqtey.app.getInfo(),
-        connections: (await window.mqtey.connections.list()).length
+        info: await window.mqttIn.app.getInfo(),
+        connections: (await window.mqttIn.connections.list()).length
       }
     })
     check(
-      'origin app://mqtey, file:// unreachable',
-      facts.origin === 'app://mqtey' && facts.file.startsWith('blocked'),
+      'origin app://mqtt-in, file:// unreachable',
+      facts.origin === 'app://mqtt-in' && facts.file.startsWith('blocked'),
       `${facts.origin}; file:// ${facts.file}`
     )
     check(
@@ -206,7 +206,7 @@ export async function smokeRun(exe, { check, artifacts, version }) {
     const shown = windows.filter((w) => w.visible)
     const win = shown[0]
     check(
-      'one visible window: a tool window titled mqtey (automation)',
+      'one visible window: a tool window titled mqtt-in (automation)',
       shown.length === 1 && win.toolWindow && !win.appWindow && win.title === AUTOMATION_TITLE,
       shown.map((w) => `'${w.title}' tool=${w.toolWindow} app=${w.appWindow}`).join('; ')
     )

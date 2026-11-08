@@ -30,11 +30,11 @@ describe('KnownFiles', () => {
 
   it('compares Windows paths regardless of case and separators', () => {
     const files = new KnownFiles('win32')
-    files.remember('C:\\Users\\Me\\Documents\\mqtey-connections.json')
-    expect(files.isKnown('c:/users/me/documents/MQTEY-CONNECTIONS.json')).toBe(true)
-    expect(files.isKnown('C:\\Users\\Me\\Documents\\x\\..\\mqtey-connections.json')).toBe(true)
+    files.remember('C:\\Users\\Me\\Documents\\mqtt-in-connections.json')
+    expect(files.isKnown('c:/users/me/documents/MQTT-IN-CONNECTIONS.json')).toBe(true)
+    expect(files.isKnown('C:\\Users\\Me\\Documents\\x\\..\\mqtt-in-connections.json')).toBe(true)
     expect(files.isKnown('C:\\Users\\Me\\Documents\\other.json')).toBe(false)
-    expect(files.isKnown('Documents\\mqtey-connections.json')).toBe(false)
+    expect(files.isKnown('Documents\\mqtt-in-connections.json')).toBe(false)
   })
 
   it('forgets everything on clear()', () => {

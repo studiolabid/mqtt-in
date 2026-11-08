@@ -1,6 +1,6 @@
 /**
  * check-package: static, read-only checks of a packaged win-unpacked folder: the fuse wire of
- * mqtey.exe, what app.asar contains (an allowlist, trimmed node_modules, licenses kept), its
+ * mqtt-in.exe, what app.asar contains (an allowlist, trimmed node_modules, licenses kept), its
  * size, the locales and the unpacked icon.
  */
 import { existsSync, readdirSync, statSync } from 'node:fs'
@@ -83,7 +83,7 @@ function checkLicenses(paths, check) {
 
 /** Runs every static check on `appDir` (dist-<name>/win-unpacked); `version`: package.json's. */
 export async function inspectPackage(appDir, { check, version }) {
-  await checkFuses(join(appDir, 'mqtey.exe'), check)
+  await checkFuses(join(appDir, 'mqtt-in.exe'), check)
 
   const asar = builderRequire('@electron/asar')
   const archive = join(appDir, 'resources', 'app.asar')

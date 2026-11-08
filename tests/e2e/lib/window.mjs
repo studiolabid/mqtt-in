@@ -1,5 +1,5 @@
 /**
- * The automation window stays off the desktop: it sits left of every display (MQTEY_E2E=1) and
+ * The automation window stays off the desktop: it sits left of every display (MQTTIN_E2E=1) and
  * must never take the focus. Resize it only through setWindowSize: a plain setContentSize grows
  * the window to the right, onto the displays.
  */

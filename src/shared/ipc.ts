@@ -1,11 +1,11 @@
 /**
  * IPC contract between the main process and the renderer.
  *
- * The preload script exposes `MqteyApi` as `window.mqtey`. Every request is an
+ * The preload script exposes `MqttInApi` as `window.mqttIn`. Every request is an
  * `ipcRenderer.invoke` on one of `IPC.*` channels; every event is pushed by the
  * main process with `webContents.send` on one of `IPC_EVENTS.*`.
  *
- * The renderer must never touch `window.mqtey` directly — use `@/services/api`.
+ * The renderer must never touch `window.mqttIn` directly — use `@/services/api`.
  */
 import type {
   AppInfo,
@@ -81,7 +81,7 @@ export type IpcEventChannel = (typeof IPC_EVENTS)[keyof typeof IPC_EVENTS]
 /** Returned by every `on*` subscription; call it to stop listening. */
 export type Unsubscribe = () => void
 
-export interface MqteyApi {
+export interface MqttInApi {
   connections: {
     list(): Promise<ConnectionProfile[]>
     /** Insert or update (by id). Returns the stored profile (updatedAt refreshed). */

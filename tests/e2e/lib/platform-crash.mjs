@@ -73,7 +73,7 @@ export async function restartRenderer(ctx, connectionId, { how = 'crash', timeou
     { timeout, interval: 200, label: `the workspace (${want}) after the ${how}` }
   )
   const ms = Date.now() - started
-  const sessions = await inPage(ctx.app, 'window.mqtey.mqtt.getSessions()')
+  const sessions = await inPage(ctx.app, 'window.mqttIn.mqtt.getSessions()')
   const focused = await ctx.app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].isFocused()
   )

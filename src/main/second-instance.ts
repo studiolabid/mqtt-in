@@ -1,11 +1,11 @@
 /**
- * What launching mqtey again does to the instance that is already running (the new process quits
+ * What launching mqtt-in again does to the instance that is already running (the new process quits
  * right away: one instance per profile). Pure, so every case is unit-tested.
  */
 export type SecondInstanceAction = 'ignore' | 'focus' | 'reopen' | 'relaunch-after-quit'
 
 export interface SecondInstanceState {
-  /** Automated run (`MQTEY_E2E=1`): its window stays off-screen and never takes the focus. */
+  /** Automated run (`MQTTIN_E2E=1`): its window stays off-screen and never takes the focus. */
   background: boolean
   /**
    * The app is quitting (its sessions are disconnecting): a window opened now would be closed

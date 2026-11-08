@@ -3,7 +3,7 @@
  *
  * The dataviz reference palette: eight hues in a fixed order (the order is the color-vision
  * safety mechanism, never reshuffle it), with separate steps for light and dark surfaces.
- * Validated with the dataviz checker against mqtey's surfaces (light #ffffff / #fafafb, dark
+ * Validated with the dataviz checker against mqtt-in's surfaces (light #ffffff / #fafafb, dark
  * #09090b / #121215): every adjacent pair clears CVD ΔE 8.4 and normal-vision ΔE 19.3. Three
  * light steps (aqua, yellow, magenta) sit below 3:1 on white, so every chart ships a values
  * table next to it (the relief channel).

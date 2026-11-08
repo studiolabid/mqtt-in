@@ -63,7 +63,7 @@ export function useMessageExport(connectionId: MaybeRefOrGetter<string>): Messag
         kind === 'json'
           ? messagesToJson(messages, format)
           : messagesToCsv(messages, format, { bom: true })
-      const name = connections.get(id)?.name ?? 'mqtey'
+      const name = connections.get(id)?.name ?? 'mqtt-in'
       const path = await api.dialog.saveFile({
         title: 'Export messages',
         defaultPath: exportFileName(name, kind),

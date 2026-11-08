@@ -18,7 +18,7 @@ const logger = { warn: vi.fn(), error: vi.fn() }
 let dir: string
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'mqtey-store-'))
+  dir = mkdtempSync(join(tmpdir(), 'mqtt-in-store-'))
 })
 
 afterEach(() => {

@@ -1,8 +1,8 @@
 /**
  * IN-02 and the single-instance user decision: a file-mode launch (`electron out-*\/main/index.js`)
- * runs with the mqtey identity (name, package.json version) on the profile it was given; a second
+ * runs with the mqtt-in identity (name, package.json version) on the profile it was given; a second
  * launch on the same profile quits with code 0 and leaves the first with one window; and
- * MQTEY_E2E=1 without MQTEY_USER_DATA_DIR refuses to start (exit code 2) and writes nothing.
+ * MQTTIN_E2E=1 without MQTTIN_USER_DATA_DIR refuses to start (exit code 2) and writes nothing.
  * The second and the guarded launches are plain processes that quit on their own (spawnApp); the
  * guarded one is contained (contain-profile.cjs), so it can never reach the real profile.
  */
@@ -27,22 +27,22 @@ export default {
   async run(ctx) {
     const { step, log } = ctx
 
-    await step('a file-mode launch runs as mqtey on its own profile', async () => {
+    await step('a file-mode launch runs as mqtt-in on its own profile', async () => {
       const handle = await ctx.launch()
       const main = await ctx.app.evaluate(({ app }) => ({
         name: app.getName(),
         userData: app.getPath('userData'),
         argv: process.argv.slice(1)
       }))
-      const info = await ctx.page.evaluate(() => window.mqtey.app.getInfo())
+      const info = await ctx.page.evaluate(() => window.mqttIn.app.getInfo())
       log(`name=${main.name} version=${info.version} argv=${JSON.stringify(main.argv)}`)
       expect(
         main.argv.some((arg) => samePath(arg, MAIN)),
         'not a file-mode launch of the main script',
         main.argv
       )
-      expect(main.name === 'mqtey', 'app.getName() is not mqtey', main.name)
-      expect(info.name === 'mqtey', 'AppInfo.name is not mqtey', info.name)
+      expect(main.name === 'mqtt-in', 'app.getName() is not mqtt-in', main.name)
+      expect(info.name === 'mqtt-in', 'AppInfo.name is not mqtt-in', info.name)
       expect(info.version === VERSION, `AppInfo.version is not ${VERSION}`, info.version)
       expect(
         samePath(main.userData, handle.userData),
@@ -76,7 +76,7 @@ export default {
       await ctx.waitForTestId('welcome')
     })
 
-    await step('MQTEY_E2E=1 without MQTEY_USER_DATA_DIR refuses to start', async () => {
+    await step('MQTTIN_E2E=1 without MQTTIN_USER_DATA_DIR refuses to start', async () => {
       // Electron ignores APPDATA on Windows; the containment (spawnApp) is what protects the
       // real profile. A temporary APPDATA still catches code that would read the variable.
       const appData = createProfile('appdata')
@@ -98,7 +98,7 @@ export default {
           stderr: guarded.stderr.slice(0, 400)
         })
         expect(
-          guarded.stderr.includes('MQTEY_E2E=1 needs MQTEY_USER_DATA_DIR'),
+          guarded.stderr.includes('MQTTIN_E2E=1 needs MQTTIN_USER_DATA_DIR'),
           'the guard did not say why',
           guarded.stderr.slice(0, 400)
         )

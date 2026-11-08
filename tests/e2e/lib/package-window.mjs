@@ -13,7 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
-public static class MqteyWindowProbe {
+public static class MqttInWindowProbe {
   [StructLayout(LayoutKind.Sequential)]
   public struct RECT { public int Left, Top, Right, Bottom; }
   public class Bounds {
@@ -95,7 +95,7 @@ export function inspectWindows(pid) {
   const script = [
     "$ErrorActionPreference = 'Stop'",
     `Add-Type -TypeDefinition @'\n${PROBE}\n'@`,
-    `[MqteyWindowProbe]::Inspect(${pid}) | ConvertTo-Json -Compress -Depth 5`
+    `[MqttInWindowProbe]::Inspect(${pid}) | ConvertTo-Json -Compress -Depth 5`
   ].join('\n')
   const encoded = Buffer.from(script, 'utf16le').toString('base64')
   const args = ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass']

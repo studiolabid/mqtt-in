@@ -31,7 +31,7 @@ export function createOrphanCleaner(deps: OrphanCleanerDeps): (event: Subscripti
       .then(() => api.mqtt.unsubscribe(event.connectionId, orphan))
       .then(deps.apply)
       .catch((err: unknown) => {
-        console.warn(`[mqtey] could not drop orphan subscription ${event.topic}:`, err)
+        console.warn(`[mqtt-in] could not drop orphan subscription ${event.topic}:`, err)
       })
       .finally(() => inFlight.delete(key))
   }

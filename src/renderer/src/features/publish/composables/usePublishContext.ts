@@ -4,7 +4,7 @@
  */
 import { inject, provide, type InjectionKey } from 'vue'
 
-const PUBLISH_CONNECTION: InjectionKey<() => string> = Symbol('mqtey.publish.connection')
+const PUBLISH_CONNECTION: InjectionKey<() => string> = Symbol('mqtt-in.publish.connection')
 
 /** Called by `PublishPanel`. */
 export function providePublishConnection(connectionId: () => string): void {

@@ -81,7 +81,7 @@ export function packageConfig(outName, distName) {
 
 /** `electron-builder --win --dir` of `outName` into `distName` (no installer, no publishing). */
 export async function packageApp(outName, distName) {
-  const folder = mkdtempSync(join(tmpdir(), 'mqtey-package-config-'))
+  const folder = mkdtempSync(join(tmpdir(), 'mqtt-in-package-config-'))
   try {
     const configFile = join(folder, 'electron-builder.json')
     writeFileSync(configFile, JSON.stringify(packageConfig(outName, distName), null, 2))

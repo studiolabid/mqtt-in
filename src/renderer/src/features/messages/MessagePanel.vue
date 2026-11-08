@@ -89,7 +89,7 @@ function closeDetail(): void {
     <MessageToolbar :connection-id="connectionId" :list="list" />
     <ResizablePanelGroup
       direction="horizontal"
-      auto-save-id="mqtey-messages-detail"
+      auto-save-id="mqtt-in-messages-detail"
       class="min-h-0 flex-1"
     >
       <ResizablePanel id="messages-list" :order="1" :min-size="30" class="min-w-0">

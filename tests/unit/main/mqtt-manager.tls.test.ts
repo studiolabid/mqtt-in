@@ -11,7 +11,7 @@ import { MqttManager } from '../../../src/main/services/mqtt/mqtt-manager'
 import { createRecorder, type Recorder, waitFor } from './helpers/broker'
 import { CERT_PEM, encryptedKeyPem, KEY_PEM, pemToDer } from './helpers/tls-fixtures'
 
-const dir = mkdtempSync(join(tmpdir(), 'mqtey-tls-it-'))
+const dir = mkdtempSync(join(tmpdir(), 'mqtt-in-tls-it-'))
 let broker: Aedes
 let server: Server
 let port = 0
@@ -51,8 +51,8 @@ function setup(tls: Partial<TlsSettings>): { profile: ConnectionProfile; recorde
     reconnectPeriod: 100,
     connectTimeout: 3000
   })
-  // The test certificate is self-signed for CN=mqtey-test.
-  const profile = { ...base, tls: { ...base.tls, servername: 'mqtey-test', ...tls } }
+  // The test certificate is self-signed for CN=mqtt-in-test.
+  const profile = { ...base, tls: { ...base.tls, servername: 'mqtt-in-test', ...tls } }
   const recorder = createRecorder()
   manager = new MqttManager({
     profiles: { get: (id) => (id === profile.id ? profile : undefined) },

@@ -236,7 +236,9 @@ describe('toDisplayJson', () => {
   })
 
   it('never mistakes a string for one of its number placeholders', () => {
-    const strings = { a: '__mqtey_x_0__', b: '"__mqtey_0__"', n: NaN }
-    expect(toDisplayJson(strings, 0)).toBe('{"a":"__mqtey_x_0__","b":"\\"__mqtey_0__\\"","n":NaN}')
+    const strings = { a: '__mqttin_x_0__', b: '"__mqttin_0__"', n: NaN }
+    expect(toDisplayJson(strings, 0)).toBe(
+      '{"a":"__mqttin_x_0__","b":"\\"__mqttin_0__\\"","n":NaN}'
+    )
   })
 })

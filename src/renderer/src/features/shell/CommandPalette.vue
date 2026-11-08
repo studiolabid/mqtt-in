@@ -59,7 +59,7 @@ function toggle(): void {
 }
 
 function report(err: unknown): void {
-  console.error('[mqtey] command failed:', err)
+  console.error('[mqtt-in] command failed:', err)
 }
 
 async function run(action: () => unknown): Promise<void> {

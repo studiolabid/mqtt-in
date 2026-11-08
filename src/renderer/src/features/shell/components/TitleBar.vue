@@ -48,7 +48,7 @@ function openPalette(): void {
          so the palette trigger is centered on the window. -->
     <div class="flex min-w-0 items-center gap-2" :class="isMac ? 'pl-[78px]' : 'pl-3'">
       <AppLogo class="size-5" />
-      <span class="text-sm font-semibold tracking-tight">mqtey</span>
+      <span class="text-sm font-semibold tracking-tight">mqtt-in</span>
       <Tooltip>
         <TooltipTrigger as-child>
           <Button

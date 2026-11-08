@@ -2,7 +2,7 @@
  * Process helpers. They only ever stop processes this run started: a child process handle we
  * own (never a process name), or an Electron process whose command line names one of the
  * temporary profiles this run created (Chromium passes `--user-data-dir=<profile>` to every
- * child process). Other agents' Electron and the user's own mqtey are never touched.
+ * child process). Other agents' Electron and the user's own mqtt-in are never touched.
  */
 import { execFileSync, spawnSync } from 'node:child_process'
 import { basename } from 'node:path'

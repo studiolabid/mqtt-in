@@ -1,12 +1,12 @@
 /**
- * IN-01: what makes an automation window (MQTEY_E2E=1) safe for the user's desktop, as a pure
+ * IN-01: what makes an automation window (MQTTIN_E2E=1) safe for the user's desktop, as a pure
  * decision function (`automationWindowProblems`, self-tested with fake values in the suite) and
  * the read-only collection of the real window's facts (`readWindowFacts`).
  */
 import { nativeHandle, winStyle } from './platform.mjs'
 
 /** Native title of an automation window (src/main/window-options.ts). */
-export const AUTOMATION_TITLE = 'mqtey (automation)'
+export const AUTOMATION_TITLE = 'mqtt-in (automation)'
 
 /** Keeps a window out of the taskbar, Alt+Tab and Task View. */
 export const WS_EX_TOOLWINDOW = 0x80

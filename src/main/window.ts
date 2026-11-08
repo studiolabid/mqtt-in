@@ -3,11 +3,11 @@
  * inset traffic lights on macOS), sandboxed renderer, persisted geometry, and a renderer that is
  * reloaded when it crashes (`watchRendererHealth`).
  *
- * The UI loads from `app://mqtey/index.html` (served by `app-protocol.ts`), or from the Vite dev
+ * The UI loads from `app://mqtt-in/index.html` (served by `app-protocol.ts`), or from the Vite dev
  * server in development. DevTools exist in development runs only. A page that fails to load never
  * stays a blank window (`watchLoadFailures`).
  *
- * Automated runs (`MQTEY_E2E=1`) get a window that never appears on the user's desktop (see
+ * Automated runs (`MQTTIN_E2E=1`) get a window that never appears on the user's desktop (see
  * `windowChromeOptions`) and no crash, hang or load-failure dialogs. Native dialogs of the app
  * still would: automation must stub `dialog.*` (through `electronApp.evaluate`) before triggering
  * an import, export or file picker.
@@ -29,10 +29,10 @@ export interface MainWindowOptions {
   windowState: WindowStateRepo
   /** Theme from the settings (decides the initial background: no white flash). */
   theme: ThemeMode
-  /** Vite dev server URL in development; `app://mqtey/index.html` is loaded otherwise. */
+  /** Vite dev server URL in development; `app://mqtt-in/index.html` is loaded otherwise. */
   devServerUrl?: string
   /**
-   * Automated runs (`MQTEY_E2E=1`): an off-screen tool window that opens without taking focus,
+   * Automated runs (`MQTTIN_E2E=1`): an off-screen tool window that opens without taking focus,
    * with no taskbar or Alt+Tab entry, no DevTools and no crash, hang or load-failure dialogs;
    * its geometry is not saved.
    */
@@ -57,7 +57,7 @@ function routeOf(url: string): string {
 
 /**
  * Loads the UI at a hash route ('' = the start page): the Vite dev server in development,
- * `app://mqtey/index.html` otherwise. The first load and crash reloads both come here.
+ * `app://mqtt-in/index.html` otherwise. The first load and crash reloads both come here.
  */
 function loadRenderer(win: BrowserWindow, devServerUrl: string | undefined, route = ''): void {
   if (win.isDestroyed()) return

@@ -1,5 +1,5 @@
 /**
- * Bundle check of a finished build: out/ by default, or MQTEY_E2E_OUT=out-<name> for a build made
+ * Bundle check of a finished build: out/ by default, or MQTTIN_E2E_OUT=out-<name> for a build made
  * with `npx electron-vite build --outDir out-<name>`.
  *
  *   npm run test:bundle     (node tests/e2e/check-bundle.mjs; npm run test:e2e runs it as well)
@@ -23,7 +23,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const OUT_DIR = process.env.MQTEY_E2E_OUT || 'out'
+const OUT_DIR = process.env.MQTTIN_E2E_OUT || 'out'
 const OUT = resolve(ROOT, OUT_DIR)
 const RENDERER = join(OUT, 'renderer')
 const VITE_DIR = join(RENDERER, '.vite')
@@ -99,7 +99,7 @@ const startupFiles = [...startup].map((key) => manifest[key].file).filter((f) =>
 const startupBytes = startupFiles.reduce((sum, file) => sum + bytesOf(file), 0)
 const startupCss = [...new Set([...startup].flatMap((key) => manifest[key].css ?? []))]
 
-console.log(`mqtey bundle check — ${relative(ROOT, RENDERER) || RENDERER}`)
+console.log(`mqtt-in bundle check — ${relative(ROOT, RENDERER) || RENDERER}`)
 console.log('Startup JavaScript (entry chunk + its static imports):')
 for (const file of [...startupFiles].sort((a, b) => bytesOf(b) - bytesOf(a))) {
   console.log(

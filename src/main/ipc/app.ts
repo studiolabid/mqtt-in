@@ -40,7 +40,7 @@ export interface AppIpcDeps {
 }
 
 /**
- * `shell.showItemInFolder`, except in automated runs (`MQTEY_E2E=1`): they never open a window
+ * `shell.showItemInFolder`, except in automated runs (`MQTTIN_E2E=1`): they never open a window
  * on the user's desktop, so the request is only logged.
  */
 export function revealInFileManager(path: string): void {

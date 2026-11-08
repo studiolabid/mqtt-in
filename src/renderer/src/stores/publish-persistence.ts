@@ -79,7 +79,7 @@ export function createPublishPersistence(state: PublishState): PublishPersistenc
       if (key === 'drafts') await api.storage.set(DRAFTS_KEY, serializeDrafts(state.drafts.value))
       else await api.storage.set(HISTORY_KEY, serializeHistory(state.history.value))
     } catch (err) {
-      console.warn(`[mqtey] could not save publish ${key}:`, err)
+      console.warn(`[mqtt-in] could not save publish ${key}:`, err)
     }
   }
 

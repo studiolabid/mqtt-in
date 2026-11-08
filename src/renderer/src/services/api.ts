@@ -1,33 +1,33 @@
 /**
- * The renderer's only access point to the preload bridge (`window.mqtey`).
+ * The renderer's only access point to the preload bridge (`window.mqttIn`).
  *
  * `api` resolves the bridge lazily (so tests can install a fake) and copies every argument
  * into plain data before it crosses the IPC boundary: Vue reactive proxies cannot be
  * structured-cloned ("An object could not be cloned"), so callers may pass store state as is.
  */
-import type { MqteyApi } from '@shared/ipc'
+import type { MqttInApi } from '@shared/ipc'
 import { toPlain } from '@/utils/plain'
 
 const MISSING_BRIDGE =
-  'The mqtey bridge (window.mqtey) is not available: the renderer must run inside the mqtey ' +
+  'The mqtt-in bridge (window.mqttIn) is not available: the renderer must run inside the mqtt-in ' +
   'desktop app with its preload script.'
 
-let cached: { raw: MqteyApi; safe: MqteyApi } | undefined
+let cached: { raw: MqttInApi; safe: MqttInApi } | undefined
 
-function resolveBridge(): MqteyApi {
-  const bridge: MqteyApi | undefined = typeof window === 'undefined' ? undefined : window.mqtey
+function resolveBridge(): MqttInApi {
+  const bridge: MqttInApi | undefined = typeof window === 'undefined' ? undefined : window.mqttIn
   if (!bridge) throw new Error(MISSING_BRIDGE)
   return bridge
 }
 
-function current(): MqteyApi {
+function current(): MqttInApi {
   const raw = resolveBridge()
   if (cached?.raw !== raw) cached = { raw, safe: createSafeApi(raw) }
   return cached.safe
 }
 
 /** Wraps every request so its arguments are plain, clone-safe copies. */
-function createSafeApi(raw: MqteyApi): MqteyApi {
+function createSafeApi(raw: MqttInApi): MqttInApi {
   const { connections, settings, storage, mqtt, dialog, app, window: win } = raw
   return {
     connections: {
@@ -85,36 +85,36 @@ function createSafeApi(raw: MqteyApi): MqteyApi {
 }
 
 /**
- * Typed bridge to the main process (see `MqteyApi` in `@shared/ipc`).
+ * Typed bridge to the main process (see `MqttInApi` in `@shared/ipc`).
  * Accessing any namespace throws a clear error when the preload bridge is missing.
  */
-export const api: MqteyApi = {
-  get connections(): MqteyApi['connections'] {
+export const api: MqttInApi = {
+  get connections(): MqttInApi['connections'] {
     return current().connections
   },
-  get settings(): MqteyApi['settings'] {
+  get settings(): MqttInApi['settings'] {
     return current().settings
   },
-  get storage(): MqteyApi['storage'] {
+  get storage(): MqttInApi['storage'] {
     return current().storage
   },
-  get mqtt(): MqteyApi['mqtt'] {
+  get mqtt(): MqttInApi['mqtt'] {
     return current().mqtt
   },
-  get dialog(): MqteyApi['dialog'] {
+  get dialog(): MqttInApi['dialog'] {
     return current().dialog
   },
-  get app(): MqteyApi['app'] {
+  get app(): MqttInApi['app'] {
     return current().app
   },
-  get window(): MqteyApi['window'] {
+  get window(): MqttInApi['window'] {
     return current().window
   }
 }
 
 /** True when the preload bridge is installed (e.g. false in a plain browser tab). */
 export function isBridgeAvailable(): boolean {
-  return typeof window !== 'undefined' && Boolean(window.mqtey)
+  return typeof window !== 'undefined' && Boolean(window.mqttIn)
 }
 
 const REMOTE_PREFIX = /^Error invoking remote method '[^']*':\s*(?:[A-Za-z]*Error:\s*)?/

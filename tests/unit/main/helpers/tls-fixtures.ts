@@ -1,28 +1,28 @@
 /**
- * TLS test material: a self-signed EC certificate with its key (CN=mqtey-test, valid until
+ * TLS test material: a self-signed EC certificate with its key (CN=mqtt-in-test, valid until
  * 2126; test data only, never trusted anywhere), plus generated keys for passphrase and
  * mismatch cases.
  */
 import { generateKeyPairSync } from 'node:crypto'
 
 export const CERT_PEM = `-----BEGIN CERTIFICATE-----
-MIIBgjCCASegAwIBAgIUALScbTVISWY73Ws1h+q53I3SljYwCgYIKoZIzj0EAwIw
-FTETMBEGA1UEAwwKbXF0ZXktdGVzdDAgFw0yNjExMDgwNDI3MzdaGA8yMTI2MTAx
-NTA0MjczN1owFTETMBEGA1UEAwwKbXF0ZXktdGVzdDBZMBMGByqGSM49AgEGCCqG
-SM49AwEHA0IABPbN6dPd2h7CcKUEY/Pcf5+/Nm523kghLekjd7+S8ke7MGadnebt
-zp8CByrGw1suB+p8i7uTMLASlRMitjHvCVWjUzBRMB0GA1UdDgQWBBQ5AzvXO6py
-dQzVts08XDFDBoXZFTAfBgNVHSMEGDAWgBQ5AzvXO6pydQzVts08XDFDBoXZFTAP
-BgNVHRMBAf8EBTADAQH/MAoGCCqGSM49BAMCA0kAMEYCIQCWlzoU4JansFQuduRU
-W9VXy4w9T8AH5l9wH1PiS0EioAIhAN7Ebticty6gHJ6/WgvqykNP4+qe9Ow5fjeB
-pvY9jgg4
+MIIBhTCCASugAwIBAgIUSN8UopLIaQG9g4ShvK3/VfTMmKAwCgYIKoZIzj0EAwIw
+FzEVMBMGA1UEAwwMbXF0dC1pbi10ZXN0MCAXDTI2MTEwODA4MjQwNFoYDzIxMjYx
+MDE1MDgyNDA0WjAXMRUwEwYDVQQDDAxtcXR0LWluLXRlc3QwWTATBgcqhkjOPQIB
+BggqhkjOPQMBBwNCAATLliYaH9CwAPqh9RcXzHEEpt1R+/jbttIM4barQoOUfzD1
+W/K4hBnYb327IXv2k6K/YwSSLWPjS0iEPqn8hlKJo1MwUTAdBgNVHQ4EFgQUspqc
+d/E9Mc6VjF2RRZSxNYEPUwswHwYDVR0jBBgwFoAUspqcd/E9Mc6VjF2RRZSxNYEP
+UwswDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNIADBFAiEAoCv/huQk7rLT
+XzxLs5k0s/1K4Ojr8fKHhkZJc0b3TTgCIE8/9JhRAqarz7JNqQWHLImBP84zkfLj
+uCZMws3dcxt3
 -----END CERTIFICATE-----
 `
 
 /** The private key of CERT_PEM (PKCS#8, unencrypted). */
 export const KEY_PEM = `-----BEGIN PRIVATE KEY-----
-MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgecfo8S0Baxe+OMGK
-V+bxOKzcDK1bRdTZcosA2gxEZ3ahRANCAAT2zenT3doewnClBGPz3H+fvzZudt5I
-IS3pI3e/kvJHuzBmnZ3m7c6fAgcqxsNbLgfqfIu7kzCwEpUTIrYx7wlV
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgzUPV1HZUEyuc3UzA
+WTzWEOKwtwU0sefKZQ679VtObCmhRANCAATLliYaH9CwAPqh9RcXzHEEpt1R+/jb
+ttIM4barQoOUfzD1W/K4hBnYb327IXv2k6K/YwSSLWPjS0iEPqn8hlKJ
 -----END PRIVATE KEY-----
 `
 

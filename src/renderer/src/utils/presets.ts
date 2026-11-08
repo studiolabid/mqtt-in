@@ -17,9 +17,9 @@ export interface BrokerPreset {
   profile: Partial<ConnectionProfile>
 }
 
-/** `mqtey/#` makes the quick start useful: publish to `mqtey/test` and see it arrive. */
+/** `mqtt-in/#` makes the quick start useful: publish to `mqtt-in/test` and see it arrive. */
 const demoSubscriptions = (): ConnectionProfile['subscriptions'] => [
-  createSubscription({ topic: 'mqtey/#', qos: 0 })
+  createSubscription({ topic: 'mqtt-in/#', qos: 0 })
 ]
 
 export const BROKER_PRESETS: readonly BrokerPreset[] = [

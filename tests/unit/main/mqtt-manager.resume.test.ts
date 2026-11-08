@@ -50,7 +50,7 @@ async function setup(overrides: Partial<ConnectionProfile>): Promise<{
     host: '127.0.0.1',
     port,
     protocolVersion: 4,
-    clientId: 'mqtey-resume',
+    clientId: 'mqtt-in-resume',
     autoReconnect: false,
     ...overrides
   })

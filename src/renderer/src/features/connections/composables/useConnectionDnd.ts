@@ -5,7 +5,7 @@
 import { ref, type Ref } from 'vue'
 import { moveId, sameOrder, type DropPosition } from '../utils/order'
 
-const DRAG_TYPE = 'application/x-mqtey-connection'
+const DRAG_TYPE = 'application/x-mqtt-in-connection'
 
 export interface DropTarget {
   id: string

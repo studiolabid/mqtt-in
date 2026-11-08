@@ -15,7 +15,7 @@ import {
   readFileWithLimit
 } from '../../../src/main/ipc/file-dialogs'
 
-const DOCUMENTS = resolve(tmpdir(), 'mqtey-documents')
+const DOCUMENTS = resolve(tmpdir(), 'mqtt-in-documents')
 
 const electron = vi.hoisted(() => ({ showOpenDialog: vi.fn(), showSaveDialog: vi.fn() }))
 
@@ -28,7 +28,7 @@ const MB = 1024 * 1024
 let dir: string
 
 beforeAll(() => {
-  dir = mkdtempSync(join(tmpdir(), 'mqtey-file-dialogs-'))
+  dir = mkdtempSync(join(tmpdir(), 'mqtt-in-file-dialogs-'))
   mkdirSync(join(dir, 'folder'))
 })
 
@@ -110,11 +110,11 @@ describe('chooseOpenPath', () => {
 describe('chooseSavePath', () => {
   it('starts a bare file name in the Documents folder', async () => {
     electron.showSaveDialog.mockResolvedValueOnce({ canceled: false, filePath: 'C:\\out.json' })
-    expect(await chooseSavePath(null, { defaultPath: 'mqtey-connections.json' })).toBe(
+    expect(await chooseSavePath(null, { defaultPath: 'mqtt-in-connections.json' })).toBe(
       'C:\\out.json'
     )
     expect(electron.showSaveDialog.mock.calls[0][0]).toMatchObject({
-      defaultPath: join(DOCUMENTS, 'mqtey-connections.json')
+      defaultPath: join(DOCUMENTS, 'mqtt-in-connections.json')
     })
   })
 

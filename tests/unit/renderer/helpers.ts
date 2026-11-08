@@ -2,7 +2,7 @@
  * Helpers shared by the renderer test suites: message factories and a fake preload bridge.
  */
 import { vi } from 'vitest'
-import type { MqteyApi } from '@shared/ipc'
+import type { MqttInApi } from '@shared/ipc'
 import type {
   BrokerInfo,
   ConnectionProfile,
@@ -57,7 +57,7 @@ export function importResult(
     skipped: [],
     duplicates: 0,
     tlsPathsCleared: 0,
-    source: 'mqtey',
+    source: 'mqtt-in',
     ...overrides
   }
 }
@@ -119,7 +119,7 @@ export interface FakeListeners {
 }
 
 export interface FakeBridge {
-  api: MqteyApi
+  api: MqttInApi
   listeners: FakeListeners
   /** Profiles held by the fake main process. */
   stored: ConnectionProfile[]
@@ -137,7 +137,7 @@ function track<T>(list: T[], listener: T): () => void {
   }
 }
 
-/** A fake `window.mqtey` whose methods are `vi.fn()`s with realistic default behavior. */
+/** A fake `window.mqttIn` whose methods are `vi.fn()`s with realistic default behavior. */
 export function createFakeBridge(): FakeBridge {
   const listeners: FakeListeners = {
     status: [],
@@ -153,7 +153,7 @@ export function createFakeBridge(): FakeBridge {
   let settings = { ...DEFAULT_SETTINGS }
   let jobs = 0
 
-  const api: MqteyApi = {
+  const api: MqttInApi = {
     connections: {
       list: vi.fn(async () => structuredClone(stored)),
       save: vi.fn(async (profile: ConnectionProfile) => {
@@ -180,8 +180,8 @@ export function createFakeBridge(): FakeBridge {
       })
     },
     storage: {
-      // vi.fn() drops the generic signature, so restore it for the MqteyApi type.
-      get: vi.fn(async (key: string) => storage.get(key)) as MqteyApi['storage']['get'],
+      // vi.fn() drops the generic signature, so restore it for the MqttInApi type.
+      get: vi.fn(async (key: string) => storage.get(key)) as MqttInApi['storage']['get'],
       set: vi.fn(async (key: string, value: unknown) => {
         storage.set(key, structuredClone(value))
       })
@@ -236,10 +236,10 @@ export function createFakeBridge(): FakeBridge {
   return { api, listeners, stored, storage, notices }
 }
 
-/** Installs a fresh fake bridge as `window.mqtey` and returns it. */
+/** Installs a fresh fake bridge as `window.mqttIn` and returns it. */
 export function installFakeBridge(): FakeBridge {
   const bridge = createFakeBridge()
-  vi.stubGlobal('window', { mqtey: bridge.api })
+  vi.stubGlobal('window', { mqttIn: bridge.api })
   return bridge
 }
 

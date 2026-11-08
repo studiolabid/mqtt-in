@@ -57,7 +57,7 @@ let dir: string
 let storage: Storage | null
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'mqtey-app-ipc-'))
+  dir = mkdtempSync(join(tmpdir(), 'mqtt-in-app-ipc-'))
   storage = null
   knownFiles.clear()
   vi.clearAllMocks()

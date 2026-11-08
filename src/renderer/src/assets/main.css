@@ -68,7 +68,7 @@
   --color-foreground: var(--foreground);
   --color-background: var(--background);
 
-  /* mqtey semantic tokens */
+  /* mqtt-in semantic tokens */
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);

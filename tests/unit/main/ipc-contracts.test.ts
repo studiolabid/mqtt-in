@@ -77,7 +77,7 @@ let file: JsonFile<ConnectionsFile>
 let repo: ConnectionsRepo
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'mqtey-ipc-'))
+  dir = mkdtempSync(join(tmpdir(), 'mqtt-in-ipc-'))
   file = new JsonFile<ConnectionsFile>(dir, 'connections', {
     logger: { warn: vi.fn(), error: vi.fn() }
   })
@@ -176,10 +176,10 @@ describe('forwardStorageNotices', () => {
 describe('revealInFileManager', () => {
   it('opens the file manager, but never in an automated run', () => {
     vi.spyOn(console, 'log').mockImplementation(() => undefined)
-    vi.stubEnv('MQTEY_E2E', '1')
+    vi.stubEnv('MQTTIN_E2E', '1')
     revealInFileManager('/exports/a.json')
     expect(electron.showItemInFolder).not.toHaveBeenCalled()
-    vi.stubEnv('MQTEY_E2E', '')
+    vi.stubEnv('MQTTIN_E2E', '')
     revealInFileManager('/exports/a.json')
     expect(electron.showItemInFolder).toHaveBeenCalledWith('/exports/a.json')
   })
@@ -236,7 +236,7 @@ describe('connections.exportToFile / importFromFile', () => {
     const source = join(dir, 'import.json')
     const invalid = Array.from({ length: 25 }, (_, i) => ({ name: `Bad ${i}`, port: 99_999 }))
     const connections = [{ name: 'Good', host: 'broker.local' }, 'not an object', ...invalid]
-    writeFileSync(source, JSON.stringify({ app: 'mqtey', version: 1, connections }))
+    writeFileSync(source, JSON.stringify({ app: 'mqtt-in', version: 1, connections }))
     electron.showOpenDialog.mockResolvedValueOnce({ canceled: false, filePaths: [source] })
 
     const result = (await setup().invoke(IPC.connectionsImport)) as ImportConnectionsResult
@@ -245,7 +245,7 @@ describe('connections.exportToFile / importFromFile', () => {
     // Entries without a name are listed without one; positions stay in main.
     expect(Object.keys(result.skipped[0])).toEqual(['reason'])
     expect(result.skipped[1]).toEqual({ name: 'Bad 0', reason: expect.stringContaining('port') })
-    expect(result).toMatchObject({ duplicates: 0, tlsPathsCleared: 0, source: 'mqtey' })
+    expect(result).toMatchObject({ duplicates: 0, tlsPathsCleared: 0, source: 'mqtt-in' })
     expect(repo.list().map((p) => p.name)).toEqual(['Good'])
   })
 

@@ -67,7 +67,7 @@ describe('useSessionsStore', () => {
     store.handleStatus({
       connectionId: id,
       status: 'connected',
-      clientId: 'mqtey_1',
+      clientId: 'mqttin_1',
       connectedAt: 1234,
       sessionPresent: false,
       timestamp: 1240
@@ -76,7 +76,7 @@ describe('useSessionsStore', () => {
       connectionId: id,
       status: 'connected',
       error: undefined,
-      clientId: 'mqtey_1',
+      clientId: 'mqttin_1',
       connectedAt: 1234,
       updatedAt: 1240
     })
@@ -234,13 +234,13 @@ describe('useSessionsStore', () => {
         status: 'connected',
         broker,
         connectedAt: 10,
-        clientId: 'mqtey_0a1b2c3d',
+        clientId: 'mqttin_0a1b2c3d',
         timestamp: 10
       })
       store.handleStatus({ connectionId: id, status: 'connected', rttMs: 34, timestamp: 5_000 })
       expect(store.rttMs(id)).toBe(34)
       expect(store.brokerInfo(id)).toEqual(broker)
-      expect(store.get(id)).toMatchObject({ connectedAt: 10, clientId: 'mqtey_0a1b2c3d' })
+      expect(store.get(id)).toMatchObject({ connectedAt: 10, clientId: 'mqttin_0a1b2c3d' })
       store.handleStatus({ connectionId: id, status: 'connected', rttMs: 51, timestamp: 10_000 })
       expect(store.rttMs(id)).toBe(51)
     })

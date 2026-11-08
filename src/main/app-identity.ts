@@ -10,12 +10,12 @@ import { version } from '../../package.json'
 export const APP_VERSION: string = version
 
 /** Windows AppUserModelID of automated runs: never grouped with the user's own window. */
-export const AUTOMATION_APP_USER_MODEL_ID = 'com.mqtey.app.automation'
+export const AUTOMATION_APP_USER_MODEL_ID = 'com.mqttin.app.automation'
 
 export interface UserDataDirInput {
   /** `app.getPath('appData')` (%APPDATA% on Windows). */
   appData: string
-  /** `MQTEY_USER_DATA_DIR`: an isolated profile (automated runs, parallel test runs). */
+  /** `MQTTIN_USER_DATA_DIR`: an isolated profile (automated runs, parallel test runs). */
   override?: string
   /** The app name (`APP_NAME`). */
   name: string
@@ -28,9 +28,9 @@ export function resolveUserDataDir({ appData, override, name }: UserDataDirInput
 }
 
 /**
- * `MQTEY_E2E=1` marks an automated run (tests, scripts, agents): its window never appears on the
+ * `MQTTIN_E2E=1` marks an automated run (tests, scripts, agents): its window never appears on the
  * user's desktop (see `windowChromeOptions`).
  */
 export function isAutomationRun(env: Readonly<Record<string, string | undefined>>): boolean {
-  return env.MQTEY_E2E === '1'
+  return env.MQTTIN_E2E === '1'
 }

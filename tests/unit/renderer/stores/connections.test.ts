@@ -186,7 +186,7 @@ describe('useConnectionsStore', () => {
     expect(logs.entries(id)).toEqual([])
     expect(logs.revision(id)).toBe(0)
     expect(publish.history(id)).toEqual([])
-    expect(publish.draft(id).topic).toBe('mqtey/test')
+    expect(publish.draft(id).topic).toBe('mqtt-in/test')
     expect(subscriptions.stateOf(id, subId)).toBeUndefined()
     expect(sessions.statusOf(id)).toBe('disconnected')
     expect(sessions.rttMs(id)).toBeUndefined()
@@ -219,7 +219,7 @@ describe('useConnectionsStore', () => {
   it('duplicates with new ids right after the original', async () => {
     const source = createConnectionProfile({
       name: 'Broker',
-      clientId: 'mqtey_0a1b2c3d',
+      clientId: 'mqttin_0a1b2c3d',
       lastConnectedAt: 9,
       subscriptions: [createSubscription({ topic: 'a/#' })]
     })
@@ -229,7 +229,7 @@ describe('useConnectionsStore', () => {
     expect(copy).not.toBeNull()
     expect(copy?.id).not.toBe(source.id)
     expect(copy?.name).toBe('Broker copy')
-    expect(copy?.clientId).toMatch(/^mqtey_[0-9a-f]{8}$/)
+    expect(copy?.clientId).toMatch(/^mqttin_[0-9a-f]{8}$/)
     expect(copy?.clientId).not.toBe(source.clientId)
     expect(copy?.lastConnectedAt).toBeUndefined()
     expect(copy?.subscriptions[0].topic).toBe('a/#')

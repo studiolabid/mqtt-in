@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-public static class MqteyWinStyle {
+public static class MqttInWinStyle {
   [StructLayout(LayoutKind.Sequential)]
   public struct RECT { public int Left, Top, Right, Bottom; }
 
@@ -125,8 +125,8 @@ public static class MqteyWinStyle {
 }
 '@
 
-[MqteyWinStyle]::PhysicalPixels()
-$foreground = [MqteyWinStyle]::GetForegroundWindow()
+[MqttInWinStyle]::PhysicalPixels()
+$foreground = [MqttInWinStyle]::GetForegroundWindow()
 $report = [ordered]@{
   foregroundHwnd = $foreground.ToInt64().ToString()
   window = $null
@@ -134,8 +134,8 @@ $report = [ordered]@{
 }
 if ($Hwnd -ne '') {
   $handle = [IntPtr]::new([Int64]::Parse($Hwnd))
-  if ([MqteyWinStyle]::IsWindow($handle)) {
-    $info = [MqteyWinStyle]::Describe($handle)
+  if ([MqttInWinStyle]::IsWindow($handle)) {
+    $info = [MqttInWinStyle]::Describe($handle)
     $report.window = [ordered]@{
       hwnd = $info.Hwnd
       title = $info.Title
@@ -155,7 +155,7 @@ if ($Hwnd -ne '') {
 }
 if ($ProcessId -gt 0) {
   $report.processWindows = @(
-    [MqteyWinStyle]::VisibleWindowsOf([uint32]$ProcessId) | ForEach-Object {
+    [MqttInWinStyle]::VisibleWindowsOf([uint32]$ProcessId) | ForEach-Object {
       [ordered]@{
         hwnd = $_.Hwnd
         title = $_.Title

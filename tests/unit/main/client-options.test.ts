@@ -45,7 +45,7 @@ describe('buildClientOptions', () => {
 
   it('generates a client id when the profile has none', () => {
     const { options, clientId } = buildClientOptions(profile({ clientId: '  ' }), noFiles)
-    expect(clientId).toMatch(/^mqtey_[0-9a-f]{8}$/)
+    expect(clientId).toMatch(/^mqttin_[0-9a-f]{8}$/)
     expect(options.clientId).toBe(clientId)
   })
 

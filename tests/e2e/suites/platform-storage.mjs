@@ -20,9 +20,9 @@ import {
 } from '../lib/platform-storage.mjs'
 
 const UNKNOWN_FILE = process.platform === 'win32' ? 'C:\\Windows\\win.ini' : '/etc/hosts'
-const notices = (page) => page.evaluate(() => window.mqtey.app.getStorageNotices())
+const notices = (page) => page.evaluate(() => window.mqttIn.app.getStorageNotices())
 const names = async (page) =>
-  (await page.evaluate(() => window.mqtey.connections.list())).map((profile) => profile.name)
+  (await page.evaluate(() => window.mqttIn.connections.list())).map((profile) => profile.name)
 
 /** 'Show file' on the toast: resolves without a shell call (automation only logs it). */
 async function showFileWithoutShell(ctx, title, path) {
@@ -55,7 +55,7 @@ export default {
 
     await step("'Show file' refuses files main does not know", async () => {
       const refused = await outcome(
-        ctx.page.evaluate((path) => window.mqtey.app.showItemInFolder(path), UNKNOWN_FILE)
+        ctx.page.evaluate((path) => window.mqttIn.app.showItemInFolder(path), UNKNOWN_FILE)
       )
       expect(!refused.ok && /Unknown file/.test(refused.error), 'not refused', refused)
     })
@@ -63,13 +63,13 @@ export default {
     await step('exports leave secrets out unless asked, and can be revealed', async () => {
       const page = ctx.page
       await page.evaluate(
-        (profile) => window.mqtey.connections.save(profile),
+        (profile) => window.mqttIn.connections.save(profile),
         connectionProfile({ id: 'secret', username: 'ops', password: 'hunter2-SECRET' })
       )
       const plain = join(ctx.handle.userData, 'export-default.json')
       await nextDialogResult(ctx.app, 'showSaveDialog', { canceled: false, filePath: plain })
       const written = await page.evaluate(() =>
-        window.mqtey.connections.exportToFile(undefined, { includeSecrets: false })
+        window.mqttIn.connections.exportToFile(undefined, { includeSecrets: false })
       )
       expect(written === plain, 'the export did not go to the chosen file', written)
       const saveDialogs = await nativeCalls(ctx.app, 'showSaveDialog')
@@ -79,7 +79,7 @@ export default {
       const secrets = join(ctx.handle.userData, 'export-secrets.json')
       await nextDialogResult(ctx.app, 'showSaveDialog', { canceled: false, filePath: secrets })
       await page.evaluate(() =>
-        window.mqtey.connections.exportToFile(undefined, { includeSecrets: true })
+        window.mqttIn.connections.exportToFile(undefined, { includeSecrets: true })
       )
       expect(
         (ctx.handle.readFile('export-secrets.json') ?? '').includes('hunter2-SECRET'),
@@ -87,12 +87,12 @@ export default {
       )
       const invalid = await outcome(
         page.evaluate(() =>
-          window.mqtey.connections.exportToFile(undefined, { includeSecrets: 'yes' })
+          window.mqttIn.connections.exportToFile(undefined, { includeSecrets: 'yes' })
         )
       )
       expect(!invalid.ok && /Invalid export options/.test(invalid.error), 'bad options', invalid)
       const reveal = await outcome(
-        page.evaluate((path) => window.mqtey.app.showItemInFolder(path), plain)
+        page.evaluate((path) => window.mqttIn.app.showItemInFolder(path), plain)
       )
       expect(reveal.ok, 'an exported file cannot be revealed', reveal)
       await waitFor(
@@ -111,7 +111,7 @@ export default {
       writeFileSync(
         file,
         JSON.stringify({
-          app: 'mqtey',
+          app: 'mqtt-in',
           version: 1,
           connections: [
             { name: 'Imported broker', host: 'broker.local', clientId: 'plant-gw-1' },
@@ -120,7 +120,7 @@ export default {
         })
       )
       await nextDialogResult(ctx.app, 'showOpenDialog', { canceled: false, filePaths: [file] })
-      const result = await ctx.page.evaluate(() => window.mqtey.connections.importFromFile())
+      const result = await ctx.page.evaluate(() => window.mqttIn.connections.importFromFile())
       const openDialogs = await nativeCalls(ctx.app, 'showOpenDialog')
       expect(openDialogs.length === 1, 'the open dialog stub was not used', openDialogs)
       log(`imported ${result?.imported?.length}, skipped ${JSON.stringify(result?.skipped)}`)
@@ -133,13 +133,13 @@ export default {
           !('index' in result.skipped[0]) &&
           result.duplicates === 0 &&
           result.tlsPathsCleared === 0 &&
-          result.source === 'mqtey',
+          result.source === 'mqtt-in',
         'unexpected import result',
         result
       )
       const again = join(ctx.handle.userData, 'export-default.json')
       await nextDialogResult(ctx.app, 'showOpenDialog', { canceled: false, filePaths: [again] })
-      const twice = await ctx.page.evaluate(() => window.mqtey.connections.importFromFile())
+      const twice = await ctx.page.evaluate(() => window.mqttIn.connections.importFromFile())
       expect(
         twice?.imported?.length === 0 && twice.duplicates === 1,
         'importing an export of saved connections added copies',
@@ -151,7 +151,7 @@ export default {
       const notice = { kind: 'write-failed', file: 'storage.json', message: 'e2e', timestamp: 7 }
       await ctx.page.evaluate(() => {
         window.__e2eNotices = []
-        window.__e2eOff = window.mqtey.app.onStorageNotice((n) => window.__e2eNotices.push(n))
+        window.__e2eOff = window.mqttIn.app.onStorageNotice((n) => window.__e2eNotices.push(n))
       })
       await ctx.app.evaluate(({ BrowserWindow }, payload) => {
         BrowserWindow.getAllWindows()[0].webContents.send('app:event:storage-notice', payload)
@@ -249,7 +249,7 @@ export default {
       }
       // The user's first change of the session, once the other process let go of the file.
       await ctx.page.evaluate(
-        (profile) => window.mqtey.connections.save(profile),
+        (profile) => window.mqttIn.connections.save(profile),
         connectionProfile({ id: 'new-1', name: 'My new connection' })
       )
       await ctx.sleep(600)

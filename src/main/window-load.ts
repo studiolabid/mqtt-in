@@ -10,7 +10,7 @@ import { APP_NAME } from '@shared/defaults'
 export const ERR_ABORTED = -3
 
 export interface LoadFailureOptions {
-  /** Automated run (`MQTEY_E2E=1`): log only, never an error box. */
+  /** Automated run (`MQTTIN_E2E=1`): log only, never an error box. */
   background: boolean
   /** Keeps an entry in the main log (`main.log`). */
   log?: (kind: string, detail: unknown) => void

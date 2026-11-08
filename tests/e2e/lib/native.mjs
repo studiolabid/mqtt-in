@@ -8,7 +8,7 @@
 /** The stubs. `required` ones must take effect (or the launch fails). */
 function installStubs(electron) {
   const { app, clipboard, dialog, shell } = electron
-  const state = (globalThis.__mqteyE2E ??= { calls: [], next: {}, stubs: {}, skipped: [] })
+  const state = (globalThis.__mqttInE2E ??= { calls: [], next: {}, stubs: {}, skipped: [] })
   const clean = (value) => {
     if (value === null || value === undefined) return value ?? null
     if (typeof value === 'function') return '[function]'
@@ -83,7 +83,7 @@ function installStubs(electron) {
 
 /** Proof, from a second evaluate: the stubs are still in place and a call through main lands. */
 function proveStubs({ dialog, shell }) {
-  const state = globalThis.__mqteyE2E
+  const state = globalThis.__mqttInE2E
   if (!state) return 'no stub state'
   const pairs = [
     [dialog.showOpenDialog, 'dialog.showOpenDialog'],
@@ -97,8 +97,8 @@ function proveStubs({ dialog, shell }) {
   const lost = pairs.filter(([fn, name]) => fn !== state.stubs[name]).map(([, name]) => name)
   if (lost.length > 0) return `not stubbed: ${lost.join(', ')}`
   // Safe: showErrorBox is our stub (checked above), so this only records.
-  const marker = `mqtey-e2e-stub-check-${Date.now()}`
-  dialog.showErrorBox('mqtey e2e', marker)
+  const marker = `mqtt-in-e2e-stub-check-${Date.now()}`
+  dialog.showErrorBox('mqtt-in e2e', marker)
   const index = state.calls.findIndex((call) => call.args[1] === marker)
   if (index === -1) return 'the stub did not record the check call'
   state.calls.splice(index, 1)
@@ -134,14 +134,14 @@ function qualify(name) {
  * qualified), only those calls.
  */
 export async function nativeCalls(app, name) {
-  const calls = await app.evaluate(() => globalThis.__mqteyE2E?.calls ?? [])
+  const calls = await app.evaluate(() => globalThis.__mqttInE2E?.calls ?? [])
   return name ? calls.filter((call) => call.name === qualify(name)) : calls
 }
 
 /** Forgets the recorded native calls. */
 export async function clearNativeCalls(app) {
   await app.evaluate(() => {
-    if (globalThis.__mqteyE2E) globalThis.__mqteyE2E.calls = []
+    if (globalThis.__mqttInE2E) globalThis.__mqttInE2E.calls = []
   })
 }
 
@@ -153,7 +153,7 @@ export async function clearNativeCalls(app) {
 export async function nextDialogResult(app, name, result) {
   await app.evaluate(
     (_electron, { key, value }) => {
-      const state = globalThis.__mqteyE2E
+      const state = globalThis.__mqttInE2E
       if (!state) throw new Error('stubNativeShell has not run in this app')
       ;(state.next[key] ??= []).push(value)
     },

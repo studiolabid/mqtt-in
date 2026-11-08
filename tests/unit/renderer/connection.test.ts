@@ -120,7 +120,7 @@ describe('duplicateProfile', () => {
   it('copies with new ids, a unique name and fresh timestamps', () => {
     const source = createConnectionProfile({
       name: 'Broker',
-      clientId: 'mqtey_0a1b2c3d',
+      clientId: 'mqttin_0a1b2c3d',
       lastConnectedAt: 5,
       subscriptions: [createSubscription({ topic: 'a/#' })]
     })
@@ -132,7 +132,7 @@ describe('duplicateProfile', () => {
     expect(copy).not.toHaveProperty('lastConnectedAt')
     expect(copy.subscriptions[0]).toMatchObject({ topic: 'a/#' })
     expect(copy.subscriptions[0].id).not.toBe(source.subscriptions[0].id)
-    expect(copy.clientId).toMatch(/^mqtey_[0-9a-f]{8}$/)
+    expect(copy.clientId).toMatch(/^mqttin_[0-9a-f]{8}$/)
     expect(copy.clientId).not.toBe(source.clientId)
     expect(copy.tls).not.toBe(source.tls)
     expect(source.name).toBe('Broker')
@@ -148,7 +148,7 @@ describe('duplicateProfile', () => {
   it('follows the shared fresh-identity rule of imports (CT-08)', () => {
     const source = createConnectionProfile({
       name: 'Plant',
-      clientId: 'mqtey_0a1b2c3d',
+      clientId: 'mqttin_0a1b2c3d',
       subscriptions: [createSubscription({ topic: 'a/#', createdAt: 7 })]
     })
     const copy = duplicateProfile(source, [], 99)

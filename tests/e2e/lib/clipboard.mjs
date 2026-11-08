@@ -146,7 +146,7 @@ function installClipboardStub() {
  */
 export async function stubClipboardFromMain(app) {
   await app.evaluate(({ app: electronApp, webContents }, source) => {
-    const state = (globalThis.__mqteyE2E ??= { calls: [], next: {}, stubs: {}, skipped: [] })
+    const state = (globalThis.__mqttInE2E ??= { calls: [], next: {}, stubs: {}, skipped: [] })
     if (state.clipboardWatch) return
     state.clipboardWatch = true
     const install = (contents) =>

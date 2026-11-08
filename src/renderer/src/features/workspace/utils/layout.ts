@@ -60,7 +60,7 @@ export function initialPublishHeight(
   return publisherHeightFor(windowHeight - WINDOW_CHROME_HEIGHT, remembered)
 }
 
-const STORAGE_KEY = 'mqtey.workspace.layout'
+const STORAGE_KEY = 'mqtt-in.workspace.layout'
 const WRITE_DELAY_MS = 300
 
 export interface WorkspaceLayout {

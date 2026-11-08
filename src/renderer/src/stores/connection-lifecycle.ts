@@ -41,7 +41,7 @@ export function notifyConnectionRemoved(connectionId: string): void {
     try {
       cleanup(connectionId)
     } catch (err) {
-      console.error(`[mqtey] cleanup of the deleted connection ${connectionId} failed:`, err)
+      console.error(`[mqtt-in] cleanup of the deleted connection ${connectionId} failed:`, err)
     }
   }
 }

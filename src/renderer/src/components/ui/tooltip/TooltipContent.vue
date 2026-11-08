@@ -28,7 +28,7 @@ const delegatedProps = reactiveOmit(props, 'class')
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 
 /**
- * mqtey: position against this component's own trigger. reka-ui shares one popper context, so a
+ * mqtt-in: position against this component's own trigger. reka-ui shares one popper context, so a
  * trigger nested in another popper (a tooltip around a menu button) registers its anchor with
  * the wrong root and the content would never be positioned.
  */

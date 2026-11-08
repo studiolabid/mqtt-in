@@ -29,8 +29,8 @@ import {
   parseOptionalIds
 } from './validate'
 
-const FILTERS = [{ name: 'mqtey connections', extensions: ['json'] }]
-const DEFAULT_EXPORT_NAME = 'mqtey-connections.json'
+const FILTERS = [{ name: 'mqtt-in connections', extensions: ['json'] }]
+const DEFAULT_EXPORT_NAME = 'mqtt-in-connections.json'
 const MAX_IMPORT_BYTES = 16 * 1024 * 1024
 
 /** Logs why entries were skipped (the first `MAX_LISTED_SKIPS`, then a count). */

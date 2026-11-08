@@ -200,7 +200,7 @@ export default {
     await step('zoom 150 %: the message list keeps two rows (A11Y-07)', async () => {
       before = {
         publisher: await heightOf(page(), tid('publisher-panel')),
-        layout: await page().evaluate(() => localStorage.getItem('mqtey.workspace.layout'))
+        layout: await page().evaluate(() => localStorage.getItem('mqtt-in.workspace.layout'))
       }
       await setZoom(ctx.app, 1.5)
       await sleep(300)
@@ -233,7 +233,7 @@ export default {
       if (Math.abs(publisher - before.publisher) > 2) {
         throw new Error(`the publisher is ${publisher} px, ${before.publisher} px before zooming`)
       }
-      const layout = await page().evaluate(() => localStorage.getItem('mqtey.workspace.layout'))
+      const layout = await page().evaluate(() => localStorage.getItem('mqtt-in.workspace.layout'))
       if (layout !== before.layout)
         throw new Error(`zoom changed the layout: ${before.layout} → ${layout}`)
     })

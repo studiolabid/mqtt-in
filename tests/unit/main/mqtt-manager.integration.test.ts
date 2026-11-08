@@ -70,7 +70,7 @@ describe('MqttManager + MqttSession against aedes', () => {
       'connected'
     )
     expect(recorder.status[0]).toMatchObject({ connectionId: profile.id, status: 'connecting' })
-    expect(connected.clientId).toMatch(/^mqtey_[0-9a-f]{8}$/)
+    expect(connected.clientId).toMatch(/^mqttin_[0-9a-f]{8}$/)
     expect(connected.sessionPresent).toBe(false)
     expect(connected.connectedAt).toBeGreaterThan(0)
 
@@ -212,7 +212,7 @@ describe('MqttManager + MqttSession against aedes', () => {
     const statuses = recorder.status.map((s) => s.status)
     expect(statuses.slice(-2)).toEqual(['disconnecting', 'disconnected'])
     expect(recorder.subscriptions.at(-1)).toMatchObject({ subscriptionId: sub.id, state: 'idle' })
-    expect(await gone).toMatch(/^mqtey_/)
+    expect(await gone).toMatch(/^mqttin_/)
     expect(manager.getSessions()[0]).toMatchObject({ status: 'disconnected' })
     await expect(
       manager.publish(profile.id, { topic: 'x', payload: new Uint8Array(), qos: 0, retain: false })

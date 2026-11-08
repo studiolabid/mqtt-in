@@ -119,7 +119,7 @@ export const seedConnections = (profiles) => ({
 })
 
 /** The main process' session snapshots (through the page's bridge). */
-export const sessions = (page) => page.evaluate(() => window.mqtey.mqtt.getSessions())
+export const sessions = (page) => page.evaluate(() => window.mqttIn.mqtt.getSessions())
 
 /** Waits until the session of `id` matches `predicate`; resolves the snapshot. */
 export function waitSession(page, id, predicate, { timeout = 15_000, label } = {}) {

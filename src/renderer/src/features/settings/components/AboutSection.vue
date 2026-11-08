@@ -52,7 +52,7 @@ function copyDetails(): void {
 
 function open(url: string): void {
   api.app.openExternal(url).catch((err: unknown) => {
-    console.warn('[mqtey] could not open', url, err)
+    console.warn('[mqtt-in] could not open', url, err)
   })
 }
 </script>

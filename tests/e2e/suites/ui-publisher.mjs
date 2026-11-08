@@ -24,7 +24,9 @@ export default {
     const height = () => heightOf(ctx.page, tid('publisher-panel'))
     const toggle = () => ctx.page.locator(tid('toggle-publisher'))
     const layout = () =>
-      ctx.page.evaluate(() => JSON.parse(localStorage.getItem('mqtey.workspace.layout') ?? 'null'))
+      ctx.page.evaluate(() =>
+        JSON.parse(localStorage.getItem('mqtt-in.workspace.layout') ?? 'null')
+      )
 
     /** Waits for the panel's height to settle on the expected side, then checks the toggle. */
     const expectState = async (collapsed, how) => {
@@ -62,7 +64,7 @@ export default {
       await ctx.click('toggle-publisher')
       await expectState(true, 'after the toggle')
       await ctx.page.waitForFunction(
-        () => JSON.parse(localStorage.getItem('mqtey.workspace.layout') ?? '{}').publishCollapsed,
+        () => JSON.parse(localStorage.getItem('mqtt-in.workspace.layout') ?? '{}').publishCollapsed,
         null,
         { timeout: 3_000 }
       )
@@ -85,8 +87,8 @@ export default {
       const remembered = await ctx.page
         .waitForFunction(
           () =>
-            JSON.parse(localStorage.getItem('mqtey.workspace.layout') ?? '{}').publishCollapsed ===
-            false,
+            JSON.parse(localStorage.getItem('mqtt-in.workspace.layout') ?? '{}')
+              .publishCollapsed === false,
           null,
           { timeout: 3_000 }
         )

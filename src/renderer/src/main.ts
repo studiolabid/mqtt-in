@@ -10,7 +10,7 @@ import { router } from './router'
 async function start(): Promise<void> {
   const app = createApp(App)
   app.config.errorHandler = (err, _instance, info) => {
-    console.error(`[mqtey] unhandled error (${info}):`, err)
+    console.error(`[mqtt-in] unhandled error (${info}):`, err)
   }
   app.use(createPinia())
   app.use(router)

@@ -69,7 +69,7 @@ onMounted(() => {
 
     <div class="space-y-1.5">
       <h1 ref="heading" tabindex="-1" class="text-2xl font-semibold tracking-tight outline-none">
-        Welcome to mqtey
+        Welcome to mqtt-in
       </h1>
       <p class="max-w-md text-sm text-pretty text-muted-foreground">
         Connect to any MQTT broker, watch topics live and publish in seconds.

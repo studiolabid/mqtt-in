@@ -1,11 +1,11 @@
 /**
- * The origin of the built UI: `app://mqtey` (entry page `app://mqtey/index.html`). Pure (node:path
+ * The origin of the built UI: `app://mqtt-in` (entry page `app://mqtt-in/index.html`). Pure (node:path
  * only), so the URL rules are unit-tested directly; `app-protocol.ts` registers and serves the
  * scheme.
  *
  * Why not file://: a page on file:// may read any local file, and CSP `'self'` matches every
  * file: URL there. On its own privileged standard scheme the UI has a real origin: `'self'` is
- * `app://mqtey` only, file: URLs are out of reach for fetch, frames and scripts, and the handler
+ * `app://mqtt-in` only, file: URLs are out of reach for fetch, frames and scripts, and the handler
  * serves the files of the renderer folder and nothing else.
  *
  * App URLs are matched on their canonical text (Chromium lower-cases and normalizes standard-scheme
@@ -15,14 +15,14 @@
 import { resolve, sep } from 'node:path'
 
 export const APP_SCHEME = 'app'
-export const APP_HOST = 'mqtey'
+export const APP_HOST = 'mqtt-in'
 /** The UI's origin in production (the Vite dev server's in development). */
 export const APP_ORIGIN = `${APP_SCHEME}://${APP_HOST}`
 /** The UI's entry page. */
 export const APP_INDEX_URL = `${APP_ORIGIN}/index.html`
 
-/** `app://mqtey`, then the raw (still percent-encoded) path, then a query, a hash or the end. */
-const APP_URL = /^app:\/\/mqtey(\/[^?#]*)?(?:[?#]|$)/
+/** `app://mqtt-in`, then the raw (still percent-encoded) path, then a query, a hash or the end. */
+const APP_URL = /^app:\/\/mqtt-in(\/[^?#]*)?(?:[?#]|$)/
 
 /** The entry page at a hash route (`/connections/abc`; '' = the start page). */
 export function appPageUrl(route = ''): string {
@@ -31,7 +31,7 @@ export function appPageUrl(route = ''): string {
   return url.toString()
 }
 
-/** True for `app://mqtey/…` URLs (no port, no credentials, no other host). */
+/** True for `app://mqtt-in/…` URLs (no port, no credentials, no other host). */
 export function isAppUrl(url: string): boolean {
   return APP_URL.test(url)
 }
@@ -53,7 +53,7 @@ export function isSameHttpOrigin(url: string, base: string | undefined): boolean
   return origin !== null && httpOrigin(url) === origin
 }
 
-/** True for a page of the UI: `app://mqtey` or, in development, the dev server's origin. */
+/** True for a page of the UI: `app://mqtt-in` or, in development, the dev server's origin. */
 export function isUiUrl(url: string, devServerUrl?: string): boolean {
   return isAppUrl(url) || isSameHttpOrigin(url, devServerUrl)
 }
@@ -76,7 +76,7 @@ function isUnsafeSegment(segment: string): boolean {
 }
 
 /**
- * The file inside `root` (the built renderer folder) that an `app://mqtey/…` request asks for,
+ * The file inside `root` (the built renderer folder) that an `app://mqtt-in/…` request asks for,
  * or `null` when the URL is not ours or its path could leave `root`: `..` / `.` segments, also
  * percent-encoded (`%2e%2e`, `..%2f`), back slashes (`\`, `%5c`), drive letters and NTFS streams
  * (any `:`), control characters, empty segments, trailing dots or spaces. `/` is the entry page;

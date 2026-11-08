@@ -54,19 +54,19 @@ export function toImportConnectionsResult(result: ImportResult): ImportConnectio
 }
 
 const UNRECOGNIZED =
-  'Unrecognized file: expected an mqtey or MQTTX connections export, or a single connection'
+  'Unrecognized file: expected an mqtt-in or MQTTX connections export, or a single connection'
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return isRecord(value) && !Array.isArray(value)
 }
 
-/** One connection on its own (an mqtey profile has a host; MQTTX has its own keys). */
+/** One connection on its own (an mqtt-in profile has a host; MQTTX has its own keys). */
 function isSingleConnection(data: Record<string, unknown>): boolean {
   return typeof data.host === 'string' || isMqttxEntry(data)
 }
 
 /**
- * The profile-like entries of an import file: an mqtey export or a raw `connections.json`
+ * The profile-like entries of an import file: an mqtt-in export or a raw `connections.json`
  * (`{ connections: [...] }`), a list (the legacy file, or an MQTTX export, collections included),
  * or a single connection. Anything else (another app's JSON) is refused with a human error.
  */
@@ -95,7 +95,7 @@ export function readImportFile(data: unknown): {
     ? 'mqttx'
     : isObject(data) && !('connections' in data)
       ? 'profile'
-      : 'mqtey'
+      : 'mqtt-in'
   return { candidates, source }
 }
 

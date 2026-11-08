@@ -41,24 +41,24 @@ describe('createSenderGuard', () => {
   const guard = createSenderGuard()
 
   it("accepts the app origin's main frame", () => {
-    const main = frame('app://mqtey/index.html#/connections/abc')
+    const main = frame('app://mqtt-in/index.html#/connections/abc')
     expect(guard(event(main))).toBe(true)
     // Another WebFrameMain object for the same frame (same process and routing id).
-    expect(guard(event(frame('app://mqtey/index.html'), frame('app://mqtey/index.html')))).toBe(
+    expect(guard(event(frame('app://mqtt-in/index.html'), frame('app://mqtt-in/index.html')))).toBe(
       true
     )
   })
 
   it('rejects subframes, even of the app origin', () => {
-    const main = frame('app://mqtey/index.html', 1)
-    expect(guard(event(frame('app://mqtey/index.html', 2), main))).toBe(false)
-    expect(guard(event(frame('app://mqtey/index.html', 1, 8), main))).toBe(false)
+    const main = frame('app://mqtt-in/index.html', 1)
+    expect(guard(event(frame('app://mqtt-in/index.html', 2), main))).toBe(false)
+    expect(guard(event(frame('app://mqtt-in/index.html', 1, 8), main))).toBe(false)
   })
 
   it('rejects a missing frame or a sender without a main frame', () => {
-    expect(guard(event(null, frame('app://mqtey/index.html')))).toBe(false)
-    expect(guard(event(frame('app://mqtey/index.html'), null))).toBe(false)
-    expect(guard({ senderFrame: frame('app://mqtey/index.html') } as SenderEvent)).toBe(false)
+    expect(guard(event(null, frame('app://mqtt-in/index.html')))).toBe(false)
+    expect(guard(event(frame('app://mqtt-in/index.html'), null))).toBe(false)
+    expect(guard({ senderFrame: frame('app://mqtt-in/index.html') } as SenderEvent)).toBe(false)
   })
 
   it.each([
@@ -67,8 +67,8 @@ describe('createSenderGuard', () => {
     'https://example.com/',
     'http://localhost:5173/',
     'app://evil/index.html',
-    'app://mqtey.evil/index.html',
-    'app://mqtey:1/index.html',
+    'app://mqtt-in.evil/index.html',
+    'app://mqtt-in:1/index.html',
     'data:text/html,<p>x</p>',
     'about:blank',
     'devtools://devtools/bundled/devtools_app.html',
@@ -80,7 +80,7 @@ describe('createSenderGuard', () => {
   it("accepts the dev server's origin in development only", () => {
     const dev = createSenderGuard(DEV)
     expect(dev(event(frame('http://localhost:5173/#/settings')))).toBe(true)
-    expect(dev(event(frame('app://mqtey/index.html')))).toBe(true)
+    expect(dev(event(frame('app://mqtt-in/index.html')))).toBe(true)
     expect(dev(event(frame('http://localhost:5174/')))).toBe(false)
     expect(dev(event(frame('http://localhost:5173/', 2), frame(DEV, 1)))).toBe(false)
   })
@@ -104,7 +104,7 @@ type OpenHandler = (details: { url: string }) => { action: string }
 
 class FakeContents extends EventEmitter {
   openHandler: OpenHandler | null = null
-  constructor(private url = 'app://mqtey/index.html') {
+  constructor(private url = 'app://mqtt-in/index.html') {
     super()
   }
   getURL(): string {
@@ -139,7 +139,7 @@ describe('hardenWebContents', () => {
     'https://example.com/',
     'http://example.org/x',
     'file:///C:/Windows/win.ini',
-    'app://mqtey/index.html',
+    'app://mqtt-in/index.html',
     'ms-settings:privacy'
   ])('blocks a navigation to %s without opening the browser', (url) => {
     const contents = harden()
@@ -164,11 +164,11 @@ describe('hardenWebContents', () => {
 
   it('blocks every subframe navigation and leaves the main frame to will-navigate', () => {
     const contents = harden()
-    for (const url of ['file:///C:/Windows/win.ini', 'app://mqtey/index.html', 'about:blank']) {
+    for (const url of ['file:///C:/Windows/win.ini', 'app://mqtt-in/index.html', 'about:blank']) {
       expect(contents.navigate('will-frame-navigate', url, false).preventDefault).toHaveBeenCalled()
     }
     expect(
-      contents.navigate('will-frame-navigate', 'app://mqtey/index.html', true).preventDefault
+      contents.navigate('will-frame-navigate', 'app://mqtt-in/index.html', true).preventDefault
     ).not.toHaveBeenCalled()
   })
 
@@ -180,7 +180,7 @@ describe('hardenWebContents', () => {
       'file:///C:/Windows/win.ini',
       'javascript:alert(1)',
       'mailto:a@b.c',
-      'app://mqtey/index.html'
+      'app://mqtt-in/index.html'
     ]) {
       expect(contents.openHandler?.({ url })).toEqual({ action: 'deny' })
     }

@@ -1,7 +1,7 @@
 {
-  "name": "mqtey",
+  "name": "mqtt-in",
   "version": "1.0.0",
-  "description": "mqtey — a fast, beautiful and powerful MQTT client for the desktop",
+  "description": "mqtt-in — a fast, beautiful and powerful MQTT client for the desktop",
   "main": "./out/main/index.js",
   "author": {
     "name": "studiolab.id",

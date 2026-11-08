@@ -24,7 +24,7 @@ async function attempt(problem: string, task: () => Promise<unknown> | unknown):
     await task()
     return true
   } catch (err) {
-    console.error(`[mqtey] ${problem}:`, err)
+    console.error(`[mqtt-in] ${problem}:`, err)
     reportStartupProblem(problem, errorMessage(err))
     return false
   }
@@ -83,7 +83,7 @@ async function showStorageNotices(): Promise<void> {
   try {
     for (const notice of await api.app.getStorageNotices()) reportStorageNotice(notice, 'warning')
   } catch (err) {
-    console.warn('[mqtey] could not read the storage notices:', err)
+    console.warn('[mqtt-in] could not read the storage notices:', err)
   }
 }
 
@@ -101,7 +101,7 @@ function leaveRemovedConnections(router: Router): void {
   )
 }
 
-/** `<connection> — mqtey` while a workspace is open. */
+/** `<connection> — mqtt-in` while a workspace is open. */
 function syncDocumentTitle(router: Router): void {
   if (typeof document === 'undefined') return
   const connections = useConnectionsStore()
@@ -114,7 +114,7 @@ function syncDocumentTitle(router: Router): void {
         : route.name === ROUTE_NAMES.settings
           ? 'Settings'
           : undefined
-    document.title = name ? `${name} — mqtey` : 'mqtey'
+    document.title = name ? `${name} — mqtt-in` : 'mqtt-in'
   })
 }
 
@@ -134,6 +134,6 @@ async function restoreLastConnection(router: Router): Promise<void> {
   try {
     await router.replace({ name: ROUTE_NAMES.connection, params: { id } })
   } catch (err) {
-    console.warn('[mqtey] could not reopen the last connection:', err)
+    console.warn('[mqtt-in] could not reopen the last connection:', err)
   }
 }

@@ -1,6 +1,6 @@
 /**
  * MQTTX connection exports ("Export data" in MQTTX: a list of its `ConnectionModel` objects, or
- * one of them): detection and mapping to mqtey's profile fields. The result is validated like any
+ * one of them): detection and mapping to mqtt-in's profile fields. The result is validated like any
  * other import entry.
  *
  * MQTTX differs in units and names: the connect timeout is in seconds, the MQTT version is
@@ -61,7 +61,7 @@ function isEntry(value: unknown): value is Entry {
   return isRecord(value) && !Array.isArray(value)
 }
 
-/** True for an MQTTX connection: it has keys that mqtey profiles never have. */
+/** True for an MQTTX connection: it has keys that mqtt-in profiles never have. */
 export function isMqttxEntry(entry: unknown): boolean {
   if (!isEntry(entry)) return false
   return (
@@ -172,8 +172,8 @@ function subscriptionOf(sub: unknown): unknown {
 }
 
 /**
- * An mqtey-shaped profile entry for an MQTTX connection. Fields MQTTX has no equivalent for keep
- * mqtey's defaults; values of the wrong type are passed on, so validation names the bad field.
+ * An mqtt-in-shaped profile entry for an MQTTX connection. Fields MQTTX has no equivalent for keep
+ * mqtt-in's defaults; values of the wrong type are passed on, so validation names the bad field.
  */
 export function fromMqttx(entry: Entry): Entry {
   const out: Entry = pick(entry, SAME_FIELDS)

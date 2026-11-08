@@ -88,7 +88,7 @@ async function resetSettings(): Promise<void> {
   <SettingsSection
     id="data"
     title="Data"
-    description="Your connections and where mqtey keeps them."
+    description="Your connections and where mqtt-in keeps them."
   >
     <SettingsRow label="Connections" :description="connectionsDescription" layout="stacked">
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2">

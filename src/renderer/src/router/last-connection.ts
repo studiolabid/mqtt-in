@@ -1,9 +1,9 @@
 /**
- * Remembers the last opened connection (localStorage `mqtey.lastConnectionId`).
+ * Remembers the last opened connection (localStorage `mqtt-in.lastConnectionId`).
  * Storage may be unavailable (private mode, blocked): every access is best effort.
  */
 
-export const LAST_CONNECTION_KEY = 'mqtey.lastConnectionId'
+export const LAST_CONNECTION_KEY = 'mqtt-in.lastConnectionId'
 
 export function readLastConnectionId(): string | null {
   try {

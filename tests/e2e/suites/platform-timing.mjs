@@ -5,7 +5,7 @@
  * - IN-05 (2): a crashed renderer is back on its route, connected, within 5 s. Only once
  *   automation windows cannot be activated (see lib/platform-crash.mjs), else a known issue.
  *
- *   MQTEY_E2E_ONLY=platform-timing node tests/e2e/run.mjs
+ *   MQTTIN_E2E_ONLY=platform-timing node tests/e2e/run.mjs
  */
 import { spawnApp } from '../kit.mjs'
 import { connectionProfile, expect, openWorkspace, seedConnections } from '../lib/platform.mjs'

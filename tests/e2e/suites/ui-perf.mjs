@@ -1,5 +1,5 @@
 /**
- * optIn perf guards (MQTEY_E2E_ONLY=ui-perf or MQTEY_E2E_ALL=1), at 1920×1080:
+ * optIn perf guards (MQTTIN_E2E_ONLY=ui-perf or MQTTIN_E2E_ALL=1), at 1920×1080:
  * - following a 2,000+ msg/s flood patches the rendered rows instead of remounting them and the
  *   list stays at the bottom (PERF-04, FD-01);
  * - a 20k-topic tree, fully expanded, takes a 2,000 msg/s flood without long tasks (FD-19);

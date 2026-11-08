@@ -20,28 +20,28 @@ const packageVersion = (
 ).version
 
 describe('app identity', () => {
-  it('uses <appData>/mqtey as the profile in every launch mode', () => {
+  it('uses <appData>/mqtt-in as the profile in every launch mode', () => {
     const appData = resolve('/users/me/AppData/Roaming')
-    expect(resolveUserDataDir({ appData, name: APP_NAME })).toBe(join(appData, 'mqtey'))
+    expect(resolveUserDataDir({ appData, name: APP_NAME })).toBe(join(appData, 'mqtt-in'))
     expect(resolveUserDataDir({ appData, override: '', name: APP_NAME })).toBe(
-      join(appData, 'mqtey')
+      join(appData, 'mqtt-in')
     )
     expect(resolveUserDataDir({ appData, override: '   ', name: APP_NAME })).toBe(
-      join(appData, 'mqtey')
+      join(appData, 'mqtt-in')
     )
   })
 
-  it('uses the resolved MQTEY_USER_DATA_DIR override when it is set', () => {
+  it('uses the resolved MQTTIN_USER_DATA_DIR override when it is set', () => {
     const appData = resolve('/users/me/AppData/Roaming')
     expect(resolveUserDataDir({ appData, override: 'tmp/profile-1', name: APP_NAME })).toBe(
       resolve('tmp/profile-1')
     )
   })
 
-  it('recognizes automated runs by MQTEY_E2E=1 only', () => {
-    expect(isAutomationRun({ MQTEY_E2E: '1' })).toBe(true)
-    expect(isAutomationRun({ MQTEY_E2E: '0' })).toBe(false)
-    expect(isAutomationRun({ MQTEY_E2E: 'true' })).toBe(false)
+  it('recognizes automated runs by MQTTIN_E2E=1 only', () => {
+    expect(isAutomationRun({ MQTTIN_E2E: '1' })).toBe(true)
+    expect(isAutomationRun({ MQTTIN_E2E: '0' })).toBe(false)
+    expect(isAutomationRun({ MQTTIN_E2E: 'true' })).toBe(false)
     expect(isAutomationRun({})).toBe(false)
   })
 

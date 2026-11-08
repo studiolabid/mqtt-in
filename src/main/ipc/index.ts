@@ -1,5 +1,5 @@
 /**
- * Registers every IPC handler of the `MqteyApi` contract (`src/shared/ipc.ts`).
+ * Registers every IPC handler of the `MqttInApi` contract (`src/shared/ipc.ts`).
  */
 import type { MqttManager } from '../services/mqtt/mqtt-manager'
 import type { Storage } from '../services/storage'

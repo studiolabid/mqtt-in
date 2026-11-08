@@ -1,6 +1,6 @@
 /**
  * platform-storage helpers: seeded profiles with damaged files, and (Windows) another process that
- * holds a profile file open with FileShare.None while mqtey starts (SEC-01).
+ * holds a profile file open with FileShare.None while mqtt-in starts (SEC-01).
  */
 import { spawn } from 'node:child_process'
 import { connectionProfile, waitFor } from './platform.mjs'

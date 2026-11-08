@@ -16,7 +16,7 @@ function profile(overrides: Partial<ConnectionProfile> = {}): ConnectionProfile 
   return createConnectionProfile({
     host: 'broker.example.com',
     port: 1883,
-    clientId: 'mqtey_0a1b2c3d',
+    clientId: 'mqttin_0a1b2c3d',
     ...overrides
   })
 }
@@ -153,16 +153,16 @@ describe('publishCommand', () => {
         payloadFormatIndicator: true,
         topicAlias: 3,
         userProperties: [
-          { key: 'source', value: 'mqtey cli' },
+          { key: 'source', value: 'mqtt-in cli' },
           { key: 'id', value: "it's" }
         ]
       }
     })
     expect(command(publishCommand(input, 'mosquitto_pub', 'posix'))).toMatchInlineSnapshot(
-      `"mosquitto_pub -h broker.example.com -p 1883 -V mqttv5 -t home/temp -D publish payload-format-indicator 1 -D publish message-expiry-interval 60 -D publish content-type application/json -D publish response-topic reply/to -D publish correlation-data req-42 -D publish user-property source 'mqtey cli' -D publish user-property id 'it'\\''s' -m 21.5"`
+      `"mosquitto_pub -h broker.example.com -p 1883 -V mqttv5 -t home/temp -D publish payload-format-indicator 1 -D publish message-expiry-interval 60 -D publish content-type application/json -D publish response-topic reply/to -D publish correlation-data req-42 -D publish user-property source 'mqtt-in cli' -D publish user-property id 'it'\\''s' -m 21.5"`
     )
     expect(command(publishCommand(input, 'mqttx', 'powershell'))).toMatchInlineSnapshot(
-      `"mqttx pub -h broker.example.com -p 1883 -V 5 -t home/temp -pf -e 60 -ct application/json -rt reply/to -cd req-42 -up 'source: mqtey cli' -up 'id: it''s' -m 21.5"`
+      `"mqttx pub -h broker.example.com -p 1883 -V 5 -t home/temp -pf -e 60 -ct application/json -rt reply/to -cd req-42 -up 'source: mqtt-in cli' -up 'id: it''s' -m 21.5"`
     )
     // MQTT 3.1.1 profiles send no properties.
     const v4 = { ...input, profile: profile({ protocolVersion: 4 }) }

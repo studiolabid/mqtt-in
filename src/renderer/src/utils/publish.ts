@@ -27,10 +27,10 @@ import { hasTemplate, renderTemplate } from '@shared/template'
 import { hasWildcard, validateTopicName } from '@shared/topic'
 import type { PublishDraft, PublishHistoryItem } from '@/types'
 
-export const DEFAULT_PUBLISH_TOPIC = 'mqtey/test'
-export const DEFAULT_PUBLISH_PAYLOAD = '{\n  "msg": "hello from mqtey",\n  "at": "{{iso}}"\n}'
+export const DEFAULT_PUBLISH_TOPIC = 'mqtt-in/test'
+export const DEFAULT_PUBLISH_PAYLOAD = '{\n  "msg": "hello from mqtt-in",\n  "at": "{{iso}}"\n}'
 
-/** A fresh draft with the mqtey defaults, overridden by `overrides`. */
+/** A fresh draft with the mqtt-in defaults, overridden by `overrides`. */
 export function createPublishDraft(overrides: Partial<PublishDraft> = {}): PublishDraft {
   return {
     topic: DEFAULT_PUBLISH_TOPIC,

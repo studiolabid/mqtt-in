@@ -168,7 +168,7 @@ export default {
       // Saved 500 ms after the last change (and on unload): wait until main has them.
       await page().waitForFunction(
         async (connection) =>
-          ((await window.mqtey.storage.get('mqtey.pins'))?.[connection] ?? []).length === 2,
+          ((await window.mqttIn.storage.get('mqtt-in.pins'))?.[connection] ?? []).length === 2,
         id,
         { timeout: 5_000, polling: 100 }
       )

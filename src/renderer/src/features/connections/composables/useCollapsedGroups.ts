@@ -5,7 +5,7 @@
 import { shallowRef } from 'vue'
 import { readPreference, writePreference } from '@/utils/preferences'
 
-const STORAGE_KEY = 'mqtey.sidebar.collapsedGroups'
+const STORAGE_KEY = 'mqtt-in.sidebar.collapsedGroups'
 
 function read(): Set<string> {
   const stored = readPreference(STORAGE_KEY)

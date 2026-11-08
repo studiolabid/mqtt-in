@@ -60,7 +60,7 @@ describe('watchRendererHealth', () => {
     await settle()
     expect(electron.showMessageBox).toHaveBeenCalledTimes(1)
     expect(electron.showMessageBox.mock.calls[0][1]).toMatchObject({
-      message: "mqtey's window stopped working",
+      message: "mqtt-in's window stopped working",
       buttons: ['Reload', 'Quit']
     })
     expect(reload).toHaveBeenCalledTimes(4)
@@ -95,7 +95,7 @@ describe('watchRendererHealth', () => {
     await settle()
     expect(electron.showMessageBox).toHaveBeenCalledTimes(1)
     expect(electron.showMessageBox.mock.calls[0][1]).toMatchObject({
-      message: 'mqtey is not responding',
+      message: 'mqtt-in is not responding',
       buttons: ['Wait', 'Reload']
     })
     expect(win.webContents.forcefullyCrashRenderer).toHaveBeenCalledTimes(1)

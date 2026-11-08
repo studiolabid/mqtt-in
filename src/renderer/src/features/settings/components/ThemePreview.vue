@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Miniature mqtey window (title bar, connection sidebar, tabs, message rows, publish bar) in
+ * Miniature mqtt-in window (title bar, connection sidebar, tabs, message rows, publish bar) in
  * light or dark. Drawn with tokens only: `--paper` / `--ink` swap `--background` and
  * `--foreground` depending on the current mode, so both variants render truthfully in either
  * theme; the accent comes from `--primary`. `split` keeps a diagonal right part (System tile).

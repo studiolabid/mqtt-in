@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * The mqtey mark (same drawing as resources/logo.svg): a rounded square with a client dot and
+ * The mqtt-in mark (same drawing as resources/logo.svg): a rounded square with a client dot and
  * two broadcast arcs. Monochrome and theme-aware: an ink tile (`foreground`) with the marks in the
  * page color (`background`), so it is black on light and white on dark.
  */

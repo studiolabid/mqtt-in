@@ -26,7 +26,7 @@ const groups = shortcutsByGroup()
           <KeyboardIcon class="size-4 text-muted-foreground" aria-hidden="true" />
           Keyboard shortcuts
         </DialogTitle>
-        <DialogDescription>Everything in mqtey is one keystroke away.</DialogDescription>
+        <DialogDescription>Everything in mqtt-in is one keystroke away.</DialogDescription>
       </DialogHeader>
       <div class="scrollbar-slim max-h-[min(34rem,70vh)] overflow-y-auto px-5 pt-3 pb-5">
         <ShortcutList :groups="groups" />

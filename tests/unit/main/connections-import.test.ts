@@ -27,7 +27,7 @@ function open(folder: string): { repo: ConnectionsRepo; file: JsonFile<Connectio
 }
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'mqtey-import-'))
+  dir = mkdtempSync(join(tmpdir(), 'mqtt-in-import-'))
   ;({ repo, file } = open(dir))
 })
 
@@ -43,7 +43,7 @@ function sample(name: string, overrides: Partial<ConnectionProfile> = {}): Conne
 
 /** The export of `profiles`, made by a repository of another profile folder. */
 function exported(profiles: ConnectionProfile[], includeSecrets = false): unknown {
-  const folder = mkdtempSync(join(tmpdir(), 'mqtey-export-'))
+  const folder = mkdtempSync(join(tmpdir(), 'mqtt-in-export-'))
   try {
     const source = open(folder)
     for (const profile of profiles) source.repo.save(profile)
@@ -61,7 +61,7 @@ describe('export', () => {
     repo.markConnected(a.id, 99)
 
     const all = JSON.parse(repo.exportProfiles())
-    expect(all).toMatchObject({ app: 'mqtey', version: 1 })
+    expect(all).toMatchObject({ app: 'mqtt-in', version: 1 })
     expect(all.connections.map((p: ConnectionProfile) => p.name)).toEqual(['A', 'B'])
     expect(all.connections[0].password).toBe('')
     expect(all.connections[0]).not.toHaveProperty('lastConnectedAt')
@@ -96,11 +96,11 @@ describe('import', () => {
     const saved = ['A', 'B', 'C'].map((name) => repo.save(sample(name, { password: name })))
     const data = JSON.parse(repo.exportProfiles())
     const result = repo.importProfiles(data)
-    expect(result).toMatchObject({ imported: [], skipped: [], duplicates: 3, source: 'mqtey' })
+    expect(result).toMatchObject({ imported: [], skipped: [], duplicates: 3, source: 'mqtt-in' })
     expect(repo.list().map((p) => p.id)).toEqual(saved.map((p) => p.id))
   })
 
-  it('regenerates a client id that mqtey generated, and keeps a custom one', () => {
+  it('regenerates a client id that mqtt-in generated, and keeps a custom one', () => {
     const generated = sample('Generated')
     const custom = sample('Custom', { clientId: 'plant-gw-1' })
     expect(isGeneratedClientId(generated.clientId)).toBe(true)

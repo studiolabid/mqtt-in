@@ -34,7 +34,7 @@ let notices: StorageNotice[]
 let opened: JsonFile<Doc>[] = []
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'mqtey-json-'))
+  dir = mkdtempSync(join(tmpdir(), 'mqtt-in-json-'))
   notices = []
   vi.clearAllMocks()
 })
@@ -193,7 +193,7 @@ describe('JsonFile: a file that exists but cannot be read', () => {
         file: 'doc.json',
         message:
           'Could not read doc.json (file locked or unreadable). Changes are kept in memory and ' +
-          'not saved until mqtey restarts.',
+          'not saved until mqtt-in restarts.',
         path: file.path,
         timestamp: expect.any(Number)
       }
@@ -263,7 +263,7 @@ describe('JsonFile: damaged files and the last good copy', () => {
         kind: 'corrupt',
         file: 'doc.json',
         message:
-          'doc.json was damaged and could not be loaded, so mqtey started without it. The ' +
+          'doc.json was damaged and could not be loaded, so mqtt-in started without it. The ' +
           'damaged file was kept.',
         path: join(dir, corrupt[0]),
         timestamp: expect.any(Number)

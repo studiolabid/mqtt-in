@@ -48,7 +48,7 @@ describe('electron-builder.yml', () => {
       enableNodeCliInspectArguments: 'false',
       enableEmbeddedAsarIntegrityValidation: 'true',
       onlyLoadAppFromAsar: 'true',
-      // The UI is served from app://mqtey (src/main/app-protocol.ts), not file://.
+      // The UI is served from app://mqtt-in (src/main/app-protocol.ts), not file://.
       grantFileProtocolExtraPrivileges: 'false'
     })
   })

@@ -8,7 +8,7 @@ import { createMainLog, logUncaughtErrors, type ProcessEvents } from '../../../s
 let dir: string
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'mqtey-main-log-'))
+  dir = mkdtempSync(join(tmpdir(), 'mqtt-in-main-log-'))
 })
 
 afterEach(() => {

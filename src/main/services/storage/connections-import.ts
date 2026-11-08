@@ -7,7 +7,7 @@
  *    (`connectionIdentity`): importing a file twice adds nothing;
  * 4. cleaned of TLS file paths an import must not keep (`withImportableTlsPaths`);
  * 5. renamed when its name is taken (`UniqueNames`) and given a fresh identity (new ids, and a
- *    new client id when mqtey generated the old one: two copies with one id take the broker
+ *    new client id when mqtt-in generated the old one: two copies with one id take the broker
  *    session from each other).
  * Pure: nothing is saved here, and no path of the file is touched.
  */

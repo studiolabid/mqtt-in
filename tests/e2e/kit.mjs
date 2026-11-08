@@ -7,13 +7,13 @@
  * locator / screenshot helpers bound to the current app (ctx.click, ctx.capture…).
  * See tests/e2e/README.md.
  *
- * Safety (enforced by launchApp / spawnApp, not by convention): every launch gets MQTEY_E2E=1 and
- * a fresh MQTEY_USER_DATA_DIR, without ELECTRON_RUN_AS_NODE / ELECTRON_RENDERER_URL; dialogs,
+ * Safety (enforced by launchApp / spawnApp, not by convention): every launch gets MQTTIN_E2E=1 and
+ * a fresh MQTTIN_USER_DATA_DIR, without ELECTRON_RUN_AS_NODE / ELECTRON_RENDERER_URL; dialogs,
  * shell calls and the clipboard are stubbed before the UI can use them; windows are kept off the
  * desktop and unfocused (checked after every step); every app is closed and its profile deleted.
  */
 
-/** ROOT, OUT_DIR (MQTEY_E2E_OUT), MAIN, ARTIFACTS (MQTEY_E2E_ARTIFACTS), timeouts. */
+/** ROOT, OUT_DIR (MQTTIN_E2E_OUT), MAIN, ARTIFACTS (MQTTIN_E2E_ARTIFACTS), timeouts. */
 export {
   ARTIFACTS,
   E2E_DIR,

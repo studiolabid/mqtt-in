@@ -105,10 +105,14 @@ describe('buildExport', () => {
     expect(profiles[0].password).toBe('pw-a')
   })
 
-  it('writes the mqtey file header without machine-specific fields', () => {
+  it('writes the mqtt-in file header without machine-specific fields', () => {
     const profile = { ...secretProfile('a'), lastConnectedAt: 5 }
     const file = JSON.parse(buildExport([profile], { now: new Date(0) }))
-    expect(file).toMatchObject({ app: 'mqtey', version: 1, exportedAt: '1970-01-01T00:00:00.000Z' })
+    expect(file).toMatchObject({
+      app: 'mqtt-in',
+      version: 1,
+      exportedAt: '1970-01-01T00:00:00.000Z'
+    })
     expect(file.connections[0]).not.toHaveProperty('lastConnectedAt')
   })
 })
@@ -164,18 +168,24 @@ describe('import file shapes', () => {
     )
   })
 
-  it('names the format: mqtey file, single profile or MQTTX export', () => {
-    expect(readImportFile({ app: 'mqtey', connections: [] }).source).toBe('mqtey')
-    expect(readImportFile([{ host: 'h' }]).source).toBe('mqtey')
+  it('names the format: mqtt-in file, single profile or MQTTX export', () => {
+    expect(readImportFile({ app: 'mqtt-in', connections: [] }).source).toBe('mqtt-in')
+    expect(readImportFile([{ host: 'h' }]).source).toBe('mqtt-in')
     expect(readImportFile({ name: 'One', host: 'h' }).source).toBe('profile')
     expect(readImportFile([MQTTX_ENTRY]).source).toBe('mqttx')
     expect(readImportFile(MQTTX_ENTRY).source).toBe('mqttx')
   })
 
   it('refuses JSON that is no connections file', () => {
-    for (const data of [{ name: 'mqtey', version: '1.0.0', dependencies: {} }, {}, 42, 'x', null]) {
+    for (const data of [
+      { name: 'mqtt-in', version: '1.0.0', dependencies: {} },
+      {},
+      42,
+      'x',
+      null
+    ]) {
       expect(() => readImportFile(data)).toThrow(
-        'Unrecognized file: expected an mqtey or MQTTX connections export, or a single connection'
+        'Unrecognized file: expected an mqtt-in or MQTTX connections export, or a single connection'
       )
     }
     expect(() => readImportFile({ connections: 'nope' })).toThrow(/"connections" must be a list/)
@@ -195,7 +205,7 @@ describe('MQTTX connections', () => {
     expect(isMqttxEntry(createConnectionProfile())).toBe(false)
   })
 
-  it('map to mqtey profiles (units, version, TLS, Last Will, options)', () => {
+  it('map to mqtt-in profiles (units, version, TLS, Last Will, options)', () => {
     const { imported, skipped } = planImport([MQTTX_ENTRY], context)
     expect(skipped).toEqual([])
     const [profile] = imported

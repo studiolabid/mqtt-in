@@ -5,16 +5,16 @@
  *
  * 1. Builds the app into out-package and packages it with `electron-builder --win --dir` into
  *    dist-package (electron-builder.yml as is, except for those two folders; never from out/).
- * 2. Inspects dist-package/win-unpacked: the fuse wire of mqtey.exe, what app.asar holds (an
+ * 2. Inspects dist-package/win-unpacked: the fuse wire of mqtt-in.exe, what app.asar holds (an
  *    allowlist, trimmed node_modules, licenses kept, no source maps or other builds), its size
  *    (under 8 MB), the locales (en-US only) and the unpacked icon.
- * 3. Runs the packaged mqtey.exe in automation mode over CDP: the welcome screen on
- *    app://mqtey/index.html with no console errors, file:// unreachable, the studiolab.id credit
- *    and the version, an off-screen tool window titled 'mqtey (automation)', an MQTT round trip
+ * 3. Runs the packaged mqtt-in.exe in automation mode over CDP: the welcome screen on
+ *    app://mqtt-in/index.html with no console errors, file:// unreachable, the studiolab.id credit
+ *    and the version, an off-screen tool window titled 'mqtt-in (automation)', an MQTT round trip
  *    against an in-process aedes broker, and exit code 0 once the window closes.
  * 4. Deletes out-package and dist-package (--keep leaves them for a look).
  *
- * Screenshots go to MQTEY_E2E_ARTIFACTS (default <os tmpdir>/mqtey-package).
+ * Screenshots go to MQTTIN_E2E_ARTIFACTS (default <os tmpdir>/mqtt-in-package).
  * Exit code 0 = every check passed, 1 = a check failed.
  */
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -29,7 +29,7 @@ const DIST_NAME = 'dist-package'
 const OUT = join(ROOT, OUT_NAME)
 const DIST = join(ROOT, DIST_NAME)
 const LOCK = join(DIST, 'check-package.pid')
-const ARTIFACTS = resolve(process.env.MQTEY_E2E_ARTIFACTS || join(tmpdir(), 'mqtey-package'))
+const ARTIFACTS = resolve(process.env.MQTTIN_E2E_ARTIFACTS || join(tmpdir(), 'mqtt-in-package'))
 const keep = process.argv.includes('--keep')
 const { version } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
 
@@ -68,7 +68,9 @@ function removeFolders() {
 }
 
 if (process.platform !== 'win32') {
-  console.error('check-package packages and runs the Windows build (mqtey.exe): run it on Windows.')
+  console.error(
+    'check-package packages and runs the Windows build (mqtt-in.exe): run it on Windows.'
+  )
   process.exit(1)
 }
 
@@ -77,7 +79,7 @@ try {
   claimFolders()
   claimed = true
   mkdirSync(ARTIFACTS, { recursive: true })
-  console.log(`mqtey package check — v${version}, ${OUT_NAME} → ${DIST_NAME}`)
+  console.log(`mqtt-in package check — v${version}, ${OUT_NAME} → ${DIST_NAME}`)
 
   const build = await buildApp(OUT_NAME)
   console.log(`• build: ${OUT_NAME} in ${build.seconds.toFixed(1)} s`)
@@ -92,7 +94,7 @@ try {
   console.log('• static checks')
   await inspectPackage(appDir, { check, version })
   console.log('• packaged smoke run (automation mode, CDP)')
-  await smokeRun(join(appDir, 'mqtey.exe'), { check, artifacts: ARTIFACTS, version })
+  await smokeRun(join(appDir, 'mqtt-in.exe'), { check, artifacts: ARTIFACTS, version })
   console.log(`  screenshots: ${ARTIFACTS}`)
 } catch (error) {
   check('check-package ran to the end', false, String(error?.stack ?? error))

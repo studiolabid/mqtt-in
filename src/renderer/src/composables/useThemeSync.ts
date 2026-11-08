@@ -30,10 +30,10 @@ export function applyDocumentTheme(dark: boolean, accent: AccentColor): void {
 function syncWindowTheme(theme: ThemeMode): void {
   try {
     api.window.setTheme(theme).catch((err: unknown) => {
-      console.warn('[mqtey] could not sync the window theme:', err)
+      console.warn('[mqtt-in] could not sync the window theme:', err)
     })
   } catch (err) {
-    console.warn('[mqtey] could not sync the window theme:', err)
+    console.warn('[mqtt-in] could not sync the window theme:', err)
   }
 }
 

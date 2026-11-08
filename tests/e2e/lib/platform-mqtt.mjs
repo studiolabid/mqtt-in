@@ -28,10 +28,10 @@ export const recordEvents = (page) =>
     window.__e2eRecording = true
     window.__e2eStatus = []
     window.__e2eRepeat = []
-    window.mqtey.mqtt.onStatus((event) =>
+    window.mqttIn.mqtt.onStatus((event) =>
       window.__e2eStatus.push({ id: event.connectionId, status: event.status })
     )
-    window.mqtey.mqtt.onRepeat((event) =>
+    window.mqttIn.mqtt.onRepeat((event) =>
       window.__e2eRepeat.push({ jobId: event.jobId, state: event.state, sent: event.sent })
     )
   })

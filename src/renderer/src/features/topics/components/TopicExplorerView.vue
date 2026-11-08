@@ -47,7 +47,7 @@ const selected = computed(() => ui.selectedTopic(props.connectionId))
   <ResizablePanelGroup
     v-else
     direction="horizontal"
-    auto-save-id="mqtey:topic-explorer"
+    auto-save-id="mqtt-in:topic-explorer"
     class="min-h-0"
   >
     <ResizablePanel :default-size="40" :min-size="22" class="min-w-0">

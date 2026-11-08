@@ -12,7 +12,7 @@ import {
 import { reactiveOmit } from '@vueuse/core'
 import { cn } from 'cn'
 import { Toaster as Sonner } from 'vue-sonner'
-// mqtey: the toast width (vue-sonner reads it from --width on the list).
+// mqtt-in: the toast width (vue-sonner reads it from --width on the list).
 import { TOAST_WIDTH } from '@/lib/toast-options'
 
 const props = defineProps<ToasterProps>()

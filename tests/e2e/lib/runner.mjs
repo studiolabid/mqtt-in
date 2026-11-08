@@ -4,8 +4,8 @@
  * the next suite after a failure. Then a summary, and a check that no Electron process of this
  * run is left. Resolves the exit code: 0 when every suite passed, 1 otherwise.
  *
- *   MQTEY_E2E_ONLY=main,ui-layout   only these suites (`ui-*` matches a prefix)
- *   MQTEY_E2E_ALL=1                 the optIn suites (perf, slow) too
+ *   MQTTIN_E2E_ONLY=main,ui-layout   only these suites (`ui-*` matches a prefix)
+ *   MQTTIN_E2E_ALL=1                 the optIn suites (perf, slow) too
  */
 import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs'
 import { basename, join } from 'node:path'
@@ -44,19 +44,19 @@ async function load({ id, file }) {
   }
 }
 
-/** The suites to run (MQTEY_E2E_ONLY / MQTEY_E2E_ALL), or an error message. */
+/** The suites to run (MQTTIN_E2E_ONLY / MQTTIN_E2E_ALL), or an error message. */
 async function select() {
   const all = listSuites()
-  const only = (process.env.MQTEY_E2E_ONLY ?? '')
+  const only = (process.env.MQTTIN_E2E_ONLY ?? '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
-  const everything = process.env.MQTEY_E2E_ALL === '1'
+  const everything = process.env.MQTTIN_E2E_ALL === '1'
   const named = new Set(only.filter((pattern) => !pattern.endsWith('*')))
   const prefixes = only.filter((pattern) => pattern.endsWith('*')).map((p) => p.slice(0, -1))
   const unknown = [...named].filter((id) => !all.some((suite) => suite.id === id))
   if (unknown.length > 0) {
-    return `unknown suite(s) in MQTEY_E2E_ONLY: ${unknown.join(', ')} (have: ${all.map((s) => s.id).join(', ')})`
+    return `unknown suite(s) in MQTTIN_E2E_ONLY: ${unknown.join(', ')} (have: ${all.map((s) => s.id).join(', ')})`
   }
   const picked =
     only.length === 0
@@ -67,7 +67,7 @@ async function select() {
   const suites = (await Promise.all(picked.map(load)))
     .filter((suite) => !suite.optIn || everything || named.has(suite.id))
     .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
-  return suites.length > 0 ? suites : `no suite to run (MQTEY_E2E_ONLY=${only.join(',')})`
+  return suites.length > 0 ? suites : `no suite to run (MQTTIN_E2E_ONLY=${only.join(',')})`
 }
 
 /** Removes the screenshots of the suite's previous run (only its own: the folder is shared). */
@@ -151,11 +151,11 @@ function printSummary(rows, leftovers) {
   const total = (rows.reduce((sum, row) => sum + row.ms, 0) / 1000).toFixed(1)
   const shots = rows.reduce((sum, row) => sum + row.shots, 0)
   if (failed.length === 0 && leftovers === 0) {
-    console.log(`\n✓ mqtey e2e passed: ${rows.length} suite(s), ${steps} steps in ${total} s`)
+    console.log(`\n✓ mqtt-in e2e passed: ${rows.length} suite(s), ${steps} steps in ${total} s`)
   } else {
     const what = failed.map((row) => row.id).join(', ') || 'no suite'
     console.log(
-      `\n✗ mqtey e2e failed: ${what}${leftovers ? `; ${leftovers} process(es) left running` : ''}`
+      `\n✗ mqtt-in e2e failed: ${what}${leftovers ? `; ${leftovers} process(es) left running` : ''}`
     )
   }
   console.log(`  ${shots} screenshots in ${ARTIFACTS}`)
@@ -183,7 +183,7 @@ export async function runSuites() {
   process.once('SIGINT', onInterrupt)
   process.once('SIGTERM', onInterrupt)
   console.log(
-    `mqtey e2e — ${OUT_DIR}, ${suites.length} suite(s): ${suites.map((s) => s.id).join(', ')}`
+    `mqtt-in e2e — ${OUT_DIR}, ${suites.length} suite(s): ${suites.map((s) => s.id).join(', ')}`
   )
   const rows = []
   for (const suite of suites) rows.push(await runOne(suite))

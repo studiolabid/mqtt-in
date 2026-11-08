@@ -9,7 +9,7 @@
  *   the user chooses Reload or Quit.
  * - A hung renderer (`unresponsive`) offers Wait or Reload; the question closes by itself when the
  *   window responds again.
- * - Automated runs (`MQTEY_E2E=1`) never show these dialogs: they reload within the limit and log.
+ * - Automated runs (`MQTTIN_E2E=1`) never show these dialogs: they reload within the limit and log.
  */
 import { app, type BrowserWindow, dialog } from 'electron'
 import { APP_NAME } from '@shared/defaults'

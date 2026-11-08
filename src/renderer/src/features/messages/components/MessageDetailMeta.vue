@@ -8,7 +8,7 @@ const detailsOpen = ref(false)
 <script setup lang="ts">
 /**
  * "Details" of the selected message, collapsed under the payload (UX-03): full date, exact
- * size, QoS, retain and DUP flags, format and mqtey's own sequence number as a hairline "spec
+ * size, QoS, retain and DUP flags, format and mqtt-in's own sequence number as a hairline "spec
  * sheet", then the MQTT 5 properties (user properties as chips). Open or closed is remembered
  * for the session.
  *
@@ -98,8 +98,8 @@ const CELL = 'flex min-w-0 flex-col gap-0.5 bg-background px-2.5 py-2'
           <dd class="truncate text-xs">{{ format }}</dd>
         </div>
         <div :class="CELL">
-          <dt :class="LABEL" title="mqtey's own sequence number, not an MQTT packet identifier">
-            Seq (mqtey)
+          <dt :class="LABEL" title="mqtt-in's own sequence number, not an MQTT packet identifier">
+            Seq (mqtt-in)
           </dt>
           <dd class="truncate font-mono text-xs text-muted-foreground tabular-nums select-text">
             #{{ message.id }}

@@ -118,7 +118,7 @@ const capped = computed(() => history.value.length >= HISTORY_LIMIT)
     </div>
     <ResizablePanelGroup
       direction="vertical"
-      auto-save-id="mqtey:topic-history"
+      auto-save-id="mqtt-in:topic-history"
       class="min-h-0 flex-1"
     >
       <ResizablePanel :default-size="40" :min-size="15" class="min-h-0">

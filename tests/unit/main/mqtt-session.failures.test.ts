@@ -36,7 +36,7 @@ function setup(overrides: Partial<ConnectionProfile>): {
   const profile = createConnectionProfile({
     host: '127.0.0.1',
     protocolVersion: 4,
-    clientId: 'mqtey_test',
+    clientId: 'mqttin_test',
     autoReconnect: false,
     connectTimeout: 2000,
     ...overrides

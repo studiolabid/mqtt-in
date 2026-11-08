@@ -148,7 +148,7 @@ function bareNumber(value: unknown): string | null {
  */
 export function toDisplayJson(value: unknown, indent: number | undefined = 2): string {
   const bare: string[] = []
-  const tag = `__mqtey_${Math.random().toString(36).slice(2, 12)}_`
+  const tag = `__mqttin_${Math.random().toString(36).slice(2, 12)}_`
   const json =
     JSON.stringify(
       value,

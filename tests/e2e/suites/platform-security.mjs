@@ -1,6 +1,6 @@
 /**
  * IN-06 (SEC-05, SEC-17) and the app:// origin (MS-11, MS-12, MS-15) in the running app:
- * - the UI runs on app://mqtey, and every resource comes from there;
+ * - the UI runs on app://mqtt-in, and every resource comes from there;
  * - file:// is out of reach (fetch, XHR, iframe, an injected script from outside the app);
  * - frames are blocked by the CSP (frame-src 'none'; that step expects the CSP console error);
  * - app:// serves only the app's own files (traversal and POST refused);
@@ -44,7 +44,7 @@ export default {
   async run(ctx) {
     const { step, log } = ctx
 
-    await step('the UI runs on app://mqtey', async () => {
+    await step('the UI runs on app://mqtt-in', async () => {
       await ctx.launch()
       await ctx.waitForTestId('welcome', { timeout: 30_000 })
       const where = await ctx.page.evaluate(() => ({
@@ -57,11 +57,11 @@ export default {
         ]
       }))
       log(`${where.href}, ${where.resources.length} resources`)
-      expect(ctx.page.url().startsWith(APP_INDEX), 'the page is not app://mqtey', ctx.page.url())
-      expect(where.origin === 'app://mqtey', 'the origin is not app://mqtey', where.origin)
+      expect(ctx.page.url().startsWith(APP_INDEX), 'the page is not app://mqtt-in', ctx.page.url())
+      expect(where.origin === 'app://mqtt-in', 'the origin is not app://mqtt-in', where.origin)
       expect(where.secure, 'not a secure context')
       expect((await windowUrl(ctx.app)).startsWith(APP_INDEX), 'main loaded another URL')
-      const foreign = where.resources.filter((url) => !url.startsWith('app://mqtey/'))
+      const foreign = where.resources.filter((url) => !url.startsWith('app://mqtt-in/'))
       expect(where.resources.length > 0 && foreign.length === 0, 'foreign resources', foreign)
     })
 
@@ -170,12 +170,12 @@ export default {
         answer
       )
       await reloadApp(ctx)
-      const own = await inPage(ctx.app, 'window.mqtey.connections.list().then((l) => l.length)')
+      const own = await inPage(ctx.app, 'window.mqttIn.connections.list().then((l) => l.length)')
       expect(own.ready && own.value === 0, 'the app page cannot call the bridge again', own)
     })
 
     await step('a missing page fails to load without a dialog', async () => {
-      const result = await loadFromMain(ctx.app, 'app://mqtey/missing.html')
+      const result = await loadFromMain(ctx.app, 'app://mqtt-in/missing.html')
       log(result)
       expect(
         /ERR_FAILED \(-2\)/.test(result),

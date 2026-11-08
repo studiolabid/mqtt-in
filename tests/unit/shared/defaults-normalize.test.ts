@@ -8,7 +8,7 @@ import {
 import type { ConnectionProfile } from '@shared/models'
 import { UUID_V4 } from './helpers'
 
-const GENERATED_ID = /^mqtey_[0-9a-f]{8}$/
+const GENERATED_ID = /^mqttin_[0-9a-f]{8}$/
 
 /** Simulates a profile read from disk / an import file (arbitrary JSON). */
 function fromJson(json: string): Partial<ConnectionProfile> {
@@ -236,7 +236,7 @@ describe('withFreshIdentity', () => {
   function source(overrides: Partial<ConnectionProfile> = {}): ConnectionProfile {
     return createConnectionProfile({
       name: 'Plant',
-      clientId: 'mqtey_0a1b2c3d',
+      clientId: 'mqttin_0a1b2c3d',
       password: 'pw',
       lastConnectedAt: 5,
       createdAt: 10,
@@ -266,7 +266,7 @@ describe('withFreshIdentity', () => {
   it('regenerates a generated client id and keeps custom and empty ones', () => {
     const generated = withFreshIdentity(source(), { name: 'x', now: 1 }).clientId
     expect(generated).toMatch(GENERATED_ID)
-    expect(generated).not.toBe('mqtey_0a1b2c3d')
+    expect(generated).not.toBe('mqttin_0a1b2c3d')
     const custom = source({ clientId: 'plant-gw-1' })
     expect(withFreshIdentity(custom, { name: 'x', now: 1 }).clientId).toBe('plant-gw-1')
     expect(withFreshIdentity(source({ clientId: '' }), { name: 'x', now: 1 }).clientId).toBe('')

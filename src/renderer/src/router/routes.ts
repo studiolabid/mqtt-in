@@ -32,7 +32,7 @@ export const routes: RouteRecordRaw[] = [
 export function prefetchWorkspace(): void {
   const load = (): void => {
     import('@/features/workspace/ConnectionWorkspace.vue').catch((err: unknown) => {
-      console.warn('[mqtey] could not prefetch the workspace:', err)
+      console.warn('[mqtt-in] could not prefetch the workspace:', err)
     })
   }
   if (typeof requestIdleCallback === 'function') requestIdleCallback(load, { timeout: 3000 })

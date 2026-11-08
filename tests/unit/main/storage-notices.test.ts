@@ -75,7 +75,7 @@ describe('StorageNotices', () => {
 
 describe('createStorage', () => {
   it('starts every session without notices', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'mqtey-notices-'))
+    const dir = mkdtempSync(join(tmpdir(), 'mqtt-in-notices-'))
     try {
       const logger = { warn: vi.fn(), error: vi.fn() }
       const storage = createStorage(join(dir, 'data'), PLAIN_CIPHER, { logger })

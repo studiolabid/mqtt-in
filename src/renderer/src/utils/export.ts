@@ -117,7 +117,7 @@ export function exportFileName(connectionName: string, ext: string, now = new Da
       .replace(/-{2,}/g, '-')
       .replace(/^[-.]+|[-.]+$/g, '')
       .slice(0, 60)
-      .replace(/[-.]+$/g, '') || 'mqtey'
+      .replace(/[-.]+$/g, '') || 'mqtt-in'
   const extension =
     ext
       .replace(/^\.+/, '')

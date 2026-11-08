@@ -1,5 +1,5 @@
 /**
- * What launching mqtey again does to the running instance, for every combination of state:
+ * What launching mqtt-in again does to the running instance, for every combination of state:
  * automated runs never come forward, a quitting instance starts again after quitting (instead of
  * reopening a window the deferred quit would close), otherwise focus or reopen.
  */

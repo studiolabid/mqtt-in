@@ -7,7 +7,7 @@ import { finiteOr, isRecord, readPreference, writePreference } from '@/utils/pre
 
 export const SIDEBAR_WIDTH = { min: 208, max: 400, default: 264 } as const
 
-const STORAGE_KEY = 'mqtey.shell.sidebar'
+const STORAGE_KEY = 'mqtt-in.shell.sidebar'
 
 interface SidebarState {
   width: number

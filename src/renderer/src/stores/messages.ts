@@ -247,7 +247,7 @@ export const useMessagesStore = defineStore('messages', () => {
       try {
         listener(connectionId, batch)
       } catch (err) {
-        console.error('[mqtey] message ingest listener failed:', err)
+        console.error('[mqtt-in] message ingest listener failed:', err)
       }
     }
     bump(connectionId, buffer)

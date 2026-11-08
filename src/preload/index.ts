@@ -1,12 +1,18 @@
 /**
  * Preload bridge (runs sandboxed, context-isolated).
  *
- * Exposes a small, typed, promise-based API as `window.mqtey`. Only `electron`
+ * Exposes a small, typed, promise-based API as `window.mqttIn`. Only `electron`
  * may be imported at runtime here — `@shared/*` is limited to pure constants
  * that are bundled in.
  */
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import { IPC, IPC_EVENTS, type IpcEventChannel, type MqteyApi, type Unsubscribe } from '@shared/ipc'
+import {
+  IPC,
+  IPC_EVENTS,
+  type IpcEventChannel,
+  type MqttInApi,
+  type Unsubscribe
+} from '@shared/ipc'
 
 function on<T>(channel: IpcEventChannel, listener: (payload: T) => void): Unsubscribe {
   const handler = (_event: IpcRendererEvent, payload: T): void => listener(payload)
@@ -18,7 +24,7 @@ function on<T>(channel: IpcEventChannel, listener: (payload: T) => void): Unsubs
 
 const invoke = ipcRenderer.invoke.bind(ipcRenderer)
 
-const api: MqteyApi = {
+const api: MqttInApi = {
   connections: {
     list: () => invoke(IPC.connectionsList),
     save: (profile) => invoke(IPC.connectionsSave, profile),
@@ -70,4 +76,4 @@ const api: MqteyApi = {
   }
 }
 
-contextBridge.exposeInMainWorld('mqtey', api)
+contextBridge.exposeInMainWorld('mqttIn', api)

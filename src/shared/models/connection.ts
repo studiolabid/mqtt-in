@@ -112,7 +112,7 @@ export interface ConnectionProfile {
   /** WebSocket path (ws/wss only), e.g. `/mqtt`. */
   path: string
   /**
-   * Empty = a new `mqtey_xxxxxxxx` id on every connect. With `clean: false` the id is generated
+   * Empty = a new `mqttin_xxxxxxxx` id on every connect. With `clean: false` the id is generated
    * once and stored instead (`normalizeConnectionProfile`): a persistent session needs a fixed id.
    */
   clientId: string
@@ -177,5 +177,5 @@ export interface ImportConnectionsResult {
    */
   tlsPathsCleared: number
   /** Recognized file format. */
-  source: 'mqtey' | 'mqttx' | 'profile'
+  source: 'mqtt-in' | 'mqttx' | 'profile'
 }

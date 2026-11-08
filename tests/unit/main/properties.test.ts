@@ -127,13 +127,13 @@ describe('connect and will properties', () => {
         sessionExpiryInterval: 0,
         topicAliasMaximum: 10,
         requestResponseInformation: false,
-        userProperties: [{ key: 'app', value: 'mqtey' }]
+        userProperties: [{ key: 'app', value: 'mqtt-in' }]
       })
     ).toEqual({
       sessionExpiryInterval: 0,
       topicAliasMaximum: 10,
       requestResponseInformation: false,
-      userProperties: { app: 'mqtey' }
+      userProperties: { app: 'mqtt-in' }
     })
   })
 

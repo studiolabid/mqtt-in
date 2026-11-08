@@ -3,7 +3,7 @@
  * at the top of the topic explorer with its latest value, delta and sparkline.
  *
  * - At most `MAX_PINS_PER_CONNECTION` per connection; persisted through `api.storage` under
- *   'mqtey.pins' (`Record<connectionId, TopicPin[]>`, debounced), loaded by `initApp`.
+ *   'mqtt-in.pins' (`Record<connectionId, TopicPin[]>`, debounced), loaded by `initApp`.
  * - Every pin owns a ring of the newest `PIN_SERIES_POINTS` points (plain typed arrays, outside
  *   Vue reactivity, ARCHITECTURE §4.2), fed from `useMessagesStore().onIngest` for incoming
  *   messages on pinned topics: one map lookup per message, `extractNumbers` only for pinned
@@ -44,7 +44,7 @@ export interface PinLatest {
 export const MAX_PINS_PER_CONNECTION = 8
 /** Points kept per pin. */
 export const PIN_SERIES_POINTS = 2000
-export const PINS_STORAGE_KEY = 'mqtey.pins'
+export const PINS_STORAGE_KEY = 'mqtt-in.pins'
 const SAVE_DELAY_MS = 500
 const NO_PINS: readonly TopicPin[] = Object.freeze([])
 const NO_POINTS: PinSeries = Object.freeze({
@@ -181,7 +181,7 @@ export const usePinsStore = defineStore('pins', () => {
     try {
       await api.storage.set(PINS_STORAGE_KEY, pins.value)
     } catch (err) {
-      console.warn('[mqtey] could not save the pinned values:', err)
+      console.warn('[mqtt-in] could not save the pinned values:', err)
     }
   }
 

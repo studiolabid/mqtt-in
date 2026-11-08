@@ -32,7 +32,7 @@ function isMainFrame(frame: WebFrameMain, main: WebFrameMain | null | undefined)
 }
 
 /**
- * Only the main frame of our own UI may call the API: the `app://mqtey` page or, in development,
+ * Only the main frame of our own UI may call the API: the `app://mqtt-in` page or, in development,
  * a page of the Vite dev server's origin. Subframes, file:// and other origins, and a sender
  * frame that is gone (navigated or destroyed) are refused.
  */

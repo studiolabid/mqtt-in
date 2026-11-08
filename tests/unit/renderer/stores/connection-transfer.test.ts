@@ -101,7 +101,7 @@ describe('connection export outcome (CT-10)', () => {
       { name: 'a', password: 'hunter2' },
       { name: 'b' }
     ])
-    const path = 'C:\\Users\\me\\AppData\\Local\\Temp\\exports\\mqtey-connections.json'
+    const path = 'C:\\Users\\me\\AppData\\Local\\Temp\\exports\\mqtt-in-connections.json'
     vi.mocked(bridge.api.connections.exportToFile).mockResolvedValue(path)
     const store = useConnectionsStore()
 
@@ -110,7 +110,7 @@ describe('connection export outcome (CT-10)', () => {
       includeSecrets: true
     })
     expect(toast.success).toHaveBeenLastCalledWith('Exported 2 connections', {
-      description: 'mqtey-connections.json · includes passwords in plain text',
+      description: 'mqtt-in-connections.json · includes passwords in plain text',
       action: { label: 'Show in folder', onClick: expect.any(Function) },
       duration: ACTION_TOAST_DURATION
     })
@@ -123,7 +123,7 @@ describe('connection export outcome (CT-10)', () => {
     const [title, options] = vi.mocked(toast.success).mock.calls.at(-1) ?? []
     expect(title).toBe('Exported 1 connection')
     expect(options).toMatchObject({
-      description: 'mqtey-connections.json · passwords not included'
+      description: 'mqtt-in-connections.json · passwords not included'
     })
     expect(JSON.stringify(options)).not.toContain('AppData')
   })

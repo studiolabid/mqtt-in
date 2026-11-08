@@ -50,7 +50,7 @@ export function useNavigation(): Navigation {
     const { message } = failure
     // Navigating to the current location is not worth a warning.
     if (isNavigationFailure(failure, NavigationFailureType.duplicated)) return
-    console.warn('[mqtey] navigation failed:', message)
+    console.warn('[mqtt-in] navigation failed:', message)
   }
 
   return {

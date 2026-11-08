@@ -175,7 +175,7 @@ export function usePaletteCommands(): PaletteCommands {
     },
     {
       id: 'about',
-      label: 'About mqtey',
+      label: 'About mqtt-in',
       icon: InfoIcon,
       keywords: 'version help',
       run: () => nav.openSettings('about')

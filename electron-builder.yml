@@ -1,5 +1,5 @@
-appId: com.mqtey.app
-productName: mqtey
+appId: com.mqttin.app
+productName: mqtt-in
 copyright: Copyright © 2026 studiolab.id
 directories:
   buildResources: build
@@ -7,7 +7,7 @@ directories:
 # production node_modules itself; the patterns below trim them (browser bundles, source maps,
 # TypeScript sources, tests, changelogs; LICENSE files stay). Throwaway builds (out-*), sources
 # and source maps never ship. `npm run test:package` (tests/e2e/check-package.mjs) checks the
-# packaged result: this list, the fuses below, the size and a smoke run of mqtey.exe.
+# packaged result: this list, the fuses below, the size and a smoke run of mqtt-in.exe.
 files:
   - 'out/**'
   - 'resources/**'
@@ -26,7 +26,7 @@ asarUnpack:
 electronLanguages:
   - en-US
 # The packaged executable is not a general Node runtime and only runs its own, unmodified
-# app.asar. The UI is served from app://mqtey (src/main/app-protocol.ts), so file:// pages need no
+# app.asar. The UI is served from app://mqtt-in (src/main/app-protocol.ts), so file:// pages need no
 # extra privileges either.
 electronFuses:
   runAsNode: false
@@ -36,7 +36,7 @@ electronFuses:
   onlyLoadAppFromAsar: true
   grantFileProtocolExtraPrivileges: false
 win:
-  executableName: mqtey
+  executableName: mqtt-in
   target:
     - nsis
 nsis:
@@ -50,7 +50,7 @@ nsis:
 mac:
   category: public.app-category.developer-tools
   # Hardened runtime. The entitlements allow what V8 needs (JIT), never DYLD_* environment
-  # variables: those would let other code be injected into mqtey and reach its safeStorage key.
+  # variables: those would let other code be injected into mqtt-in and reach its safeStorage key.
   hardenedRuntime: true
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist

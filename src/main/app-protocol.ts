@@ -1,5 +1,5 @@
 /**
- * Serves the built UI on its own privileged origin, `app://mqtey` (see `app-origin.ts` for why
+ * Serves the built UI on its own privileged origin, `app://mqtt-in` (see `app-origin.ts` for why
  * not file://):
  * - `registerAppScheme()` before the app is ready: a standard, secure scheme (a real origin, a
  *   secure context for the clipboard and the window-controls overlay), usable by fetch and CORS
@@ -63,7 +63,7 @@ export async function respondWithAppFile(
   return new Response(null, { status: response.status, headers: response.headers })
 }
 
-/** Serves the files under `root` on `app://mqtey` (default session). Call once it is ready. */
+/** Serves the files under `root` on `app://mqtt-in` (default session). Call once it is ready. */
 export function serveAppProtocol(root: string): void {
   protocol.handle(APP_SCHEME, (request) => respondWithAppFile(request, root))
 }

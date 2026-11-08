@@ -1,6 +1,6 @@
 /**
- * IN-01: the automation window (MQTEY_E2E=1) stays off the user's desktop: outside every display,
- * never focused, titled 'mqtey (automation)', and on Windows a tool window (WS_EX_TOOLWINDOW set,
+ * IN-01: the automation window (MQTTIN_E2E=1) stays off the user's desktop: outside every display,
+ * never focused, titled 'mqtt-in (automation)', and on Windows a tool window (WS_EX_TOOLWINDOW set,
  * WS_EX_APPWINDOW clear: no taskbar, Alt+Tab or Task View entry) with no other visible window of
  * the main process (no DevTools, no native dialog). Everything is read, nothing is moved or
  * focused; the decision function is first proven to reject unsafe values (fake data, no window).
@@ -46,7 +46,7 @@ const UNSAFE = [
     { native: { ...SAFE.native, exStyle: SAFE.native.exStyle | WS_EX_APPWINDOW } },
     /WS_EX_APPWINDOW/
   ],
-  ['the plain app title', { title: 'mqtey' }, /title is "mqtey"/],
+  ['the plain app title', { title: 'mqtt-in' }, /title is "mqtt-in"/],
   [
     'bounds on a display',
     { bounds: { x: 100, y: 100, width: 1280, height: 800 } },

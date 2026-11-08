@@ -12,7 +12,7 @@ import {
 import type { ReadFileFn } from '../../../src/main/services/mqtt/types'
 import { CERT_PEM, encryptedKeyPem, KEY_PEM, otherKeyPem, pemToDer } from './helpers/tls-fixtures'
 
-const dir = mkdtempSync(join(tmpdir(), 'mqtey-tls-test-'))
+const dir = mkdtempSync(join(tmpdir(), 'mqtt-in-tls-test-'))
 afterAll(() => rmSync(dir, { recursive: true, force: true }))
 afterEach(() => {
   vi.useRealTimers()

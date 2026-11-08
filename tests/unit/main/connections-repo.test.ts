@@ -47,7 +47,7 @@ const warn = vi.fn()
 const logger = { warn: vi.fn(), error: vi.fn() }
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'mqtey-repo-'))
+  dir = mkdtempSync(join(tmpdir(), 'mqtt-in-repo-'))
   clock = 1_000
   notices = []
   warn.mockClear()

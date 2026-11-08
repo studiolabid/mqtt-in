@@ -72,13 +72,13 @@ const version = computed(() => info.value?.version ?? null)
           <button
             type="button"
             class="flex h-5 items-center rounded-md px-1.5 font-mono tabular-nums transition-colors outline-none hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
-            :aria-label="`mqtey ${version}. About`"
+            :aria-label="`mqtt-in ${version}. About`"
             @click="nav.openSettings()"
           >
             v{{ version }}
           </button>
         </TooltipTrigger>
-        <TooltipContent side="top" align="end">About mqtey</TooltipContent>
+        <TooltipContent side="top" align="end">About mqtt-in</TooltipContent>
       </Tooltip>
     </div>
   </footer>

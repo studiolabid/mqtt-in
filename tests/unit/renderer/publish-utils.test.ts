@@ -17,10 +17,10 @@ import { message, utf8 } from './helpers'
 const NOW = Date.UTC(2026, 10, 8, 12, 0, 0)
 
 describe('createPublishDraft', () => {
-  it('uses the mqtey defaults', () => {
+  it('uses the mqtt-in defaults', () => {
     expect(createPublishDraft()).toEqual({
-      topic: 'mqtey/test',
-      payload: '{\n  "msg": "hello from mqtey",\n  "at": "{{iso}}"\n}',
+      topic: 'mqtt-in/test',
+      payload: '{\n  "msg": "hello from mqtt-in",\n  "at": "{{iso}}"\n}',
       format: 'json',
       qos: 0,
       retain: false,
@@ -98,7 +98,7 @@ describe('preparePublish', () => {
     expect(prepared.ok).toBe(true)
     if (!prepared.ok) return
     expect(JSON.parse(utf8Decode(prepared.request.payload))).toEqual({
-      msg: 'hello from mqtey',
+      msg: 'hello from mqtt-in',
       at: '2026-11-08T12:00:00.000Z'
     })
     const counter = preparePublish(
@@ -135,7 +135,7 @@ describe('preparePublish', () => {
     })
     const v5 = preparePublish(draft, { protocolVersion: 5 })
     expect(v5.ok && v5.request).toMatchObject({
-      topic: 'mqtey/test',
+      topic: 'mqtt-in/test',
       qos: 1,
       retain: true,
       properties: { contentType: 'application/json' }
