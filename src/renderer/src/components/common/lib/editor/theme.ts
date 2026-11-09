@@ -29,7 +29,7 @@ export const editorTheme: Extension = EditorView.theme({
     overflow: 'auto'
   },
   '.cm-content': { padding: '6px 0', caretColor: 'var(--primary)' },
-  '.cm-line': { padding: '0 10px' },
+  '.cm-line': { padding: '0 10px', transition: 'background-color 200ms ease-out' },
   '.cm-cursor, .cm-dropCursor': {
     borderLeft: '1.5px solid var(--primary)',
     marginLeft: '-0.75px'
@@ -88,6 +88,8 @@ export const editorTheme: Extension = EditorView.theme({
     borderRadius: '2px'
   },
   '.cm-searchMatch.cm-searchMatch-selected': { backgroundColor: tint('--warning', 55) },
+  // Lines a live update changed (lib/editor/change-flash.ts); wins over the active line.
+  '.cm-line.cm-changedLine': { backgroundColor: tint('--warning', 18) },
   '.cm-specialChar': { color: 'var(--destructive)' },
   '.cm-template': {
     color: 'var(--primary)',

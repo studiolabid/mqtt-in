@@ -25,9 +25,11 @@ const props = withDefaults(
     maxHeight?: string
     /** `auto` = only for multi-line output. */
     lineNumbers?: boolean | 'auto'
+    /** Briefly mark the lines a payload change altered (see `CodeEditor`). */
+    flashChanges?: boolean
     class?: HTMLAttributes['class']
   }>(),
-  { wrap: true, lineNumbers: 'auto' }
+  { wrap: true, lineNumbers: 'auto', flashChanges: false }
 )
 
 const decoded = computed(() =>
@@ -67,6 +69,7 @@ const showLineNumbers = computed(() =>
         :language="decoded.json ? 'json' : 'text'"
         :wrap="wrap"
         :line-numbers="showLineNumbers"
+        :flash-changes="flashChanges"
         min-height="0px"
         :max-height="maxHeight"
         label="Payload"

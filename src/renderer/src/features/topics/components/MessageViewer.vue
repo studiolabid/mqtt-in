@@ -7,8 +7,11 @@
  * Messages tab. A topic's last value can be a 64 KiB copy once the buffer evicted a large
  * message (`fullBytes` is the original size): the metadata shows the original size and a note
  * above the payload says that only its start is shown.
+ *
+ * With `live` (a topic's last value) the lines a newer message on the same topic changed are
+ * marked for a moment; switching topic or view format replaces the text without marking.
  */
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { CopyIcon, ScissorsIcon, SquarePenIcon } from '@lucide/vue'
 import type { MqttMessage } from '@shared/models'
 import { decodePayload } from '@shared/payload'
@@ -35,8 +38,10 @@ const props = withDefaults(
     diff?: boolean
     /** Original payload size when `message` may hold a cut copy (a topic's last value). */
     fullBytes?: number
+    /** `message` follows the topic's latest value: mark what each update changed. */
+    live?: boolean
   }>(),
-  { diff: false, previous: undefined, fullBytes: undefined }
+  { diff: false, previous: undefined, fullBytes: undefined, live: false }
 )
 
 const settings = useSettingsStore()
@@ -46,6 +51,23 @@ const { copy } = useCopy()
 const format = useViewerFormat(
   () => props.connectionId,
   () => props.message.topic
+)
+
+/**
+ * True while the shown payload is a newer message on the same topic in the same format.
+ * Sync, so it is settled before the payload reaches the editor in the same render.
+ */
+const flash = ref(false)
+watch(
+  [() => props.message, format],
+  ([message, current], [previous, previousFormat]) => {
+    flash.value =
+      props.live &&
+      message !== previous &&
+      message.topic === previous.topic &&
+      current === previousFormat
+  },
+  { flush: 'sync' }
 )
 
 /** 'Showing the first 64 KB of 2.5 MB' when the value is a cut copy. */
@@ -125,6 +147,7 @@ function copyValue(): void {
         :payload="message.payload"
         :format="format"
         :wrap="settings.settings.wordWrap"
+        :flash-changes="flash"
       />
     </div>
   </div>

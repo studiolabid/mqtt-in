@@ -199,6 +199,7 @@ function openPinned(topic: string): void {
             :connection-id="connectionId"
             :message="node.lastMessage"
             :full-bytes="node.lastPayloadBytes"
+            live
             class="min-h-0 flex-1"
           />
         </TabsContent>

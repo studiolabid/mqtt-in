@@ -7,6 +7,7 @@
  */
 import { clipboardText, nativeCalls, sleep, tid } from '../kit.mjs'
 import {
+  clearTreeSearch,
   createConnection,
   openConnection,
   publishAll,
@@ -122,6 +123,58 @@ export default {
         .locator(tid('message-detail'))
         .getByRole('button', { name: /^Close/ })
         .click()
+    })
+
+    await step('a live value marks the lines a new message changed, then clears', async () => {
+      const topic = 'e2e/live/status'
+      const marked = () =>
+        page().evaluate(() =>
+          [
+            ...document.querySelectorAll('[data-testid="topic-detail"] .cm-line.cm-changedLine')
+          ].map((line) => line.textContent.trim())
+        )
+      const status = (remaining, fmt) =>
+        JSON.stringify({ timer_running: true, timer_remaining_sec: remaining, fmt, host: 'x' })
+      await publishAll(raw, topic, [status(3540, '59:00')])
+      await showTab(ctx, 'topics')
+      await (await treeRow(ctx, topic)).click()
+      await ctx.click('topic-tab-value')
+      await page().waitForFunction(() =>
+        /59:00/.test(
+          document.querySelector('[data-testid="topic-detail"] .cm-content')?.textContent
+        )
+      )
+      if ((await marked()).length > 0) throw new Error('the first value is marked')
+
+      await publishAll(raw, topic, [status(3539, '58:59')])
+      await page().waitForFunction(
+        () => document.querySelectorAll('[data-testid="topic-detail"] .cm-changedLine').length > 0
+      )
+      const lines = await marked()
+      ctx.log(JSON.stringify(lines))
+      if (lines.join('|') !== '"timer_remaining_sec": 3539,|"fmt": "58:59",')
+        throw new Error(`marked ${JSON.stringify(lines)}`)
+      await capture('topics-01b-live-value-changed')
+      await page().waitForFunction(
+        () =>
+          document.querySelectorAll('[data-testid="topic-detail"] .cm-changedLine').length === 0,
+        undefined,
+        { timeout: 4_000 }
+      )
+
+      // Another topic and back: the text is replaced, nothing is marked.
+      await (await treeRow(ctx, 'e2e/num/b')).click()
+      await page().waitForFunction(() =>
+        /temp/.test(document.querySelector('[data-testid="topic-detail"] .cm-content')?.textContent)
+      )
+      await (await treeRow(ctx, topic)).click()
+      await page().waitForFunction(() =>
+        /58:59/.test(
+          document.querySelector('[data-testid="topic-detail"] .cm-content')?.textContent
+        )
+      )
+      if ((await marked()).length > 0) throw new Error('switching topics marked lines')
+      await clearTreeSearch(ctx)
     })
 
     await step('two pins: two tiles and one chart with two series (FP-3)', async () => {

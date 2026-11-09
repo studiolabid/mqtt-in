@@ -38,6 +38,7 @@ import {
   readonlyExtension,
   type CodeEditorLanguage
 } from './lib/editor/extensions'
+import { changedLines, changeFlashExtension, flashLines, FLASH_MS } from './lib/editor/change-flash'
 import { templateExtension } from './lib/editor/templates'
 import { editorAppearance } from './lib/editor/theme'
 import './syntax.css'
@@ -60,6 +61,11 @@ const props = withDefaults(
     templates?: boolean
     /** Accessible name of the content (e.g. `Payload`). */
     label?: string
+    /**
+     * Briefly mark the lines that an external `v-model` change altered (live values). Read
+     * when the change arrives, so a parent can enable it for some updates only.
+     */
+    flashChanges?: boolean
     class?: HTMLAttributes['class']
   }>(),
   {
@@ -69,7 +75,8 @@ const props = withDefaults(
     wrap: true,
     minHeight: '5rem',
     autofocus: false,
-    templates: false
+    templates: false,
+    flashChanges: false
   }
 )
 
@@ -84,6 +91,7 @@ const emit = defineEmits<{
 
 const host = ref<HTMLDivElement | null>(null)
 let view: EditorView | null = null
+let flashTimer: ReturnType<typeof setTimeout> | undefined
 
 /** Marks transactions that mirror an external v-model change (not echoed back). */
 const External = Annotation.define<boolean>()
@@ -147,6 +155,7 @@ function extensions(): Extension[] {
     compartments.placeholder.of(placeholderExtension(props.placeholder)),
     compartments.templates.of(templateExtension(props.templates, props.readonly)),
     compartments.label.of(labelExtension(props.label)),
+    changeFlashExtension,
     EditorView.updateListener.of(onUpdate)
   ]
 }
@@ -165,16 +174,31 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  clearTimeout(flashTimer)
   view?.destroy()
   view = null
 })
 
+/** The lines to mark for this external change (`[]` clears earlier marks). */
+function flashFor(before: string, after: string): readonly number[] {
+  clearTimeout(flashTimer)
+  if (!props.flashChanges) return []
+  const lines = changedLines(before, after)
+  if (lines.length > 0) {
+    flashTimer = setTimeout(() => view?.dispatch({ effects: flashLines.of([]) }), FLASH_MS)
+  }
+  return lines
+}
+
 watch(model, (value) => {
   if (!view) return
-  const change = minimalChange(view.state.doc.toString(), value ?? '')
+  const before = view.state.doc.toString()
+  const after = value ?? ''
+  const change = minimalChange(before, after)
   if (!change) return
   view.dispatch({
     changes: change,
+    effects: flashLines.of(flashFor(before, after)),
     annotations: [External.of(true), Transaction.addToHistory.of(!props.readonly)]
   })
 })
