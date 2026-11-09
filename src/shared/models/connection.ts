@@ -127,6 +127,11 @@ export interface ConnectionProfile {
   /** Milliseconds. */
   connectTimeout: number
   autoReconnect: boolean
+  /**
+   * Connect when mqtt-in starts (once per app run; a renderer reload never reconnects a closed
+   * connection). Missing = off.
+   */
+  autoConnect?: boolean
   /** Milliseconds between reconnect attempts. */
   reconnectPeriod: number
   tls: TlsSettings

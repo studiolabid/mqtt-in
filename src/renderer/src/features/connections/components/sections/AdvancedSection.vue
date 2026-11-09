@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * Advanced: clean start / session, keep alive, connect timeout and auto reconnect. The number
- * fields use the limits of the main process (`LIMITS`). With clean start off and no client id,
- * a hint says that one is generated when saving (a new id on every connect could never resume
- * the session, MQTT-07).
+ * Advanced: clean start / session, keep alive, connect timeout, connect on startup and auto
+ * reconnect. The number fields use the limits of the main process (`LIMITS`). With clean start
+ * off and no client id, a hint says that one is generated when saving (a new id on every connect
+ * could never resume the session, MQTT-07).
  */
 import { computed, useId } from 'vue'
 import { ArrowRightIcon, InfoIcon } from '@lucide/vue'
@@ -121,6 +121,12 @@ function setReconnectPeriod(value: number | undefined): void {
         </Field>
       </div>
 
+      <SwitchCard
+        v-model="draft.autoConnect"
+        data-testid="connection-auto-connect"
+        title="Connect on startup"
+        description="Connect as soon as mqtt-in starts, so its subscriptions are live again after a restart."
+      />
       <SwitchCard
         v-model="draft.autoReconnect"
         title="Reconnect automatically"

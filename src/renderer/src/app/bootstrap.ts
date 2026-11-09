@@ -16,6 +16,7 @@ import { usePinsStore } from '@/stores/pins'
 import { usePublishStore } from '@/stores/publish'
 import { useSessionsStore } from '@/stores/sessions'
 import { useSettingsStore } from '@/stores/settings'
+import { autoConnect, firstStartOfRun } from './auto-connect'
 import { registerIpcListeners } from './ipc-listeners'
 import { reportStartupProblem, reportStorageNotice } from './notices'
 
@@ -38,7 +39,8 @@ async function attempt(problem: string, task: () => Promise<unknown> | unknown):
  * 3. connections + publish drafts / history + pinned values,
  * 4. the storage notices collected by the main process (one warning toast each),
  * 5. live sessions of the main process (survive renderer reloads),
- * 6. reopens the last connection when the app starts on the welcome screen.
+ * 6. connects the "Connect on startup" profiles (once per app run, `./auto-connect`),
+ * 7. reopens the last connection when the app starts on the welcome screen.
  */
 export async function initApp(router: Router): Promise<void> {
   const settings = useSettingsStore()
@@ -68,6 +70,16 @@ export async function initApp(router: Router): Promise<void> {
   await attempt('Could not restore the live sessions', async () => {
     useSessionsStore().hydrate(await api.mqtt.getSessions())
   })
+
+  if (firstStartOfRun() && connectionsLoaded) {
+    const sessions = useSessionsStore()
+    // Not awaited: the window must not wait for brokers; failures are toasts of their own.
+    void autoConnect({
+      profiles: connections.profiles,
+      isActive: (id) => sessions.isActive(id),
+      connect: (id) => sessions.connect(id)
+    })
+  }
 
   onConnectionRemoved((id) => forgetLastConnectionId(id))
   leaveRemovedConnections(router)

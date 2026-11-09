@@ -134,6 +134,7 @@ export const connectionProfileSchema = z
     keepalive: uint16Schema,
     connectTimeout: z.number().int().min(0).max(LIMITS.connectTimeoutMs.max),
     autoReconnect: z.boolean(),
+    autoConnect: optional(z.boolean()),
     reconnectPeriod: z.number().int().min(0).max(LIMITS.reconnectPeriodMs.max),
     tls: tlsSchema,
     will: willSchema,

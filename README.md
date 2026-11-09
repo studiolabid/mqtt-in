@@ -21,11 +21,11 @@ Windows · macOS · Linux &nbsp;|&nbsp; MQTT 3.1 · 3.1.1 · 5.0 &nbsp;|&nbsp; `
 | | |
 | --- | --- |
 | **Connections** | Many brokers side by side, groups, import / export (also from MQTTX), paste a full URL like `wss://user:pass@host:443/mqtt` to fill the form at once |
-| **Every option** | MQTT 3.1 / 3.1.1 / 5.0, TLS (CA, client certificate and key, SNI, ALPN), WebSocket path, Last Will, keep-alive, auto-reconnect, MQTT 5 connect properties |
+| **Every option** | MQTT 3.1 / 3.1.1 / 5.0, TLS (CA, client certificate and key, SNI, ALPN), WebSocket path, Last Will, keep-alive, auto-reconnect, connect on startup, MQTT 5 connect properties |
 | **Subscriptions** | QoS, color tags, aliases, enable / disable, MQTT 5 options (no local, retain as published, retain handling), granted QoS and refusals shown |
 | **Live messages** | Virtualized stream that stays smooth under load, filters (direction, topic wildcard, text, retained), pause, payload views: JSON, text, hex, base64, MessagePack, CBOR |
 | **Publishing** | Payload editor with JSON formatting, templates (`{{uuid}}`, `{{random(1,9)}}`…), history, MQTT 5 properties, repeat publishing (interval and count) |
-| **Topic explorer** | Live topic tree with counts and last values, history with diff, numeric charts, clear retained messages |
+| **Topic explorer** | Live topic tree with counts and last values (changed lines flash on update), history with diff, numeric charts, clear retained messages |
 | **Productivity** | Command palette (<kbd>Ctrl</kbd> <kbd>K</kbd>), keyboard shortcuts, copy as `mosquitto_pub` / MQTTX command, light and dark theme |
 | **Privacy** | Passwords are encrypted with the operating system keychain; everything stays on your machine |
 

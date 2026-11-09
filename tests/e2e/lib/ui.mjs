@@ -13,7 +13,8 @@ import { sleep, tid } from '../kit.mjs'
  *
  * @param {object} ctx the suite context
  * @param {{ name?: string, host?: string, port?: number, version?: 3|4|5, connect?: boolean,
- *   status?: string, keepalive?: number, username?: string, password?: string }} [options]
+ *   status?: string, keepalive?: number, username?: string, password?: string,
+ *   autoConnect?: boolean }} [options]
  */
 export async function createConnection(ctx, options = {}) {
   const { name = 'E2E broker', host = '127.0.0.1', version = 4, connect = true } = options
@@ -35,6 +36,11 @@ export async function createConnection(ctx, options = {}) {
   if (options.keepalive !== undefined) {
     await ctx.click('connection-section-advanced')
     await page.getByLabel('Keep alive', { exact: true }).fill(String(options.keepalive))
+  }
+  if (options.autoConnect) {
+    await ctx.click('connection-section-advanced')
+    await ctx.click('connection-auto-connect')
+    await ctx.waitForTestId('connection-auto-connect', { extra: '[data-state="checked"]' })
   }
   await ctx.click(connect ? 'connection-save-connect' : 'connection-save')
   await ctx.waitForTestId('connection-form', { state: 'hidden' })
