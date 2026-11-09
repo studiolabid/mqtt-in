@@ -6,7 +6,7 @@
  * vue-sonner drops toasts created before a Toaster subscribes, so everything reported before
  * `App.vue` is mounted is queued and shown by `flushStartupProblems`.
  */
-import { toast } from 'vue-sonner'
+import { toast, type ExternalToast } from 'vue-sonner'
 import type { StorageNotice } from '@shared/models'
 import { STICKY_TOAST_DURATION } from '@/lib/toast-options'
 import { api, errorMessage } from '@/services/api'
@@ -24,6 +24,11 @@ function whenMounted(show: () => void): void {
 /** Shows a startup problem as an error toast (queued until the app is mounted). */
 export function reportStartupProblem(title: string, description?: string): void {
   whenMounted(() => toast.error(title, { description }))
+}
+
+/** An error toast with options (e.g. a Retry action), queued until the app is mounted. */
+export function reportProblem(title: string, options: ExternalToast = {}): void {
+  whenMounted(() => toast.error(title, options))
 }
 
 /** What a storage file holds, for the toast titles. */
