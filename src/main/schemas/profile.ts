@@ -15,6 +15,12 @@
  *   an earlier version saved is never dropped. The session refuses what it cannot send.
  */
 import { z } from 'zod'
+import {
+  connectionKind,
+  headerProblem,
+  socketAuthProblem,
+  subprotocolsProblem
+} from '@shared/connection-kind'
 import { createSubscription, LIMITS, normalizeConnectionProfile } from '@shared/defaults'
 import type { ConnectionProfile, Subscription, UserProperty } from '@shared/models'
 import { MQTT_STRING_MAX_BYTES, mqttStringProblem, utf8ByteLength } from '@shared/mqtt-string'
@@ -34,7 +40,7 @@ import {
   userPropertiesSchemaFor,
   VARINT_MAX
 } from './common'
-import { MQTT_PROTOCOLS } from './enums'
+import { CONNECTION_KINDS, MQTT_PROTOCOLS } from './enums'
 
 export type ProfileMode = 'strict' | 'lenient'
 
@@ -80,6 +86,16 @@ const tlsSchema = z
   })
   .partial()
 
+const socketSchema = z
+  .object({
+    headers: storedUserProperties,
+    subprotocols: z.string().max(4096),
+    namespace: z.string().max(1024),
+    auth: z.string().max(UINT16_MAX),
+    topicField: z.string().max(256)
+  })
+  .partial()
+
 const willPropertiesSchema = z
   .object({
     willDelayInterval: optional(uint32Schema),
@@ -119,6 +135,7 @@ const connectPropertiesSchema = z
 export const connectionProfileSchema = z
   .object({
     id: idSchema,
+    kind: optional(z.enum(CONNECTION_KINDS, { error: 'Kind must be mqtt, websocket or socketio' })),
     name: z.string().max(256),
     color: z.string().max(64),
     group: z.string().max(256),
@@ -139,6 +156,7 @@ export const connectionProfileSchema = z
     tls: tlsSchema,
     will: willSchema,
     properties: connectPropertiesSchema,
+    socket: optional(socketSchema),
     subscriptions: z.array(storedSubscriptionSchema).max(10_000),
     createdAt: timestampSchema,
     updatedAt: timestampSchema,
@@ -207,6 +225,28 @@ function checkStrictRules(profile: ConnectionProfileInput, ctx: z.RefinementCtx)
     userProperties(props?.userProperties, ['will', 'properties', 'userProperties'])
   }
   userProperties(profile.properties?.userProperties, ['properties', 'userProperties'])
+  checkSocketRules(profile, issue)
+}
+
+/** WebSocket and Socket.IO: `ws` / `wss` only, valid headers, subprotocols and auth JSON. */
+function checkSocketRules(
+  profile: ConnectionProfileInput,
+  issue: (path: IssuePath, message: string) => void
+): void {
+  const kind = connectionKind(profile)
+  if (kind === 'mqtt') return
+  if (profile.protocol === 'mqtt' || profile.protocol === 'mqtts') {
+    issue(['protocol'], 'WebSocket and Socket.IO connections use ws:// or wss://')
+  }
+  const socket = profile.socket
+  socket?.headers?.forEach((header, i) => {
+    const problem = headerProblem(header.key, header.value)
+    if (problem) issue(['socket', 'headers', i], problem)
+  })
+  const subprotocols = socket?.subprotocols ? subprotocolsProblem(socket.subprotocols) : null
+  if (subprotocols && kind === 'websocket') issue(['socket', 'subprotocols'], subprotocols)
+  const auth = socket?.auth ? socketAuthProblem(socket.auth) : null
+  if (auth && kind === 'socketio') issue(['socket', 'auth'], auth)
 }
 
 /** The profile schema of saves over IPC and imports (the connection form's rules). */

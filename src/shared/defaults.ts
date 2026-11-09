@@ -3,6 +3,7 @@
  * of `./constants` (re-exported: import everything from `@shared/defaults`).
  * Safe to import from main, preload and renderer.
  */
+import { DEFAULT_SOCKET_SETTINGS } from './connection-kind'
 import { DEFAULT_PORTS, NEUTRAL_COLOR, PALETTE } from './constants'
 import type { ConnectionProfile, MqttProtocol, Subscription } from './models'
 
@@ -177,6 +178,7 @@ export function normalizeConnectionProfile(input: Partial<ConnectionProfile>): C
   const base = createConnectionProfile({ id: fields.id ?? newId() })
   const persistent = fields.clean === false
   const clientId = fields.clientId ?? base.clientId
+  const socket = isRecord(fields.socket) ? presentFields(fields.socket) : undefined
   return {
     ...base,
     ...fields,
@@ -194,6 +196,12 @@ export function normalizeConnectionProfile(input: Partial<ConnectionProfile>): C
       ...base.properties,
       ...properties,
       userProperties: arrayOr(properties.userProperties)
+    },
+    // A malformed `socket` (not an object) is dropped: the defaults apply.
+    socket: socket && {
+      ...DEFAULT_SOCKET_SETTINGS,
+      ...socket,
+      headers: arrayOr(socket.headers)
     },
     subscriptions: arrayOr<unknown>(fields.subscriptions)
       .filter((s): s is Partial<Subscription> => isRecord(s))

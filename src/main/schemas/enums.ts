@@ -6,6 +6,7 @@
  */
 import type {
   AccentColor,
+  ConnectionKind,
   MqttProtocol,
   PayloadFormat,
   ThemeMode,
@@ -23,6 +24,12 @@ export const MQTT_PROTOCOLS = membersOf<MqttProtocol>({
   mqtts: true,
   ws: true,
   wss: true
+})
+
+export const CONNECTION_KINDS = membersOf<ConnectionKind>({
+  mqtt: true,
+  websocket: true,
+  socketio: true
 })
 
 export const PAYLOAD_FORMATS = membersOf<PayloadFormat>({

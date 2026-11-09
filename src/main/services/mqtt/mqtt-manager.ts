@@ -1,5 +1,6 @@
 /**
- * Owns one `MqttSession` per connection id and routes every MQTT use case to it.
+ * Owns one live session per connection id and routes every use case to it: an `MqttSession`
+ * for MQTT profiles, a `SocketSession` for WebSocket and Socket.IO ones (`LiveSession`).
  * All events go to an injected `EventSink` (messages through a shared batcher).
  *
  * Per connection it also remembers the filters the broker may still hold (granted SUBACKs of
@@ -7,12 +8,17 @@
  * resumes the persistent broker session unsubscribes the ones it no longer wants.
  */
 import type {
+  MqttMessage,
   PublishRequest,
   RepeatPublishOptions,
   SessionSnapshot,
   Subscription,
   SubscriptionEvent
 } from '@shared/models'
+import { isMqttProfile } from '@shared/connection-kind'
+import type { LiveSession } from '../live-session'
+import { SocketSession } from '../socket/socket-session'
+import type { OpenTransport } from '../socket/types'
 import { MessageBatcher, type MessageBatcherOptions } from './message-batcher'
 import { MqttSession } from './mqtt-session'
 import type { ConnectFn, EventSink, ProfileSource, ReadFileFn } from './types'
@@ -27,12 +33,14 @@ export interface MqttManagerOptions {
   /** Called on every successful CONNACK (e.g. to record `lastConnectedAt`). */
   onConnected?: (connectionId: string, connectedAt: number) => void
   batcher?: MessageBatcherOptions
+  /** Opens WebSocket / Socket.IO transports (default: by the profile's kind). */
+  openSocket?: OpenTransport
 }
 
 const noop = (): void => {}
 
 export class MqttManager {
-  private readonly sessions = new Map<string, MqttSession>()
+  private readonly sessions = new Map<string, LiveSession>()
   /** Filters the broker may hold per connection id, across its sessions (this app run only). */
   private readonly subscribedFilters = new Map<string, Set<string>>()
   /** Serializes connect / disconnect / forget per connection id. */
@@ -59,20 +67,24 @@ export class MqttManager {
       // `disconnected` between the renderer's optimistic `connecting` and the new attempt.
       const previous = this.sessions.get(connectionId)
       if (previous && !previous.isFinished) await previous.disconnect()
-      let subscribedFilters = this.subscribedFilters.get(connectionId)
-      if (!subscribedFilters) {
-        subscribedFilters = new Set()
-        this.subscribedFilters.set(connectionId, subscribedFilters)
-      }
-      const session = new MqttSession({
+      const shared = {
         profile,
         sink: this.options.sink,
-        pushMessage: (message) => this.batcher.push(message),
-        connect: this.options.connect,
+        pushMessage: (message: MqttMessage) => this.batcher.push(message),
         readFile: this.options.readFile,
-        onConnected: (at) => this.options.onConnected?.(connectionId, at),
-        subscribedFilters
-      })
+        onConnected: (at: number) => this.options.onConnected?.(connectionId, at)
+      }
+      let session: LiveSession
+      if (isMqttProfile(profile)) {
+        let subscribedFilters = this.subscribedFilters.get(connectionId)
+        if (!subscribedFilters) {
+          subscribedFilters = new Set()
+          this.subscribedFilters.set(connectionId, subscribedFilters)
+        }
+        session = new MqttSession({ ...shared, connect: this.options.connect, subscribedFilters })
+      } else {
+        session = new SocketSession({ ...shared, open: this.options.openSocket })
+      }
       this.sessions.set(connectionId, session)
       // Not awaited: a TLS profile reads its files first (up to a few seconds on a slow network
       // share), and a disconnect or a new connect must not queue behind that.
@@ -157,7 +169,7 @@ export class MqttManager {
     }
   }
 
-  private connected(connectionId: string): MqttSession {
+  private connected(connectionId: string): LiveSession {
     const session = this.sessions.get(connectionId)
     if (!session || !session.isConnected) throw new Error('Not connected')
     return session

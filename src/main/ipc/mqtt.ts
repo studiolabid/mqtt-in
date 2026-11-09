@@ -1,10 +1,12 @@
 /**
- * `mqtt.*` — live sessions (connect, subscribe, publish, repeat jobs).
+ * `mqtt.*` — live sessions of every connection kind (connect, subscribe, publish, repeat jobs).
  */
 import { IPC } from '@shared/ipc'
 import type { MqttManager } from '../services/mqtt/mqtt-manager'
 import type { RegisterHandler } from './handle'
+import { isMqttProfile } from '@shared/connection-kind'
 import { testConnection } from '../services/mqtt/connection-test'
+import { testSocketConnection } from '../services/socket/socket-test'
 import {
   parseConnectionProfile,
   parseId,
@@ -45,6 +47,7 @@ export function registerMqttIpc(register: RegisterHandler, manager: MqttManager)
 
   register(IPC.mqttTest, (_ctx, raw) => {
     const profile = parseConnectionProfile(raw)
+    if (!isMqttProfile(profile)) return testSocketConnection(profile)
     const live = manager
       .getSessions()
       .some(

@@ -15,6 +15,30 @@ export type MqttProtocolVersion = 3 | 4 | 5
 /** Transport. TLS is used iff the protocol is `mqtts` or `wss`. */
 export type MqttProtocol = 'mqtt' | 'mqtts' | 'ws' | 'wss'
 
+/**
+ * What a connection talks to: an MQTT broker, a plain WebSocket server or a Socket.IO server.
+ * WebSocket and Socket.IO connections use the `ws` / `wss` protocols and the `socket` settings;
+ * the MQTT-only fields (version, client id, session, Last Will, subscriptions…) are ignored.
+ */
+export type ConnectionKind = 'mqtt' | 'websocket' | 'socketio'
+
+/** Options of WebSocket and Socket.IO connections (`ConnectionProfile.socket`). */
+export interface SocketSettings {
+  /** Extra HTTP headers of the opening handshake (e.g. `Authorization`). */
+  headers: UserProperty[]
+  /** WebSocket subprotocols (`Sec-WebSocket-Protocol`), comma separated. Empty = none. */
+  subprotocols: string
+  /** Socket.IO namespace, e.g. `/` or `/admin`. */
+  namespace: string
+  /** Socket.IO `auth` payload: a JSON object. Empty = none. */
+  auth: string
+  /**
+   * WebSocket: the JSON field whose value names an incoming message's topic (e.g. `type`).
+   * Empty, or a message without it: the topic is `message`.
+   */
+  topicField: string
+}
+
 /** MQTT 5 retain handling subscription option. */
 export type RetainHandling = 0 | 1 | 2
 
@@ -101,6 +125,8 @@ export interface Subscription {
 
 export interface ConnectionProfile {
   id: string
+  /** Missing = `mqtt` (every profile saved before WebSocket and Socket.IO support). */
+  kind?: ConnectionKind
   name: string
   /** Hex color for the avatar. */
   color: string
@@ -137,6 +163,8 @@ export interface ConnectionProfile {
   tls: TlsSettings
   will: LastWill
   properties: ConnectProperties
+  /** WebSocket and Socket.IO options (missing = the defaults, `DEFAULT_SOCKET_SETTINGS`). */
+  socket?: SocketSettings
   subscriptions: Subscription[]
   createdAt: number
   updatedAt: number
