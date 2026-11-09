@@ -149,7 +149,7 @@ const subscribeLabel = computed(() => (branch.value ? 'Subscribe to this branchâ
           </TooltipTrigger>
           <TooltipContent>{{ filterLabel }}</TooltipContent>
         </Tooltip>
-        <Tooltip>
+        <Tooltip v-if="actions.mqtt.value">
           <TooltipTrigger as-child>
             <Button
               variant="ghost"
@@ -163,7 +163,7 @@ const subscribeLabel = computed(() => (branch.value ? 'Subscribe to this branchâ
           </TooltipTrigger>
           <TooltipContent>{{ subscribeLabel }}</TooltipContent>
         </Tooltip>
-        <Tooltip v-if="hasPayload">
+        <Tooltip v-if="hasPayload && actions.mqtt.value">
           <TooltipTrigger as-child>
             <Button
               variant="ghost"

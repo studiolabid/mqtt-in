@@ -21,6 +21,7 @@ import {
   TerminalIcon,
   XIcon
 } from '@lucide/vue'
+import { isMqttProfile } from '@shared/connection-kind'
 import { EmptyState, IconButton, TopicLabel } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,7 +35,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Spinner } from '@/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useMessagesStore, useSubscriptionsStore } from '@/stores'
+import { useConnectionsStore, useMessagesStore, useSubscriptionsStore } from '@/stores'
 import { isEditableTarget } from '@/utils/hotkey'
 import { SHORTCUTS } from '@/utils/shortcuts'
 import { useCopyCommand } from '../composables/useCopyCommand'
@@ -52,6 +53,11 @@ const emit = defineEmits<{ close: [] }>()
 
 const messages = useMessagesStore()
 const subscriptions = useSubscriptionsStore()
+const connections = useConnectionsStore()
+const mqtt = computed(() => {
+  const profile = connections.get(props.connectionId)
+  return !profile || isMqttProfile(profile)
+})
 const actions = useMessageActions(() => props.connectionId)
 const command = useCopyCommand(() => props.connectionId)
 const publishing = ref(false)
@@ -65,7 +71,9 @@ const via = computed(() => {
   if (!current || current.direction !== 'in') return undefined
   return subscriptions.subscriptionForMessage(props.connectionId, current)
 })
-const summary = computed(() => (message.value ? messageSummary(message.value) : null))
+const summary = computed(() =>
+  message.value ? messageSummary(message.value, { qos: mqtt.value }) : null
+)
 const commands = computed(() => (message.value ? command.itemsFor(message.value) : []))
 
 const FLAG_TONES: Readonly<Record<MessageFlagTone, string>> = {
@@ -221,7 +229,7 @@ function onKeydown(event: KeyboardEvent): void {
             </p>
           </div>
           <MessagePayloadSection :connection-id="connectionId" :message="message" />
-          <MessageDetailMeta :message="message" />
+          <MessageDetailMeta :message="message" :no-flags="!mqtt" />
         </div>
       </div>
       <!-- One row: on a narrow pane the icons go first. -->

@@ -34,6 +34,8 @@ const props = defineProps<{
   hovered: boolean
   /** The row's context menu is open. */
   menuTarget?: boolean
+  /** Hide the QoS badge (WebSocket / Socket.IO messages have no QoS). */
+  noQos?: boolean
 }>()
 
 const emit = defineEmits<{ action: [action: RowAction] }>()
@@ -95,7 +97,7 @@ const stripStyle = computed(() =>
           :highlight="highlight"
           class="min-w-0 text-xs font-medium"
         />
-        <QosBadge :qos="message.qos" :tooltip="false" />
+        <QosBadge v-if="!noQos" :qos="message.qos" :tooltip="false" />
         <span
           v-if="message.retain"
           class="inline-flex h-4 shrink-0 items-center rounded-[4px] bg-info/10 px-1 font-mono text-[10px] leading-none font-semibold text-info"

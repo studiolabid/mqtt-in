@@ -13,6 +13,7 @@
  * returning to a control of the previous view (A11Y-11).
  */
 import { computed, nextTick, ref, watch, type Component } from 'vue'
+import { connectionKind } from '@shared/connection-kind'
 import { toast } from 'vue-sonner'
 import type { ConnectionProfile, ConnectionTestResult } from '@shared/models'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -34,6 +35,7 @@ import AdvancedSection from './components/sections/AdvancedSection.vue'
 import AuthSection from './components/sections/AuthSection.vue'
 import GeneralSection from './components/sections/GeneralSection.vue'
 import Mqtt5Section from './components/sections/Mqtt5Section.vue'
+import SocketSection from './components/sections/SocketSection.vue'
 import TlsSection from './components/sections/TlsSection.vue'
 import WillSection from './components/sections/WillSection.vue'
 import {
@@ -41,10 +43,11 @@ import {
   provideConnectionForm,
   type SaveIntent
 } from './composables/useConnectionForm'
-import type { FormSectionId } from './utils/sections'
+import { sectionsFor, type FormSectionId } from './utils/sections'
 
 const SECTIONS: ReadonlyArray<{ id: FormSectionId; component: Component }> = [
   { id: 'general', component: GeneralSection },
+  { id: 'socket', component: SocketSection },
   { id: 'auth', component: AuthSection },
   { id: 'tls', component: TlsSection },
   { id: 'advanced', component: AdvancedSection },
@@ -79,6 +82,14 @@ let generation = 0
 let focusWorkspace = false
 
 const live = computed(() => editingId.value !== null && sessions.isActive(editingId.value))
+
+// Another connection kind hides some sections: leave one that is no longer shown.
+watch(
+  () => connectionKind(form.draft.value),
+  (kind) => {
+    if (!sectionsFor(kind).some((entry) => entry.id === section.value)) section.value = 'general'
+  }
+)
 const primaryLabel = computed(() => (live.value ? 'Save & reconnect' : 'Save & connect'))
 
 // (Re)initialize when the dialog opens or is pointed at another profile / preset.

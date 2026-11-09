@@ -3,10 +3,12 @@
  * The broker address as one URL-like bar: `protocol:// host : port /path` (path for ws / wss).
  * Pasting a full URL into the host field (`mqtts://user:pass@host:8883`) splits it into every
  * field, credentials included; a URL typed by hand is split when leaving the field.
+ * WebSocket and Socket.IO connections offer ws / wss only and call it the server.
  */
 import { computed, useId } from 'vue'
 import { toast } from 'vue-sonner'
 import type { MqttProtocol } from '@shared/models'
+import { connectionKind, KIND_DEFAULT_PATHS, protocolsOf } from '@shared/connection-kind'
 import { isWebSocketProtocol } from '@shared/defaults'
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field'
 import { InputGroup } from '@/components/ui/input-group'
@@ -34,11 +36,22 @@ const URL_LIKE = /:\/\/|^[^:]+:\d+$|^\[.*\]:\d+$/
 const { draft, errors, setProtocol, applyBrokerUrl } = useConnectionForm()
 const hostId = useId()
 
+const kind = computed(() => connectionKind(draft.value))
+const protocols = computed(() =>
+  PROTOCOLS.filter((protocol) => protocolsOf(kind.value).includes(protocol.value))
+)
 const webSocket = computed(() => isWebSocketProtocol(draft.value.protocol))
+const example = computed(() =>
+  kind.value === 'mqtt'
+    ? 'mqtts://user:pass@host:8883'
+    : kind.value === 'socketio'
+      ? 'https://api.example.com'
+      : 'wss://host/path?token=…'
+)
 const problems = computed(() => [errors.value.host, errors.value.port].filter(Boolean))
 
 function onProtocol(value: unknown): void {
-  const match = PROTOCOLS.find((protocol) => protocol.value === value)
+  const match = protocols.value.find((protocol) => protocol.value === value)
   if (match) setProtocol(match.value)
 }
 
@@ -54,7 +67,7 @@ function split(text: string): boolean {
     parsed.username !== undefined ? 'username' : '',
     parsed.password !== undefined ? 'password' : ''
   ].filter(Boolean)
-  if (credentials.length > 0) {
+  if (credentials.length > 0 && kind.value === 'mqtt') {
     toast.success(`Filled the ${credentials.join(' and ')} from the URL`, {
       description: 'You can review them under Authentication.'
     })
@@ -75,7 +88,7 @@ function onBlur(): void {
 
 <template>
   <Field :data-invalid="problems.length > 0 || undefined">
-    <FieldLabel :for="hostId">Broker</FieldLabel>
+    <FieldLabel :for="hostId">{{ kind === 'mqtt' ? 'Broker' : 'Server' }}</FieldLabel>
     <InputGroup>
       <Select :model-value="draft.protocol" @update:model-value="onProtocol">
         <!-- data-slot lets the group draw its focus ring for the protocol segment too. -->
@@ -88,7 +101,7 @@ function onBlur(): void {
           <SelectValue>{{ draft.protocol }}://</SelectValue>
         </SelectTrigger>
         <SelectContent position="popper" align="start" class="min-w-44">
-          <SelectItem v-for="protocol in PROTOCOLS" :key="protocol.value" :value="protocol.value">
+          <SelectItem v-for="protocol in protocols" :key="protocol.value" :value="protocol.value">
             <span class="font-mono">{{ protocol.value }}://</span>
             <span class="text-xs text-muted-foreground">{{ protocol.hint }}</span>
           </SelectItem>
@@ -124,14 +137,15 @@ function onBlur(): void {
         v-model="draft.path"
         bare
         aria-label="WebSocket path"
-        placeholder="/mqtt"
+        data-testid="connection-path"
+        :placeholder="KIND_DEFAULT_PATHS[kind]"
         class="w-24 flex-none border-l border-input-border font-mono"
       />
     </InputGroup>
     <FieldError v-if="problems.length > 0" :errors="problems" class="text-xs" />
     <FieldDescription v-else class="text-xs">
       Paste a full URL such as
-      <code class="font-mono text-[11px] text-foreground/80">mqtts://user:pass@host:8883</code>
+      <code class="font-mono text-[11px] text-foreground/80">{{ example }}</code>
       into the host field to fill everything at once.
     </FieldDescription>
   </Field>

@@ -4,9 +4,9 @@
 
 # mqtt-in
 
-**A fast, clean and powerful MQTT client for the desktop.**
+**A fast, clean and powerful MQTT client for the desktop.** It speaks WebSocket and Socket.IO too.
 
-Windows · macOS · Linux &nbsp;|&nbsp; MQTT 3.1 · 3.1.1 · 5.0 &nbsp;|&nbsp; `mqtt` · `mqtts` · `ws` · `wss`
+Windows · macOS · Linux &nbsp;|&nbsp; MQTT 3.1 · 3.1.1 · 5.0 · WebSocket · Socket.IO &nbsp;|&nbsp; `mqtt` · `mqtts` · `ws` · `wss`
 
 <br />
 
@@ -22,6 +22,7 @@ Windows · macOS · Linux &nbsp;|&nbsp; MQTT 3.1 · 3.1.1 · 5.0 &nbsp;|&nbsp; `
 | --- | --- |
 | **Connections** | Many brokers side by side, groups, import / export (also from MQTTX), paste a full URL like `wss://user:pass@host:443/mqtt` to fill the form at once |
 | **Every option** | MQTT 3.1 / 3.1.1 / 5.0, TLS (CA, client certificate and key, SNI, ALPN), WebSocket path, Last Will, keep-alive, auto-reconnect, connect on startup, MQTT 5 connect properties |
+| **WebSocket & Socket.IO** | Monitor plain WebSocket servers (headers, subprotocols, topics from a JSON field) and Socket.IO servers 3 / 4 (namespace, auth, every event by name) in the same message list, topic tree, charts and publisher |
 | **Subscriptions** | QoS, color tags, aliases, enable / disable, MQTT 5 options (no local, retain as published, retain handling), granted QoS and refusals shown |
 | **Live messages** | Virtualized stream that stays smooth under load, filters (direction, topic wildcard, text, retained), pause, payload views: JSON, text, hex, base64, MessagePack, CBOR |
 | **Publishing** | Payload editor with JSON formatting, templates (`{{uuid}}`, `{{random(1,9)}}`…), history, MQTT 5 properties, repeat publishing (interval and count) |

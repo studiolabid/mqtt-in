@@ -11,9 +11,11 @@
  */
 import { computed, reactive, toValue, type ComputedRef, type MaybeRefOrGetter } from 'vue'
 import { toast } from 'vue-sonner'
+import { isMqttProfile } from '@shared/connection-kind'
 import type { MqttMessage } from '@shared/models'
 import { useCopy } from '@/composables/useCopy'
 import { ACTION_TOAST_DURATION } from '@/lib/toast-options'
+import { useConnectionsStore } from '@/stores/connections'
 import { useMessagesStore } from '@/stores/messages'
 import { usePublishStore } from '@/stores/publish'
 import { useSessionsStore } from '@/stores/sessions'
@@ -45,6 +47,11 @@ export interface ClearRetainedOptions {
 export interface TopicActions {
   /** Whether the connection is connected (clearing a retained message needs a session). */
   connected: ComputedRef<boolean>
+  /**
+   * An MQTT connection: subscriptions and retained messages exist. WebSocket / Socket.IO
+   * connections offer neither (clearing would send empty events to the server).
+   */
+  mqtt: ComputedRef<boolean>
   copyTopic(topic: string): void
   /** Prefills the publisher with the topic and focuses it. */
   publishTo(topic: string): void
@@ -73,6 +80,11 @@ export function useTopicActions(connectionId: MaybeRefOrGetter<string>): TopicAc
   const messages = useMessagesStore()
   const { copy } = useCopy()
   const id = (): string => toValue(connectionId)
+  const connections = useConnectionsStore()
+  const mqtt = computed(() => {
+    const profile = connections.get(id())
+    return !profile || isMqttProfile(profile)
+  })
   const key = (topic: string): string => `${id()}\u0000${topic}`
 
   function ensureConnected(): boolean {
@@ -107,7 +119,7 @@ export function useTopicActions(connectionId: MaybeRefOrGetter<string>): TopicAc
     topic: string,
     options: ClearRetainedOptions = {}
   ): Promise<boolean> {
-    if (clearing.has(key(topic)) || !ensureConnected()) return false
+    if (!mqtt.value || clearing.has(key(topic)) || !ensureConnected()) return false
     const text = singleConfirm(topic, options.known ?? true)
     const confirmed = await ui.confirmDestructive({ ...text, confirmText: 'Clear retained' })
     if (!confirmed) return false
@@ -132,7 +144,7 @@ export function useTopicActions(connectionId: MaybeRefOrGetter<string>): TopicAc
   }
 
   async function clearRetainedBelow(topic: string): Promise<number> {
-    if (clearingBelow.has(key(topic)) || !ensureConnected()) return 0
+    if (!mqtt.value || clearingBelow.has(key(topic)) || !ensureConnected()) return 0
     const connection = id()
     const topics = messages.retainedBelow(connection, topic)
     if (topics.length === 0) return 0
@@ -177,6 +189,7 @@ export function useTopicActions(connectionId: MaybeRefOrGetter<string>): TopicAc
 
   return {
     connected: computed(() => sessions.isConnected(id())),
+    mqtt,
     copyTopic: (topic) => void copy(topic, 'topic'),
     publishTo(topic) {
       publish.updateDraft(id(), { topic })

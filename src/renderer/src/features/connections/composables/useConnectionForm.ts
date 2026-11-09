@@ -9,6 +9,7 @@
  */
 import { computed, inject, provide, ref, type ComputedRef, type InjectionKey, type Ref } from 'vue'
 import type {
+  ConnectionKind,
   ConnectionProfile,
   MqttProtocol,
   MqttProtocolVersion,
@@ -21,6 +22,12 @@ import {
   isWebSocketProtocol,
   LIMITS
 } from '@shared/defaults'
+import {
+  connectionKind,
+  KIND_DEFAULT_PATHS,
+  protocolForKind,
+  socketSettings
+} from '@shared/connection-kind'
 import { toPlain } from '@/utils/plain'
 import { parseBrokerUrl, type ParsedBrokerUrl } from '../utils/broker-url'
 import type { FormSectionId } from '../utils/sections'
@@ -60,6 +67,11 @@ export interface ConnectionForm {
   validate(): FormSectionId | null
   /** A sanitized plain profile, ready to be saved. */
   build(): ConnectionProfile
+  /**
+   * Changes what the connection talks to: the protocol moves to one the kind supports (mqtt →
+   * ws, mqtts → wss), a default path follows the kind, and socket settings are filled in.
+   */
+  setKind(kind: ConnectionKind): void
   /** Changes the transport; a default port follows the protocol. */
   setProtocol(protocol: MqttProtocol): void
   setVersion(version: MqttProtocolVersion): void
@@ -152,7 +164,34 @@ export function createConnectionForm(options: ConnectionFormOptions): Connection
 
     profile.properties.userProperties = cleanUserProperties(profile.properties.userProperties)
     will.userProperties = cleanUserProperties(will.userProperties)
+    if (connectionKind(profile) !== 'mqtt') {
+      const socket = socketSettings(profile)
+      socket.headers = cleanUserProperties(socket.headers).map((header) => ({
+        key: header.key.trim(),
+        value: header.value
+      }))
+      socket.subprotocols = socket.subprotocols.trim()
+      socket.namespace = socket.namespace.trim()
+      socket.topicField = socket.topicField.trim()
+      profile.socket = socket
+    }
     return profile
+  }
+
+  /** The kind's default path, used when the path is empty or still another kind's default. */
+  function defaultPath(): string {
+    return KIND_DEFAULT_PATHS[connectionKind(draft.value)]
+  }
+
+  function setKind(kind: ConnectionKind): void {
+    const profile = draft.value
+    if (connectionKind(profile) === kind) return
+    const path = profile.path.trim()
+    const defaultBefore = path === '' || Object.values(KIND_DEFAULT_PATHS).includes(path)
+    profile.kind = kind
+    setProtocol(protocolForKind(kind, profile.protocol))
+    if (defaultBefore) profile.path = defaultPath()
+    if (kind !== 'mqtt') profile.socket = socketSettings(profile)
   }
 
   function setProtocol(protocol: MqttProtocol): void {
@@ -161,7 +200,7 @@ export function createConnectionForm(options: ConnectionFormOptions): Connection
     if (!Number.isFinite(profile.port) || DEFAULT_PORT_VALUES.includes(profile.port)) {
       profile.port = DEFAULT_PORTS[protocol]
     }
-    if (isWebSocketProtocol(protocol) && profile.path.trim() === '') profile.path = '/mqtt'
+    if (isWebSocketProtocol(protocol) && profile.path.trim() === '') profile.path = defaultPath()
     profile.protocol = protocol
   }
 
@@ -178,7 +217,7 @@ export function createConnectionForm(options: ConnectionFormOptions): Connection
     profile.port = parsed.port
     if (parsed.path !== undefined) profile.path = parsed.path
     else if (isWebSocketProtocol(profile.protocol) && profile.path.trim() === '') {
-      profile.path = '/mqtt'
+      profile.path = defaultPath()
     }
     if (parsed.username !== undefined) profile.username = parsed.username
     if (parsed.password !== undefined) profile.password = parsed.password
@@ -198,6 +237,7 @@ export function createConnectionForm(options: ConnectionFormOptions): Connection
     errorCount,
     dirty,
     groupSuggestions,
+    setKind,
     reset,
     markClean,
     validate,

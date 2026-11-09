@@ -17,7 +17,8 @@ import { useVirtualizer } from '@tanstack/vue-virtual'
 import type { MqttMessage } from '@shared/models'
 import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from '@/components/ui/context-menu'
 import type { MessageList } from '@/composables'
-import { useSubscriptionsStore, useUiStore } from '@/stores'
+import { isMqttProfile } from '@shared/connection-kind'
+import { useConnectionsStore, useSubscriptionsStore, useUiStore } from '@/stores'
 import { useListKeyboard } from '../composables/useListKeyboard'
 import { useMessageActions } from '../composables/useMessageActions'
 import { useRowHover } from '../composables/useRowHover'
@@ -42,6 +43,11 @@ const props = defineProps<{
 
 const ui = useUiStore()
 const subscriptions = useSubscriptionsStore()
+const connections = useConnectionsStore()
+const mqtt = computed(() => {
+  const profile = connections.get(props.connectionId)
+  return !profile || isMqttProfile(profile)
+})
 const actions = useMessageActions(() => props.connectionId)
 
 const scroller = ref<HTMLElement | null>(null)
@@ -226,6 +232,7 @@ defineExpose({
                   :selected="message.id === selectedId"
                   :hovered="message.id === hoveredId"
                   :menu-target="message.id === menuTargetId"
+                  :no-qos="!mqtt"
                   @action="(action) => onRowAction(message, action)"
                 />
               </div>

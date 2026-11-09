@@ -5,6 +5,7 @@
  */
 import { computed, ref } from 'vue'
 import { BellPlusIcon, NetworkIcon, PlugIcon, SendHorizontalIcon } from '@lucide/vue'
+import { isMqttProfile } from '@shared/connection-kind'
 import { EmptyState, KbdShortcut } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -24,8 +25,15 @@ const ui = useUiStore()
 const starting = ref(false)
 const session = computed(() => sessions.get(props.connectionId))
 const name = computed(() => connections.get(props.connectionId)?.name ?? 'the broker')
-const subscribed = computed(() =>
-  subscriptions.list(props.connectionId).some((subscription) => subscription.enabled)
+/** WebSocket / Socket.IO connections receive everything without subscriptions. */
+const mqtt = computed(() => {
+  const profile = connections.get(props.connectionId)
+  return !profile || isMqttProfile(profile)
+})
+const subscribed = computed(
+  () =>
+    !mqtt.value ||
+    subscriptions.list(props.connectionId).some((subscription) => subscription.enabled)
 )
 
 type Mode = 'offline' | 'connecting' | 'unsubscribed' | 'waiting'
@@ -53,7 +61,9 @@ const copy = computed(() => {
     case 'waiting':
       return {
         title: 'Waiting for messages',
-        description: 'Topics appear here as soon as a message arrives on one of your subscriptions.'
+        description: mqtt.value
+          ? 'Topics appear here as soon as a message arrives on one of your subscriptions.'
+          : 'Topics (event names) appear here as soon as the server sends a message.'
       }
     default:
       return {
@@ -105,6 +115,7 @@ async function connect(): Promise<void> {
           Publish a message
         </Button>
         <Button
+          v-if="mqtt"
           :variant="mode === 'unsubscribed' ? 'default' : 'outline'"
           @click="ui.openNewSubscription(connectionId)"
         >
@@ -112,6 +123,7 @@ async function connect(): Promise<void> {
           Add subscription
         </Button>
         <p
+          v-if="mqtt"
           class="flex basis-full items-center justify-center gap-1.5 pt-1 text-xs text-muted-foreground"
         >
           <KbdShortcut :keys="SHORTCUTS.newSubscription.keys" />

@@ -1,12 +1,14 @@
 <script setup lang="ts">
 /**
- * Workspace of one connection (route `/connections/:id`): header, subscriptions on the left,
+ * Workspace of one connection (route `/connections/:id`): header, subscriptions on the left
+ * (what a WebSocket / Socket.IO connection listens to, for those),
  * Messages / Topics / Logs on the right above the publisher, which collapses to its header.
  * Panel sizes are remembered in pixels (independent of the window size); the publisher is fitted
  * to short windows and high zoom (`usePublisherLayout`).
  */
 import { computed, onBeforeUnmount, ref, watch, type ComponentPublicInstance } from 'vue'
 import { SplitterPanel } from 'reka-ui'
+import { isMqttProfile } from '@shared/connection-kind'
 import { useElementSize } from '@vueuse/core'
 import { HouseIcon, UnplugIcon } from '@lucide/vue'
 import { EmptyState } from '@/components/common'
@@ -16,6 +18,7 @@ import { useNavigation } from '@/composables'
 import PublishPanel from '@/features/publish/PublishPanel.vue'
 import SubscriptionPanel from '@/features/subscriptions/SubscriptionPanel.vue'
 import { useConnectionsStore, useUiStore } from '@/stores'
+import SocketListenPanel from './components/SocketListenPanel.vue'
 import WorkspaceHeader from './components/WorkspaceHeader.vue'
 import WorkspaceTabs from './components/WorkspaceTabs.vue'
 import { usePublisherLayout } from './composables/usePublisherLayout'
@@ -98,7 +101,8 @@ onBeforeUnmount(() => cancelAnimationFrame(widthFrame))
         :max-size="SUBSCRIPTIONS_WIDTH.max"
         class="min-w-0"
       >
-        <SubscriptionPanel :connection-id="id" />
+        <SubscriptionPanel v-if="isMqttProfile(profile)" :connection-id="id" />
+        <SocketListenPanel v-else :profile="profile" />
       </SplitterPanel>
       <ResizableHandle
         aria-label="Resize subscriptions"

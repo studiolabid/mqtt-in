@@ -5,6 +5,8 @@
  */
 import { defineStore } from 'pinia'
 import { onScopeDispose, reactive, ref, toRaw } from 'vue'
+import { toast } from 'vue-sonner'
+import { isMqttProfile } from '@shared/connection-kind'
 import type { ConnectionProfile, Subscription, ViewFormat } from '@shared/models'
 import {
   DEFAULT_MESSAGE_FILTER,
@@ -17,6 +19,7 @@ import {
   type WorkspaceTab
 } from '@/types'
 import { onConnectionRemoved } from './connection-lifecycle'
+import { useConnectionsStore } from './connections'
 import { useMessagesStore } from './messages'
 import { useSettingsStore } from './settings'
 import { createUnreadCounts } from './unread'
@@ -75,13 +78,21 @@ export const useUiStore = defineStore('ui', () => {
 
   /**
    * Opens the subscription dialog to add a subscription (optionally prefilled), or several at
-   * once with `{ multiple: true }` (one filter per line).
+   * once with `{ multiple: true }` (one filter per line). WebSocket and Socket.IO connections
+   * have no subscriptions: a note says so instead.
    */
   function openNewSubscription(
     connectionId: string,
     preset?: Partial<Subscription>,
     options: { multiple?: boolean } = {}
   ): void {
+    const profile = useConnectionsStore().get(connectionId)
+    if (profile && !isMqttProfile(profile)) {
+      toast.info('Subscriptions are only for MQTT connections', {
+        description: 'This connection receives everything the server sends.'
+      })
+      return
+    }
     Object.assign(subscriptionDialog, {
       open: true,
       connectionId,

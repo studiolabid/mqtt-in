@@ -10,7 +10,7 @@ import { ConnectionAvatar, KbdShortcut } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import { DialogClose, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { protocolLabel } from '@/utils/connection'
+import { profileTypeLabel } from '@/utils/connection'
 import { useConnectionForm } from '../../composables/useConnectionForm'
 
 const { draft, mode } = useConnectionForm()
@@ -25,7 +25,7 @@ const address = computed(() => {
   const url = validPort
     ? brokerUrl({ protocol: profile.protocol, host, port, path })
     : `${profile.protocol}://${host}${isWebSocketProtocol(profile.protocol) ? path : ''}`
-  return `${url} · ${protocolLabel(profile.protocolVersion)}`
+  return `${url} · ${profileTypeLabel(profile)}`
 })
 </script>
 

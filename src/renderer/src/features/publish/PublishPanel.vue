@@ -23,6 +23,7 @@ import { computed, ref, watch } from 'vue'
 import { useElementSize } from '@vueuse/core'
 import { PinIcon, SendIcon } from '@lucide/vue'
 import { validateTopicName } from '@shared/topic'
+import { connectionKind, isMqttProfile } from '@shared/connection-kind'
 import { CodeEditor, HintTooltip, QosSelect } from '@/components/common'
 import { Toggle } from '@/components/ui/toggle'
 import { useHotkey } from '@/composables'
@@ -54,7 +55,13 @@ const settings = useSettingsStore()
 
 const draft = computed(() => publish.draft(props.connectionId))
 const status = computed(() => sessions.statusOf(props.connectionId))
-const isMqtt5 = computed(() => (connections.get(props.connectionId)?.protocolVersion ?? 5) === 5)
+const profile = computed(() => connections.get(props.connectionId))
+/** WebSocket / Socket.IO connections have no QoS, retain or MQTT 5 properties. */
+const mqtt = computed(() => !profile.value || isMqttProfile(profile.value))
+const isMqtt5 = computed(() => mqtt.value && (profile.value?.protocolVersion ?? 5) === 5)
+const topicLabel = computed(() =>
+  profile.value && connectionKind(profile.value) === 'socketio' ? 'Event' : 'Topic'
+)
 const topicError = computed(() => validateTopicName(draft.value.topic))
 const job = computed(() => publish.activeJobFor(props.connectionId))
 const progress = computed(() => {
@@ -148,17 +155,20 @@ function insertToken(token: string): void {
           v-model="draft.topic"
           :connection-id="connectionId"
           :error="topicError"
+          :label="topicLabel"
           @submit="publishNow"
           @next="focusEditor"
         />
       </div>
       <QosSelect
+        v-if="mqtt"
         v-model="draft.qos"
         size="sm"
         data-testid="publish-qos"
         class="hidden shrink-0 pr-1.5 pl-2 @xs/publish:flex"
       />
       <HintTooltip
+        v-if="mqtt"
         :label="
           draft.retain
             ? 'Retain on · new subscribers receive this message'
@@ -247,6 +257,7 @@ function insertToken(token: string): void {
         <PublishMoreMenu
           :connection-id="connectionId"
           :mqtt5="isMqtt5"
+          :mqtt="mqtt"
           @open="folded.open"
           @pick-format="conversion.pickFormat"
         />

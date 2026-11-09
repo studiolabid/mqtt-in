@@ -1,12 +1,13 @@
 <script setup lang="ts">
 /**
- * Advanced: clean start / session, keep alive, connect timeout, connect on startup and auto
- * reconnect. The number fields use the limits of the main process (`LIMITS`). With clean start
+ * Advanced: clean start / session (MQTT), keep alive (the ping interval of WebSocket; Socket.IO
+ * has its own heartbeat), connect timeout, connect on startup and auto reconnect. The number fields use the limits of the main process (`LIMITS`). With clean start
  * off and no client id, a hint says that one is generated when saving (a new id on every connect
  * could never resume the session, MQTT-07).
  */
 import { computed, useId } from 'vue'
 import { ArrowRightIcon, InfoIcon } from '@lucide/vue'
+import { connectionKind } from '@shared/connection-kind'
 import { LIMITS } from '@shared/defaults'
 import { Button } from '@/components/ui/button'
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
@@ -19,6 +20,7 @@ import SwitchCard from '../fields/SwitchCard.vue'
 const { draft, errors, section } = useConnectionForm()
 const ids = { keepalive: useId(), timeout: useId(), period: useId() }
 
+const kind = computed(() => connectionKind(draft.value))
 const v5 = computed(() => draft.value.protocolVersion === 5)
 /** MQTT 5 ends a session at disconnect unless a session expiry interval is set. */
 const sessionEndsAnyway = computed(
@@ -43,7 +45,7 @@ function setReconnectPeriod(value: number | undefined): void {
   <div class="flex flex-col gap-6">
     <SectionHeader section="advanced" />
     <FieldGroup class="gap-5">
-      <div class="flex flex-col gap-2">
+      <div v-if="kind === 'mqtt'" class="flex flex-col gap-2">
         <SwitchCard
           v-model="draft.clean"
           :title="v5 ? 'Clean start' : 'Clean session'"
@@ -83,8 +85,10 @@ function setReconnectPeriod(value: number | undefined): void {
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <Field :data-invalid="errors.keepalive ? true : undefined">
-          <FieldLabel :for="ids.keepalive">Keep alive</FieldLabel>
+        <Field v-if="kind !== 'socketio'" :data-invalid="errors.keepalive ? true : undefined">
+          <FieldLabel :for="ids.keepalive">
+            {{ kind === 'mqtt' ? 'Keep alive' : 'Ping interval' }}
+          </FieldLabel>
           <NumberInput
             :id="ids.keepalive"
             :model-value="draft.keepalive"

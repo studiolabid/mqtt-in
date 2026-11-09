@@ -13,11 +13,16 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTopicSuggestions } from '../composables/useTopicSuggestions'
 import { isPublishShortcut } from '../utils/keys'
 
-const props = defineProps<{
-  connectionId: string
-  /** Validation problem of the current value (`validateTopicName`), or null. */
-  error: string | null
-}>()
+const props = withDefaults(
+  defineProps<{
+    connectionId: string
+    /** Validation problem of the current value (`validateTopicName`), or null. */
+    error: string | null
+    /** What the field holds (`Event` for Socket.IO connections). */
+    label?: string
+  }>(),
+  { label: 'Topic' }
+)
 
 const model = defineModel<string>({ required: true })
 
@@ -182,13 +187,13 @@ defineExpose({
               v-model="model"
               data-testid="publish-topic"
               role="combobox"
-              aria-label="Topic"
+              :aria-label="label"
               aria-autocomplete="list"
               :aria-expanded="open"
               :aria-controls="open ? listId : undefined"
               :aria-activedescendant="activeOption"
               :aria-invalid="shownError ? true : undefined"
-              placeholder="Topic"
+              :placeholder="label"
               autocomplete="off"
               spellcheck="false"
               class="h-7 rounded-[min(var(--radius-md),10px)] px-2 font-mono text-xs md:text-xs"

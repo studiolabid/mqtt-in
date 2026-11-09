@@ -23,7 +23,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { formatClock, formatDate, formatNumber } from '@/utils/format'
 import { detectedFormatLabel, propertyItems, userProperties } from '../utils/message-meta'
 
-const props = defineProps<{ message: MqttMessage }>()
+const props = withDefaults(
+  defineProps<{
+    message: MqttMessage
+    /** WebSocket / Socket.IO messages: no QoS, retain or DUP flags. */
+    noFlags?: boolean
+  }>(),
+  { noFlags: false }
+)
 
 const size = computed(() => props.message.payload.length)
 const properties = computed(() => propertyItems(props.message.properties))
@@ -68,14 +75,14 @@ const CELL = 'flex min-w-0 flex-col gap-0.5 bg-background px-2.5 py-2'
             {{ formatNumber(size) }} {{ size === 1 ? 'byte' : 'bytes' }}
           </dd>
         </div>
-        <div :class="CELL">
+        <div v-if="!noFlags" :class="CELL">
           <dt :class="LABEL">QoS</dt>
           <dd class="flex min-w-0 items-center gap-1.5 text-xs">
             <QosBadge :qos="message.qos" />
             <span class="truncate text-muted-foreground">{{ qosLevel(message.qos).label }}</span>
           </dd>
         </div>
-        <div :class="CELL">
+        <div v-if="!noFlags" :class="CELL">
           <dt :class="LABEL">Retain flag</dt>
           <dd
             class="text-xs"
@@ -84,7 +91,7 @@ const CELL = 'flex min-w-0 flex-col gap-0.5 bg-background px-2.5 py-2'
             {{ message.retain ? 'Set' : 'Not set' }}
           </dd>
         </div>
-        <div :class="CELL">
+        <div v-if="!noFlags" :class="CELL">
           <dt :class="LABEL">Duplicate</dt>
           <dd
             class="text-xs"

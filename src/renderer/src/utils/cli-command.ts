@@ -28,6 +28,7 @@
  * (the toast after a copy: the password variable and the shell caveat, e.g. PowerShell 5.1).
  */
 import type { ConnectionProfile, PublishProperties, QoS, Subscription } from '@shared/models'
+import { isMqttProfile } from '@shared/connection-kind'
 import { isWebSocketProtocol } from '@shared/defaults'
 import { CommandLine, connectionFlags, PASSWORD_VARIABLE, type CliShell } from './cli-arguments'
 import { cleanPublishProperties } from './publish'
@@ -102,6 +103,9 @@ function decodeUtf8(payload: Uint8Array): string | null {
   }
 }
 
+/** The command line tools speak MQTT only. */
+const NOT_MQTT_ERROR = 'Command line tools are only for MQTT connections'
+
 /** A publish as a mosquitto_pub or MQTTX command. */
 export function publishCommand(
   input: PublishCommandInput,
@@ -109,6 +113,7 @@ export function publishCommand(
   shell: CliShell
 ): CliResult {
   const { profile } = input
+  if (!isMqttProfile(profile)) return { ok: false, error: NOT_MQTT_ERROR }
   const mqttx = tool === 'mqttx'
   if (!mqttx && isWebSocketProtocol(profile.protocol)) {
     return {
@@ -170,6 +175,7 @@ export function subscribeCommand(
   shell: CliShell
 ): CliResult {
   const { profile, subscription } = input
+  if (!isMqttProfile(profile)) return { ok: false, error: NOT_MQTT_ERROR }
   const mqttx = tool === 'mqttx'
   if (!mqttx && isWebSocketProtocol(profile.protocol)) {
     return {

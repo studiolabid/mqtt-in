@@ -48,6 +48,21 @@ describe('parseBrokerUrl (paste a broker URL into the host field)', () => {
     expect(parseBrokerUrl('mqtt://broker.local:1883/ignored')).not.toHaveProperty('path')
   })
 
+  it('reads http(s) URLs (Socket.IO servers) as ws(s), with the WebSocket query', () => {
+    expect(parseBrokerUrl('https://api.example.com')).toEqual({
+      protocol: 'wss',
+      host: 'api.example.com',
+      port: 443
+    })
+    expect(parseBrokerUrl('http://localhost:3000/socket.io/')).toEqual({
+      protocol: 'ws',
+      host: 'localhost',
+      port: 3000,
+      path: '/socket.io/'
+    })
+    expect(parseBrokerUrl('wss://feed.example.com/live?token=abc')?.path).toBe('/live?token=abc')
+  })
+
   it('accepts the scheme aliases of other clients', () => {
     expect(parseBrokerUrl('tcp://broker.local:1883')?.protocol).toBe('mqtt')
     expect(parseBrokerUrl('ssl://broker.local:8883')?.protocol).toBe('mqtts')
@@ -74,7 +89,7 @@ describe('parseBrokerUrl (paste a broker URL into the host field)', () => {
     '   ',
     'broker.local', // a plain host is pasted as text
     'broker local:1883',
-    'http://broker.local',
+    'ftp://broker.local',
     'mqtt://',
     'mqtt://broker.local:0',
     'mqtt://broker.local:70000',

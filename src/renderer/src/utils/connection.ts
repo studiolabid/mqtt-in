@@ -2,6 +2,7 @@
  * Display helpers for connection profiles and session status (pure, no Vue).
  */
 import type { ConnectionProfile, ConnectionStatus } from '@shared/models'
+import { connectionKind, KIND_LABELS } from '@shared/connection-kind'
 import { brokerUrl, protocolLabel, withFreshIdentity } from '@shared/defaults'
 import type { ConnectionGroup } from '@/types'
 import { compareNatural } from './compare'
@@ -30,11 +31,22 @@ const STATUS_TONES: Record<ConnectionStatus, StatusTone> = {
   error: 'destructive'
 }
 
+/** What the connection speaks: `MQTT 5.0`, `MQTT 3.1.1`, `WebSocket` or `Socket.IO`. */
+export function profileTypeLabel(
+  profile: Pick<ConnectionProfile, 'kind' | 'protocolVersion'>
+): string {
+  const kind = connectionKind(profile)
+  return kind === 'mqtt' ? protocolLabel(profile.protocolVersion) : KIND_LABELS[kind]
+}
+
 /** One-line description, e.g. `mqtt://localhost:1883 · MQTT 5.0`. */
 export function profileSummary(
-  profile: Pick<ConnectionProfile, 'protocol' | 'host' | 'port' | 'path' | 'protocolVersion'>
+  profile: Pick<
+    ConnectionProfile,
+    'kind' | 'protocol' | 'host' | 'port' | 'path' | 'protocolVersion'
+  >
 ): string {
-  return `${brokerUrl(profile)} · ${protocolLabel(profile.protocolVersion)}`
+  return `${brokerUrl(profile)} · ${profileTypeLabel(profile)}`
 }
 
 /** Human label of a session status (`Connected`, `Reconnecting…`). */

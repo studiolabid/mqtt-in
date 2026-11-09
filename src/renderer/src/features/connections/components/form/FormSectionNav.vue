@@ -4,12 +4,16 @@
  * muted "On" for optional features in use. Active styles use the base trigger's `data-active`
  * variant, so `cn` replaces the base values (HEALTH-11).
  */
+import { computed } from 'vue'
+import { connectionKind } from '@shared/connection-kind'
 import { isTlsProtocol } from '@shared/defaults'
 import { TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConnectionForm } from '../../composables/useConnectionForm'
-import { FORM_SECTIONS, type FormSectionId } from '../../utils/sections'
+import { sectionsFor, type FormSectionId } from '../../utils/sections'
 
 const { draft, sectionErrors } = useConnectionForm()
+/** Only the sections of the draft's connection kind. */
+const sections = computed(() => sectionsFor(connectionKind(draft.value)))
 
 function badge(id: FormSectionId): string | null {
   if (id === 'tls') return isTlsProtocol(draft.value.protocol) ? 'On' : null
@@ -24,7 +28,7 @@ function badge(id: FormSectionId): string | null {
       class="flex h-auto w-full flex-col items-stretch justify-start gap-0.5 rounded-none bg-transparent p-0"
     >
       <TabsTrigger
-        v-for="section in FORM_SECTIONS"
+        v-for="section in sections"
         :key="section.id"
         :value="section.id"
         :data-testid="`connection-section-${section.id}`"

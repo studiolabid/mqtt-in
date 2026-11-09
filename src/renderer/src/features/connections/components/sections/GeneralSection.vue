@@ -1,10 +1,17 @@
 <script setup lang="ts">
 /**
- * General: name, group, color, broker address, MQTT version and client id. With clean start off
- * and no client id, the hint says that one is generated when saving (MQTT-07).
+ * General: name, group, color, connection type (MQTT, WebSocket, Socket.IO), address, and for
+ * MQTT the version and client id. With clean start off and no client id, the hint says that one
+ * is generated when saving (MQTT-07).
  */
 import { computed, useId } from 'vue'
 import { RefreshCwIcon } from '@lucide/vue'
+import {
+  CONNECTION_KINDS,
+  connectionKind,
+  isConnectionKind,
+  KIND_LABELS
+} from '@shared/connection-kind'
 import { PROTOCOL_VERSIONS } from '@shared/defaults'
 import { ColorSwatchPicker } from '@/components/common'
 import {
@@ -26,8 +33,16 @@ import TextInput from '../fields/TextInput.vue'
 import { persistentSessionHint } from '../../utils/validate'
 import BrokerAddressField from './BrokerAddressField.vue'
 
-const { draft, errors, groupSuggestions, setVersion, regenerateClientId } = useConnectionForm()
-const ids = { name: useId(), group: useId(), version: useId(), clientId: useId() }
+const { draft, errors, groupSuggestions, setKind, setVersion, regenerateClientId } =
+  useConnectionForm()
+const ids = { name: useId(), group: useId(), kind: useId(), version: useId(), clientId: useId() }
+
+const kind = computed(() => connectionKind(draft.value))
+
+function onKind(value: unknown): void {
+  // A single toggle group can be emptied by clicking the active item: keep the kind.
+  if (isConnectionKind(value)) setKind(value)
+}
 
 const versionValue = computed(() => String(draft.value.protocolVersion))
 /** MQTT 3.1 limits client ids to 23 characters (many brokers enforce it). */
@@ -74,9 +89,33 @@ function onVersion(value: unknown): void {
 
       <FieldSeparator />
 
+      <Field>
+        <FieldTitle :id="ids.kind">Type</FieldTitle>
+        <div>
+          <ToggleGroup
+            type="single"
+            :model-value="kind"
+            :spacing="1"
+            :aria-labelledby="ids.kind"
+            class="h-8 rounded-lg bg-muted p-[3px]"
+            @update:model-value="onKind"
+          >
+            <ToggleGroupItem
+              v-for="entry in CONNECTION_KINDS"
+              :key="entry"
+              :value="entry"
+              :data-testid="`connection-kind-${entry}`"
+              class="h-full min-w-0 rounded-md border border-transparent px-3 text-xs text-muted-foreground aria-pressed:bg-background aria-pressed:text-foreground aria-pressed:shadow-xs data-[state=on]:bg-background dark:aria-pressed:border-input dark:aria-pressed:bg-input/50 dark:data-[state=on]:bg-input/50"
+            >
+              {{ KIND_LABELS[entry] }}
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      </Field>
+
       <BrokerAddressField />
 
-      <div class="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)]">
+      <div v-if="kind === 'mqtt'" class="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)]">
         <Field>
           <FieldTitle :id="ids.version">MQTT version</FieldTitle>
           <div>

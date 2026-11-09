@@ -10,9 +10,16 @@
  */
 import { computed, nextTick, ref } from 'vue'
 import { useElementSize } from '@vueuse/core'
+import { isMqttProfile } from '@shared/connection-kind'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { useMessageList, useThrottledValue } from '@/composables'
-import { useMessagesStore, useSessionsStore, useSubscriptionsStore, useUiStore } from '@/stores'
+import {
+  useConnectionsStore,
+  useMessagesStore,
+  useSessionsStore,
+  useSubscriptionsStore,
+  useUiStore
+} from '@/stores'
 import { isMessageFilterActive } from '@/utils/message-filter'
 import MessageDetail from './components/MessageDetail.vue'
 import MessageEmptyState from './components/MessageEmptyState.vue'
@@ -28,6 +35,7 @@ const props = defineProps<{ connectionId: string }>()
 const ui = useUiStore()
 const sessions = useSessionsStore()
 const subscriptions = useSubscriptionsStore()
+const connections = useConnectionsStore()
 const messages = useMessagesStore()
 
 const list = useMessageList(
@@ -50,12 +58,18 @@ const highlight = computed(() => filter.value.search.trim())
 const selectedId = computed(() => ui.selectedMessageId(props.connectionId))
 const total = useThrottledValue(() => list.total.value, 250)
 
+const mqtt = computed(() => {
+  const profile = connections.get(props.connectionId)
+  return !profile || isMqttProfile(profile)
+})
+
 const emptyKind = computed<MessageEmptyKind | null>(() =>
   messageEmptyKind({
     rows: list.rows.value.length,
     total: list.total.value,
     status: sessions.statusOf(props.connectionId),
-    listening: subscriptions.list(props.connectionId).some((sub) => sub.enabled),
+    // WebSocket / Socket.IO connections receive everything without subscriptions.
+    listening: !mqtt.value || subscriptions.list(props.connectionId).some((sub) => sub.enabled),
     filterActive: isMessageFilterActive(filter.value),
     pending: list.pending.value,
     paused: list.paused.value

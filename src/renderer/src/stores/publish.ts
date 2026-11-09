@@ -17,6 +17,7 @@ import {
   sameDraftContent
 } from '@/utils/publish'
 import { onConnectionRemoved } from './connection-lifecycle'
+import { connectionKind, WS_MESSAGE_TOPIC } from '@shared/connection-kind'
 import { useConnectionsStore } from './connections'
 import { useMessagesStore } from './messages'
 import { createPublishPersistence } from './publish-persistence'
@@ -47,7 +48,13 @@ export const usePublishStore = defineStore('publish', () => {
    */
   function draft(connectionId: string): PublishDraft {
     // Check through the raw object: creating the draft must not re-trigger a running computed.
-    if (!(connectionId in toRaw(drafts.value))) drafts.value[connectionId] = createPublishDraft()
+    if (!(connectionId in toRaw(drafts.value))) {
+      const created = createPublishDraft()
+      // A WebSocket message's topic is only a label: start with the default one.
+      const profile = useConnectionsStore().get(connectionId)
+      if (profile && connectionKind(profile) === 'websocket') created.topic = WS_MESSAGE_TOPIC
+      drafts.value[connectionId] = created
+    }
     return drafts.value[connectionId]
   }
 

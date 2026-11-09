@@ -66,7 +66,10 @@ const actions = useTopicActions(() => props.connectionId)
         <ListFilterIcon aria-hidden="true" />
         {{ target.hasChildren ? 'Filter messages below' : 'Filter messages' }}
       </ContextMenuItem>
-      <ContextMenuItem @select="actions.subscribe(target.topic, target.hasChildren)">
+      <ContextMenuItem
+        v-if="actions.mqtt.value"
+        @select="actions.subscribe(target.topic, target.hasChildren)"
+      >
         <BellPlusIcon aria-hidden="true" />
         Subscribe…
       </ContextMenuItem>
@@ -81,7 +84,12 @@ const actions = useTopicActions(() => props.connectionId)
           Collapse
         </ContextMenuItem>
       </template>
-      <template v-if="target.hasPayload || (target.hasChildren && target.retainedBelow > 0)">
+      <template
+        v-if="
+          actions.mqtt.value &&
+          (target.hasPayload || (target.hasChildren && target.retainedBelow > 0))
+        "
+      >
         <ContextMenuSeparator />
         <ContextMenuItem
           v-if="target.hasPayload"

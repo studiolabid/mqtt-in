@@ -2,6 +2,7 @@
 /**
  * "More actions" menu of the workspace header.
  */
+import { computed } from 'vue'
 import {
   CopyPlusIcon,
   DownloadIcon,
@@ -11,6 +12,7 @@ import {
   ListPlusIcon,
   Trash2Icon
 } from '@lucide/vue'
+import { isMqttProfile } from '@shared/connection-kind'
 import { KbdShortcut } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import {
@@ -31,6 +33,10 @@ const props = defineProps<{ connectionId: string }>()
 const ui = useUiStore()
 /** One export at a time, from any entry point (RC-22). */
 const connections = useConnectionsStore()
+const mqtt = computed(() => {
+  const profile = connections.get(props.connectionId)
+  return !profile || isMqttProfile(profile)
+})
 const actions = useConnectionActions()
 const platform = hostPlatform()
 </script>
@@ -53,7 +59,10 @@ const platform = hostPlatform()
       <TooltipContent side="bottom">More actions</TooltipContent>
     </Tooltip>
     <DropdownMenuContent align="end" class="w-64">
-      <DropdownMenuItem @select="ui.openNewSubscription(props.connectionId, { topic: '' })">
+      <DropdownMenuItem
+        v-if="mqtt"
+        @select="ui.openNewSubscription(props.connectionId, { topic: '' })"
+      >
         <ListPlusIcon />
         New subscription
         <DropdownMenuShortcut>

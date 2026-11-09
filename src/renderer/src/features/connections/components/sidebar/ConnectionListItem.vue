@@ -12,6 +12,7 @@
 import { computed } from 'vue'
 import { CircleAlertIcon, PlugIcon, UnplugIcon, XIcon } from '@lucide/vue'
 import type { ConnectionProfile } from '@shared/models'
+import { connectionKind, KIND_LABELS } from '@shared/connection-kind'
 import { brokerUrl } from '@shared/defaults'
 import { ConnectionAvatar, HighlightText } from '@/components/common'
 import { Button } from '@/components/ui/button'
@@ -61,6 +62,12 @@ const problem = computed(() =>
   status.value === 'error' || status.value === 'reconnecting' ? session.value.error : undefined
 )
 const url = computed(() => brokerUrl(props.profile))
+/** WebSocket / Socket.IO connections are tagged (their ws:// address looks like MQTT's). */
+const kindTag = computed(() => {
+  const kind = connectionKind(props.profile)
+  if (kind === 'mqtt') return null
+  return { text: kind === 'socketio' ? 'IO' : 'WS', title: KIND_LABELS[kind] }
+})
 const toggleLabel = computed(() => {
   if (status.value === 'connected') return 'Disconnect'
   if (cancellable.value) return 'Cancel'
@@ -147,6 +154,12 @@ const toggleLabel = computed(() => {
             <span
               class="flex min-w-0 items-baseline font-mono text-[11px] leading-tight text-muted-foreground"
             >
+              <span
+                v-if="kindTag"
+                class="mr-1 shrink-0 self-center rounded-[3px] border px-0.5 text-[9px] leading-3"
+                :title="kindTag.title"
+                >{{ kindTag.text }}</span
+              >
               <span class="shrink-0">{{ profile.protocol }}://</span>
               <HighlightText :text="profile.host" :terms="terms" class="min-w-0 truncate" />
               <span class="shrink-0">:{{ profile.port }}</span>

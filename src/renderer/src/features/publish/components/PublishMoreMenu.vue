@@ -46,6 +46,8 @@ const props = defineProps<{
   connectionId: string
   /** MQTT 5 connection: offers the PUBLISH properties. */
   mqtt5: boolean
+  /** MQTT connection: offers QoS and retain (WebSocket / Socket.IO have neither). */
+  mqtt: boolean
 }>()
 
 const emit = defineEmits<{
@@ -65,7 +67,7 @@ const FORMAT_GROUPS = [
 
 /** States that are hidden from the header at the narrowest width (the dot and the name). */
 const flags = computed(() => [
-  ...(draft.value.retain ? ['retain on'] : []),
+  ...(props.mqtt && draft.value.retain ? ['retain on'] : []),
   ...(job.value ? ['repeating'] : [])
 ])
 const label = computed(() =>
@@ -140,7 +142,11 @@ function onCloseAutoFocus(event: Event): void {
       @close-auto-focus="onCloseAutoFocus"
     >
       <DropdownMenuLabel>Publish options</DropdownMenuLabel>
-      <DropdownMenuRadioGroup :model-value="String(draft.qos)" @update:model-value="setQos">
+      <DropdownMenuRadioGroup
+        v-if="mqtt"
+        :model-value="String(draft.qos)"
+        @update:model-value="setQos"
+      >
         <DropdownMenuRadioItem
           v-for="level in QOS_LEVELS"
           :key="level.value"
@@ -152,6 +158,7 @@ function onCloseAutoFocus(event: Event): void {
         </DropdownMenuRadioItem>
       </DropdownMenuRadioGroup>
       <DropdownMenuCheckboxItem
+        v-if="mqtt"
         data-testid="publish-more-retain"
         :model-value="draft.retain"
         @update:model-value="setRetain"

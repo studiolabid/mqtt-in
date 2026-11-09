@@ -1,6 +1,7 @@
 /**
  * "Paste magic" for the host field: splits a broker URL such as
  * `mqtts://user:pass@broker.example.com:8883` (or a bare `host:port`) into profile fields.
+ * `http(s)://` URLs (Socket.IO servers) become `ws(s)://`; a WebSocket URL keeps its query.
  */
 import type { MqttProtocol } from '@shared/models'
 import { DEFAULT_PORTS } from '@shared/defaults'
@@ -25,7 +26,10 @@ const SCHEMES: Readonly<Record<string, MqttProtocol>> = {
   tls: 'mqtts',
   'mqtt+ssl': 'mqtts',
   ws: 'ws',
-  wss: 'wss'
+  wss: 'wss',
+  // Socket.IO servers are usually given as http(s) URLs; they speak WebSocket on the same port.
+  http: 'ws',
+  https: 'wss'
 }
 
 const SCHEME = /^([a-z][a-z\d+.-]*):\/\//i
@@ -86,8 +90,10 @@ export function parseBrokerUrl(text: string): ParsedBrokerUrl | null {
   if (!validPort(port)) return null
 
   const parsed: ParsedBrokerUrl = { protocol, host, port }
-  if ((protocol === 'ws' || protocol === 'wss') && url.pathname !== '' && url.pathname !== '/') {
-    parsed.path = url.pathname
+  if (protocol === 'ws' || protocol === 'wss') {
+    // The query belongs to the WebSocket URL (e.g. `?token=…`).
+    const path = url.pathname + url.search
+    if (path !== '' && path !== '/') parsed.path = path
   }
   if (url.username !== '') parsed.username = decode(url.username)
   if (url.password !== '') parsed.password = decode(url.password)

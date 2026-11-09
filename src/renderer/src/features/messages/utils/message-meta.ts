@@ -137,11 +137,15 @@ export interface MessageSummary {
  * The summary line under the topic in the message detail (the payload follows right after;
  * everything else is in the collapsed "Details").
  */
-export function messageSummary(message: MqttMessage): MessageSummary {
+export function messageSummary(
+  message: MqttMessage,
+  options: { qos?: boolean } = {}
+): MessageSummary {
   const line = [
     formatClock(message.timestamp, true),
     formatBytes(message.payload.length),
-    `QoS ${message.qos}`,
+    // WebSocket / Socket.IO messages have no QoS (`qos: false`).
+    ...(options.qos === false ? [] : [`QoS ${message.qos}`]),
     detectedFormatLabel(message.payload)
   ].join(' · ')
   const flags: MessageFlag[] = []

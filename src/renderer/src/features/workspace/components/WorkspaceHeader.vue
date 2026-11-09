@@ -11,12 +11,14 @@
 import { computed, onMounted, ref } from 'vue'
 import { LockIcon, PencilIcon } from '@lucide/vue'
 import type { ConnectionProfile } from '@shared/models'
+import { isMqttProfile } from '@shared/connection-kind'
 import { brokerUrl, isTlsProtocol } from '@shared/defaults'
 import { ConnectionAvatar, KbdShortcut } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { hostPlatform } from '@/composables'
 import { useSessionsStore, useUiStore } from '@/stores'
+import { profileTypeLabel } from '@/utils/connection'
 import { SHORTCUTS } from '@/utils/shortcuts'
 import BrokerInfoPopover from './BrokerInfoPopover.vue'
 import ConnectButton from './ConnectButton.vue'
@@ -39,6 +41,7 @@ const session = computed(() => sessions.get(props.profile.id))
 const status = computed(() => session.value.status)
 const url = computed(() => brokerUrl(props.profile))
 const tls = computed(() => isTlsProtocol(props.profile.protocol))
+const mqtt = computed(() => isMqttProfile(props.profile))
 
 /** The last error, while it matters (failed, or retrying after a failure). */
 const hint = computed(() => {
@@ -90,7 +93,14 @@ function retry(): void {
           >
             {{ profile.name }}
           </h1>
-          <BrokerInfoPopover :profile="profile" />
+          <BrokerInfoPopover v-if="mqtt" :profile="profile" />
+          <span
+            v-else
+            data-testid="connection-kind-badge"
+            class="inline-flex h-[18px] shrink-0 items-center rounded-md border px-1.5 font-mono text-[10px] text-muted-foreground"
+          >
+            {{ profileTypeLabel(profile) }}
+          </span>
         </div>
         <div class="flex min-w-0 items-center gap-1 text-muted-foreground">
           <LockIcon

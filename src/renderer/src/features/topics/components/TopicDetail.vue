@@ -155,7 +155,12 @@ function openPinned(topic: string): void {
         description="It is not part of the live topic tree yet. Subscribe to it or publish a first message."
         class="min-h-0 flex-1"
       >
-        <Button size="sm" variant="outline" @click="actions.subscribe(topic, false)">
+        <Button
+          v-if="actions.mqtt.value"
+          size="sm"
+          variant="outline"
+          @click="actions.subscribe(topic, false)"
+        >
           <BellPlusIcon aria-hidden="true" />
           Subscribe…
         </Button>

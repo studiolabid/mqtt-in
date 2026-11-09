@@ -8,8 +8,18 @@
  *   `mqttStringProblem`: at most 65,535 UTF-8 bytes and no unpaired surrogate (CT-06); topic
  *   names (will topic, response topic) with `validateTopicName`, which applies the same rule;
  *   binary fields (password, will payload, correlation data) at most 65,535 bytes.
+ *
+ * WebSocket and Socket.IO connections skip the MQTT-only fields (client id, credentials, Last
+ * Will, MQTT 5) and check their handshake headers, subprotocols and Socket.IO auth instead.
  */
 import type { ConnectionProfile, UserProperty } from '@shared/models'
+import {
+  connectionKind,
+  headerProblem,
+  socketAuthProblem,
+  socketSettings,
+  subprotocolsProblem
+} from '@shared/connection-kind'
 import { LIMITS } from '@shared/defaults'
 import { MQTT_STRING_MAX_BYTES, mqttStringProblem, utf8ByteLength } from '@shared/mqtt-string'
 import { validateTopicName } from '@shared/topic'
@@ -44,6 +54,9 @@ export type FieldKey =
   | 'maximumPacketSize'
   | 'topicAliasMaximum'
   | 'userProperties'
+  | 'socketHeaders'
+  | 'subprotocols'
+  | 'socketAuth'
 
 export type FormErrors = Partial<Record<FieldKey, string>>
 
@@ -71,7 +84,10 @@ const FIELD_SECTIONS: Readonly<Record<FieldKey, FormSectionId>> = {
   receiveMaximum: 'mqtt5',
   maximumPacketSize: 'mqtt5',
   topicAliasMaximum: 'mqtt5',
-  userProperties: 'mqtt5'
+  userProperties: 'mqtt5',
+  socketHeaders: 'socket',
+  subprotocols: 'socket',
+  socketAuth: 'socket'
 }
 
 function isIntegerIn(value: number | undefined, min: number, max: number): boolean {
@@ -139,6 +155,24 @@ function checkWill(errors: FormErrors, will: ConnectionProfile['will']): void {
   if (userProblem) errors.willUserProperties = userProblem
 }
 
+/** WebSocket / Socket.IO options: headers, subprotocols (WebSocket), auth JSON (Socket.IO). */
+function checkSocket(errors: FormErrors, draft: ConnectionProfile): void {
+  const socket = socketSettings(draft)
+  for (const [index, header] of socket.headers.entries()) {
+    if (header.key.trim() === '' && header.value === '') continue
+    const problem = headerProblem(header.key, header.value)
+    if (problem) {
+      errors.socketHeaders = `Header ${index + 1}: ${problem}`
+      break
+    }
+  }
+  const kind = connectionKind(draft)
+  const subprotocols = kind === 'websocket' ? subprotocolsProblem(socket.subprotocols) : null
+  if (subprotocols) errors.subprotocols = subprotocols
+  const auth = kind === 'socketio' ? socketAuthProblem(socket.auth) : null
+  if (auth) errors.socketAuth = auth
+}
+
 /** Every problem of the draft, keyed by field (empty object = valid). */
 export function validateConnection(draft: ConnectionProfile): FormErrors {
   const errors: FormErrors = {}
@@ -151,9 +185,14 @@ export function validateConnection(draft: ConnectionProfile): FormErrors {
   if (hostProblem) errors.host = hostProblem
 
   if (!isIntegerIn(draft.port, 1, UINT16_MAX)) errors.port = 'Port must be between 1 and 65535'
-  checkString(errors, 'clientId', draft.clientId.trim(), 'Client ID')
-  checkString(errors, 'username', draft.username, 'Username')
-  checkBinary(errors, 'password', draft.password, 'Password')
+  const mqtt = connectionKind(draft) === 'mqtt'
+  if (mqtt) {
+    checkString(errors, 'clientId', draft.clientId.trim(), 'Client ID')
+    checkString(errors, 'username', draft.username, 'Username')
+    checkBinary(errors, 'password', draft.password, 'Password')
+  } else {
+    checkSocket(errors, draft)
+  }
   if (draft.tls.servername.trim().length > 255) {
     errors.servername = 'Server name is too long (max 255 characters)'
   }
@@ -172,6 +211,7 @@ export function validateConnection(draft: ConnectionProfile): FormErrors {
     errors.reconnectPeriod = `Reconnect period must be between ${reconnectPeriodMs.min / 1000} and ${reconnectPeriodMs.max / 1000} s`
   }
 
+  if (!mqtt) return errors
   checkWill(errors, draft.will)
 
   const props = draft.properties

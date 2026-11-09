@@ -22,6 +22,7 @@ import {
   SendIcon,
   UnplugIcon
 } from '@lucide/vue'
+import { isMqttProfile } from '@shared/connection-kind'
 import { EmptyState } from '@/components/common'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -52,6 +53,10 @@ const subscriptions = useSubscriptionsStore()
 const backlog = usePausedBacklog(() => props.connectionId)
 
 const name = computed(() => connections.get(props.connectionId)?.name ?? 'the broker')
+const mqtt = computed(() => {
+  const profile = connections.get(props.connectionId)
+  return !profile || isMqttProfile(profile)
+})
 const session = computed(() => sessions.get(props.connectionId))
 const subscriptionCount = computed(() => subscriptions.list(props.connectionId).length)
 const enabledCount = computed(
@@ -143,7 +148,11 @@ function subscribeAll(): void {
       v-else-if="kind === 'waiting'"
       :icon="ListeningIcon"
       title="Waiting for messages…"
-      :description="`Listening on ${formatCount(enabledCount, 'subscription')}. Messages appear here as they arrive.`"
+      :description="
+        mqtt
+          ? `Listening on ${formatCount(enabledCount, 'subscription')}. Messages appear here as they arrive.`
+          : 'Listening to everything the server sends. Messages appear here as they arrive.'
+      "
     >
       <Button
         size="sm"
