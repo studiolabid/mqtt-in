@@ -204,6 +204,7 @@ describe('draftFromMessage', () => {
   it('copies topic, QoS, retain and properties without receive-only fields', () => {
     const draft = draftFromMessage(
       message({
+        direction: 'out',
         topic: 'a/b',
         qos: 2,
         retain: true,
@@ -231,6 +232,15 @@ describe('draftFromMessage', () => {
         userProperties: [{ key: 'k', value: 'v' }]
       }
     })
+  })
+
+  it('never makes a received message a retained draft', () => {
+    // On a received message the flag means "replayed from the broker's store": copying it
+    // would turn a command into one the broker replays to every device that reconnects.
+    const received = message({ direction: 'in', topic: 'cmd/A00002', retain: true })
+    expect(draftFromMessage(received, createPublishDraft({ retain: true })).retain).toBe(false)
+    const sent = message({ direction: 'out', retain: false })
+    expect(draftFromMessage(sent, createPublishDraft()).retain).toBe(false)
   })
 
   it('disables templates when the payload contains template tokens', () => {

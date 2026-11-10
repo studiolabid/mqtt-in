@@ -172,9 +172,13 @@ export function payloadForEditing(bytes: Uint8Array): { payload: string; format:
 }
 
 /**
- * Draft that re-publishes `message`: topic, QoS, retain, properties (without the
- * receive-only subscription identifier and the connection-scoped topic alias) and payload.
- * Template rendering is turned off when the payload itself contains template tokens.
+ * Draft that re-publishes `message`: topic, QoS, properties (without the receive-only
+ * subscription identifier and the connection-scoped topic alias) and payload. Template rendering
+ * is turned off when the payload itself contains template tokens.
+ *
+ * Retain is kept only for messages this app sent. On a received message the flag mostly means
+ * "replayed from the broker's store", and copying it would quietly turn a command into a
+ * retained one that the broker replays to every device that reconnects.
  */
 export function draftFromMessage(message: MqttMessage, current: PublishDraft): PublishDraft {
   const { payload, format } = payloadForEditing(message.payload)
@@ -196,7 +200,7 @@ export function draftFromMessage(message: MqttMessage, current: PublishDraft): P
     payload,
     format,
     qos: message.qos,
-    retain: message.retain,
+    retain: message.direction === 'out' && message.retain,
     properties,
     useTemplate: hasTemplate(payload) ? false : current.useTemplate
   }

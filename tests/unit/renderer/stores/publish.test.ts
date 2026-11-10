@@ -5,7 +5,7 @@ import { utf8Decode } from '@shared/payload'
 import { useMessagesStore } from '@/stores/messages'
 import { MAX_PUBLISH_HISTORY, usePublishStore } from '@/stores/publish'
 import { DRAFTS_KEY, HISTORY_KEY, MAX_PERSISTED_BYTES } from '@/stores/publish-persistence'
-import type { PublishDraft, PublishHistoryItem } from '@/types'
+import type { PublishDraft, PublishHistoryItem, SavedMessage } from '@/types'
 import { message, utf8 } from '../helpers'
 import { setupStores, type StoreSetup } from './setup'
 
@@ -231,6 +231,47 @@ describe('usePublishStore', () => {
     await store.load()
     expect(store.draft(v5).topic).toBe('saved')
     expect(store.history(v5).map((item) => item.id)).toEqual(['h'])
+  })
+
+  it('restores a stored draft with retain off', async () => {
+    // A Retain left on in an earlier session must not make the first publish retained.
+    setup.bridge.storage.set(DRAFTS_KEY, {
+      [v5]: { topic: 'cmd/A00002', payload: '{"cmd":"timer"}', format: 'json', retain: true }
+    })
+    const store = usePublishStore()
+    await store.load()
+    expect(store.draft(v5)).toMatchObject({ topic: 'cmd/A00002', retain: false })
+  })
+
+  it('loads and publishes saved messages without retain', async () => {
+    const store = usePublishStore()
+    store.updateDraft(v4, { topic: 'cmd/A00002', retain: true, payload: 'draft' })
+    const anyTopic: SavedMessage = {
+      id: 's1',
+      name: 'status',
+      topic: '',
+      payload: '{"cmd":"status"}',
+      format: 'json',
+      qos: 1,
+      useTemplate: false,
+      properties: { userProperties: [] }
+    }
+    // Publishing it leaves the draft alone and goes to the draft's topic.
+    await expect(store.publishSaved(v4, anyTopic)).resolves.toBe(true)
+    const [, request] = vi.mocked(setup.bridge.api.mqtt.publish).mock.calls[0]
+    expect(request).toMatchObject({ topic: 'cmd/A00002', qos: 1, retain: false })
+    expect(utf8Decode(request.payload)).toBe('{"cmd":"status"}')
+    expect(store.draft(v4)).toMatchObject({ payload: 'draft', retain: true })
+    expect(store.history(v4)[0]).toMatchObject({ payload: '{"cmd":"status"}', retain: false })
+
+    store.loadFromSaved(v4, { ...anyTopic, topic: 'cmd/B00001' })
+    expect(store.draft(v4)).toMatchObject({
+      topic: 'cmd/B00001',
+      payload: '{"cmd":"status"}',
+      format: 'json',
+      qos: 1,
+      retain: false
+    })
   })
 
   it('saves changes debounced after loading', async () => {

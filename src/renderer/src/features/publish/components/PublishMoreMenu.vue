@@ -2,16 +2,18 @@
 /**
  * "More" menu of the publisher header (A11Y-07): the panel shows it only while it is too narrow
  * for every header control (200 % zoom, a narrow column). Container queries in `PublishPanel`
- * fold the payload format, MQTT 5 properties, history and an idle repeat into it below 28rem,
- * and QoS and retain below 20rem; like the message toolbar's "More" menu, it always offers
- * every option.
+ * fold the payload format, MQTT 5 properties, history, saved messages and an idle repeat into it
+ * below 28rem, and QoS and retain below 20rem; like the message toolbar's "More" menu, it always
+ * offers every option.
  *
- * Properties, history and repeat open their popover or dialog only once this menu has closed
- * (`open`), so its focus return does not dismiss them; the panel anchors them to this button.
+ * Properties, history, saved messages and repeat open their popover or dialog only once this menu
+ * has closed (`open`), so its focus return does not dismiss them; the panel anchors them to this
+ * button.
  * While folded away, retain on and a running repeat put a dot on the button.
  */
 import { computed } from 'vue'
 import {
+  BookmarkIcon,
   BracesIcon,
   EllipsisIcon,
   HistoryIcon,
@@ -202,6 +204,10 @@ function onCloseAutoFocus(event: Event): void {
       <DropdownMenuItem data-testid="publish-more-history" @select="queue('history')">
         <HistoryIcon />
         History…
+      </DropdownMenuItem>
+      <DropdownMenuItem data-testid="publish-more-saved" @select="queue('saved')">
+        <BookmarkIcon />
+        Saved messages…
       </DropdownMenuItem>
       <DropdownMenuItem data-testid="publish-more-repeat" @select="queue('repeat')">
         <RepeatIcon />

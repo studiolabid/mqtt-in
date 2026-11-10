@@ -19,7 +19,7 @@ const GENERATED = join(RENDERER, 'components/ui')
  * Known offenders owned by another group and reported in a hand-off. Remove an entry once it is
  * fixed; every other file is scanned.
  */
-const PENDING = new Set(['src/renderer/src/features/publish/composables/usePublishAction.ts'])
+const PENDING = new Set<string>()
 
 const TOAST_CALL = /\btoast(?:\.[a-z]+|\[[^\]]+\])\(/g
 const ACTION_KEY = /\baction\b\s*[:,}]/

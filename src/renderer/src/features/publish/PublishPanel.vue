@@ -1,23 +1,25 @@
 <script setup lang="ts">
 /**
  * Publisher of a connection (bottom of the workspace). The h-10 header row — topic, QoS,
- * retain, payload format, MQTT 5 properties, history, repeat and Publish — is complete on its
- * own, so the panel keeps working when the parent collapses it to the header. Below: the
- * payload editor with a validation / tools footer.
+ * retain, payload format, MQTT 5 properties, history, saved messages, repeat and Publish — is
+ * complete on its own, so the panel keeps working when the parent collapses it to the header.
+ * Below: the payload editor with a validation / tools footer.
  *
  * The DOM order is the tab order (topic → QoS → retain → format → payload → Publish →
  * secondary actions → payload tools); a CSS grid places the pieces visually.
  *
  * Narrow header (200 % zoom, a narrow column; A11Y-07): container queries fold controls into a
  * "More" menu instead of letting them overlap. Below 28rem the format, MQTT 5 properties,
- * history and an idle repeat fold; below 20rem QoS and retain too, so topic, More and Publish
- * remain. A running repeat stays visible from 20rem (its count from 32rem, before that only the
- * pulse and the stop button). In a sliver of a panel the topic (under 7.5rem) and then the More
- * button (under 5.5rem) go too: Publish stays visible at any width.
+ * history, saved messages and an idle repeat fold; below 20rem QoS and retain too, so topic,
+ * More and Publish remain. A running repeat stays visible from 20rem (its count from 32rem,
+ * before that only the pulse and the stop button). In a sliver of a panel the topic (under
+ * 7.5rem) and then the More button (under 5.5rem) go too: Publish stays visible at any width.
  *
  * Retain on is never just a tinted icon (UX-08): the toggle then shows a filled pin with the
- * "Retain" label at any width, framed in the accent (the message stays on the
- * broker). The panel provides its connection to the history rows (`providePublishConnection`).
+ * "Retain" label at any width, framed in the accent (the message stays on the broker).
+ *
+ * Saved messages complete in the payload editor (`utils/saved-completion`): their name, or `/`,
+ * then Tab. The panel provides its connection to the history rows (`providePublishConnection`).
  */
 import { computed, ref, watch } from 'vue'
 import { useElementSize } from '@vueuse/core'
@@ -27,7 +29,13 @@ import { connectionKind, isMqttProfile } from '@shared/connection-kind'
 import { CodeEditor, HintTooltip, QosSelect } from '@/components/common'
 import { Toggle } from '@/components/ui/toggle'
 import { useHotkey } from '@/composables'
-import { useConnectionsStore, usePublishStore, useSessionsStore, useSettingsStore } from '@/stores'
+import {
+  useConnectionsStore,
+  usePublishStore,
+  useSavedMessagesStore,
+  useSessionsStore,
+  useSettingsStore
+} from '@/stores'
 import { SHORTCUTS } from '@/utils/shortcuts'
 import FormatSelect from './components/FormatSelect.vue'
 import HistoryPopover from './components/HistoryPopover.vue'
@@ -36,6 +44,7 @@ import PropertiesPopover from './components/PropertiesPopover.vue'
 import PublishButton from './components/PublishButton.vue'
 import PublishMoreMenu from './components/PublishMoreMenu.vue'
 import RepeatControl from './components/RepeatControl.vue'
+import SavedPopover from './components/SavedPopover.vue'
 import TopicInput from './components/TopicInput.vue'
 import { useEditorFocus } from './composables/useEditorFocus'
 import { useFoldedControls } from './composables/useFoldedControls'
@@ -44,6 +53,7 @@ import { usePublishAction } from './composables/usePublishAction'
 import { providePublishConnection } from './composables/usePublishContext'
 import { tokenArguments } from './utils/editor'
 import { editorLanguage, FORMAT_META, isJsonAuthored } from './utils/payload-tools'
+import { savedCompletionSource } from './utils/saved-completion'
 
 const props = defineProps<{ connectionId: string }>()
 providePublishConnection(() => props.connectionId)
@@ -52,6 +62,7 @@ const publish = usePublishStore()
 const sessions = useSessionsStore()
 const connections = useConnectionsStore()
 const settings = useSettingsStore()
+const savedMessages = useSavedMessagesStore()
 
 const draft = computed(() => publish.draft(props.connectionId))
 const status = computed(() => sessions.statusOf(props.connectionId))
@@ -77,7 +88,13 @@ const repeatControl = ref<InstanceType<typeof RepeatControl> | null>(null)
 
 // Narrow header: the folded popovers open against the "More" button.
 const folded = useFoldedControls(panel, () => repeatControl.value?.openDialog())
-const { propertiesOpen, historyOpen, anchor: foldedAnchor } = folded
+const { propertiesOpen, historyOpen, savedOpen, anchor: foldedAnchor } = folded
+
+// Typing a saved message's name (or `/`) in the payload offers it; Tab / Enter loads it.
+const savedCompletion = savedCompletionSource({
+  items: () => savedMessages.sorted,
+  pick: (item) => publish.loadFromSaved(props.connectionId, item)
+})
 
 // Collapsed by the parent (only the header row visible): keep Tab out of the hidden editor.
 const { height: editorHeight } = useElementSize(editorCell)
@@ -208,6 +225,7 @@ function insertToken(token: string): void {
         :language="editorLanguage(draft.format)"
         :placeholder="FORMAT_META[draft.format].placeholder"
         :templates="draft.useTemplate"
+        :completion="savedCompletion"
         :wrap="settings.settings.wordWrap"
         :line-numbers="isJsonAuthored(draft.format)"
         label="Payload"
@@ -224,7 +242,7 @@ function insertToken(token: string): void {
       <PublishButton :status="status" :busy="busy" :succeeded="succeeded" @publish="publishNow" />
     </div>
 
-    <!-- 4 · properties, history, repeat; "More" below 28rem (not under 5.5rem: Publish only). -->
+    <!-- 4 · properties, history, saved, repeat; "More" below 28rem (not under 5.5rem: Publish only). -->
     <div
       class="col-start-2 row-start-1 flex min-w-0 items-center gap-0.5 overflow-clip pr-1 pl-1 @md/publish:pl-1.5"
     >
@@ -244,6 +262,14 @@ function insertToken(token: string): void {
           :reference="foldedAnchor"
           @loaded="focusEditor"
           @publish="publishNow"
+        />
+        <SavedPopover
+          v-model:open="savedOpen"
+          :connection-id="connectionId"
+          :connected="status === 'connected'"
+          :show-qos="mqtt"
+          :reference="foldedAnchor"
+          @loaded="focusEditor"
         />
       </div>
       <div :class="job ? 'hidden @xs/publish:flex' : 'hidden @md/publish:flex'">

@@ -14,6 +14,7 @@ import { onConnectionRemoved } from '@/stores/connection-lifecycle'
 import { useConnectionsStore } from '@/stores/connections'
 import { usePinsStore } from '@/stores/pins'
 import { usePublishStore } from '@/stores/publish'
+import { useSavedMessagesStore } from '@/stores/saved-messages'
 import { useSessionsStore } from '@/stores/sessions'
 import { useSettingsStore } from '@/stores/settings'
 import { autoConnect, firstStartOfRun } from './auto-connect'
@@ -56,7 +57,8 @@ export async function initApp(router: Router): Promise<void> {
   const [connectionsLoaded] = await Promise.all([
     attempt('Could not load the connections', () => connections.load()),
     attempt('Could not restore the publish drafts', () => publish.load()),
-    attempt('Could not restore the pinned values', () => pins.load())
+    attempt('Could not restore the pinned values', () => pins.load()),
+    attempt('Could not restore the saved messages', () => useSavedMessagesStore().load())
   ])
   // Only prune against a reliable list: a failed load must not wipe every draft.
   if (connectionsLoaded) {

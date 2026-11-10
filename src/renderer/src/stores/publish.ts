@@ -1,6 +1,10 @@
 /**
  * Publishing: per-connection draft, history (persisted), single publish, re-publish of a
- * received message and repeat jobs.
+ * received message, saved messages into the draft and repeat jobs.
+ *
+ * Retain is never restored with a stored draft (`publish-persistence`) nor copied from a
+ * received message: a forgotten Retain turns a command into one the broker replays to every
+ * device that reconnects.
  */
 import { defineStore } from 'pinia'
 import { onScopeDispose, ref, toRaw } from 'vue'
@@ -8,7 +12,7 @@ import { toast } from 'vue-sonner'
 import type { MqttMessage, MqttProtocolVersion } from '@shared/models'
 import { newId } from '@shared/defaults'
 import { api, errorMessage } from '@/services/api'
-import type { PublishDraft, PublishHistoryItem } from '@/types'
+import type { PublishDraft, PublishHistoryItem, SavedMessage } from '@/types'
 import { toPlain } from '@/utils/plain'
 import {
   createPublishDraft,
@@ -16,6 +20,7 @@ import {
   preparePublish,
   sameDraftContent
 } from '@/utils/publish'
+import { draftFromSaved } from '@/utils/saved-messages'
 import { onConnectionRemoved } from './connection-lifecycle'
 import { connectionKind, WS_MESSAGE_TOPIC } from '@shared/connection-kind'
 import { useConnectionsStore } from './connections'
@@ -133,6 +138,16 @@ export const usePublishStore = defineStore('publish', () => {
     drafts.value[connectionId] = draftFromMessage(message, draft(connectionId))
   }
 
+  /** Loads a saved message into the draft (its topic, or else the current one; never retained). */
+  function loadFromSaved(connectionId: string, saved: SavedMessage): void {
+    drafts.value[connectionId] = draftFromSaved(saved, draft(connectionId))
+  }
+
+  /** Publishes a saved message as it is, leaving the draft alone. */
+  function publishSaved(connectionId: string, saved: SavedMessage): Promise<boolean> {
+    return publish(connectionId, draftFromSaved(saved, draft(connectionId)))
+  }
+
   /** Topics for autocompletion: history first, then recently active topics (max 200). */
   function topicSuggestions(connectionId: string): string[] {
     const seen = new Set<string>()
@@ -198,6 +213,8 @@ export const usePublishStore = defineStore('publish', () => {
     clearHistory,
     loadFromHistory,
     loadFromMessage,
+    loadFromSaved,
+    publishSaved,
     topicSuggestions,
     jobs: repeat.jobs,
     jobsFor: repeat.jobsFor,

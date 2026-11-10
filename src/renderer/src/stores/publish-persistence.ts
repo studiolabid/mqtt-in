@@ -104,12 +104,16 @@ export function createPublishPersistence(state: PublishState): PublishPersistenc
   return { loaded, load, flush }
 }
 
+/**
+ * Stored drafts, always with retain off: a Retain left on in an earlier session must not make
+ * the first publish of this one a retained message.
+ */
 function parseDrafts(raw: unknown): Record<string, PublishDraft> {
   const out: Record<string, PublishDraft> = {}
   if (!isRecord(raw)) return out
   for (const [id, value] of Object.entries(raw)) {
     const draft = parseDraft(value)
-    if (draft) out[id] = draft
+    if (draft) out[id] = { ...draft, retain: false }
   }
   return out
 }

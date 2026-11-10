@@ -18,24 +18,24 @@ Windows · macOS · Linux &nbsp;|&nbsp; MQTT 3.1 · 3.1.1 · 5.0 · WebSocket ·
 
 ## Highlights
 
-| | |
-| --- | --- |
-| **Connections** | Many brokers side by side, groups, import / export (also from MQTTX), paste a full URL like `wss://user:pass@host:443/mqtt` to fill the form at once |
-| **Every option** | MQTT 3.1 / 3.1.1 / 5.0, TLS (CA, client certificate and key, SNI, ALPN), WebSocket path, Last Will, keep-alive, auto-reconnect, connect on startup, MQTT 5 connect properties |
-| **WebSocket & Socket.IO** | Monitor plain WebSocket servers (headers, subprotocols, topics from a JSON field) and Socket.IO servers 3 / 4 (namespace, auth, every event by name) in the same message list, topic tree, charts and publisher |
-| **Subscriptions** | QoS, color tags, aliases, enable / disable, MQTT 5 options (no local, retain as published, retain handling), granted QoS and refusals shown |
-| **Live messages** | Virtualized stream that stays smooth under load, filters (direction, topic wildcard, text, retained), pause, payload views: JSON, text, hex, base64, MessagePack, CBOR |
-| **Publishing** | Payload editor with JSON formatting, templates (`{{uuid}}`, `{{random(1,9)}}`…), history, MQTT 5 properties, repeat publishing (interval and count) |
-| **Topic explorer** | Live topic tree with counts and last values (changed lines flash on update), history with diff, numeric charts, clear retained messages |
-| **Productivity** | Command palette (<kbd>Ctrl</kbd> <kbd>K</kbd>), keyboard shortcuts, copy as `mosquitto_pub` / MQTTX command, light and dark theme |
-| **Privacy** | Passwords are encrypted with the operating system keychain; everything stays on your machine |
+|                           |                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Connections**           | Many brokers side by side, groups, import / export (also from MQTTX), paste a full URL like `wss://user:pass@host:443/mqtt` to fill the form at once                                                                                                                                                                                                                                       |
+| **Every option**          | MQTT 3.1 / 3.1.1 / 5.0, TLS (CA, client certificate and key, SNI, ALPN), WebSocket path, Last Will, keep-alive, auto-reconnect, connect on startup, MQTT 5 connect properties                                                                                                                                                                                                              |
+| **WebSocket & Socket.IO** | Monitor plain WebSocket servers (headers, subprotocols, topics from a JSON field) and Socket.IO servers 3 / 4 (namespace, auth, every event by name) in the same message list, topic tree, charts and publisher                                                                                                                                                                            |
+| **Subscriptions**         | QoS, color tags, aliases, enable / disable, MQTT 5 options (no local, retain as published, retain handling), granted QoS and refusals shown                                                                                                                                                                                                                                                |
+| **Live messages**         | Virtualized stream that stays smooth under load, filters (direction, topic wildcard, text, retained), pause, payload views: JSON, text, hex, base64, MessagePack, CBOR                                                                                                                                                                                                                     |
+| **Publishing**            | Payload editor with JSON formatting, templates (`{{uuid}}`, `{{random(1,9)}}`…), history, saved messages (type a saved name in the payload and press Tab, or publish it from the list), MQTT 5 properties, repeat publishing (interval and count). Retain never turns itself on: it is not restored after a restart nor copied from a received message, and a retained publish offers Undo |
+| **Topic explorer**        | Live topic tree with counts and last values (changed lines flash on update), history with diff, numeric charts, clear retained messages                                                                                                                                                                                                                                                    |
+| **Productivity**          | Command palette (<kbd>Ctrl</kbd> <kbd>K</kbd>), keyboard shortcuts, copy as `mosquitto_pub` / MQTTX command, light and dark theme                                                                                                                                                                                                                                                          |
+| **Privacy**               | Passwords are encrypted with the operating system keychain; everything stays on your machine                                                                                                                                                                                                                                                                                               |
 
 ## Screenshots
 
-| Topic tree and live chart | Connection settings |
-| :---: | :---: |
-| <img src="docs/screenshots/topics-chart-light.png" alt="Topic tree and numeric chart" /> | <img src="docs/screenshots/connection-light.png" alt="Connection dialog" /> |
-| **Welcome and quick start** | **Command palette** |
+|                                   Topic tree and live chart                                   |                              Connection settings                              |
+| :-------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
+|   <img src="docs/screenshots/topics-chart-light.png" alt="Topic tree and numeric chart" />    |  <img src="docs/screenshots/connection-light.png" alt="Connection dialog" />  |
+|                                  **Welcome and quick start**                                  |                              **Command palette**                              |
 | <img src="docs/screenshots/welcome-dark.png" alt="Welcome screen with quick start brokers" /> | <img src="docs/screenshots/command-palette-dark.png" alt="Command palette" /> |
 
 ## Getting started
@@ -60,13 +60,13 @@ npm run build:win     # or build:mac / build:linux, the installer lands in dist/
 
 ### Keyboard shortcuts
 
-| Action | Shortcut |
-| --- | --- |
-| Command palette | <kbd>Ctrl</kbd> <kbd>K</kbd> |
-| New connection | <kbd>Ctrl</kbd> <kbd>N</kbd> |
+| Action           | Shortcut                                      |
+| ---------------- | --------------------------------------------- |
+| Command palette  | <kbd>Ctrl</kbd> <kbd>K</kbd>                  |
+| New connection   | <kbd>Ctrl</kbd> <kbd>N</kbd>                  |
 | New subscription | <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>N</kbd> |
-| Publish | <kbd>Ctrl</kbd> <kbd>Enter</kbd> |
-| Search messages | <kbd>Ctrl</kbd> <kbd>F</kbd> |
+| Publish          | <kbd>Ctrl</kbd> <kbd>Enter</kbd>              |
+| Search messages  | <kbd>Ctrl</kbd> <kbd>F</kbd>                  |
 
 On macOS use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>. The full list is under **All shortcuts** on the welcome screen.
 
@@ -74,11 +74,11 @@ On macOS use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>. The full list is under *
 
 Connections, settings and history are stored as JSON files in the app's profile folder:
 
-| OS | Folder |
-| --- | --- |
-| Windows | `%APPDATA%\mqtt-in` |
-| macOS | `~/Library/Application Support/mqtt-in` |
-| Linux | `~/.config/mqtt-in` |
+| OS      | Folder                                  |
+| ------- | --------------------------------------- |
+| Windows | `%APPDATA%\mqtt-in`                     |
+| macOS   | `~/Library/Application Support/mqtt-in` |
+| Linux   | `~/.config/mqtt-in`                     |
 
 Passwords and key passphrases are encrypted with Electron `safeStorage` (Windows DPAPI, macOS Keychain,
 libsecret on Linux).
@@ -92,17 +92,17 @@ npm ci          # install dependencies
 npm run dev     # start the app with hot reload
 ```
 
-| Script | What it does |
-| --- | --- |
-| `npm run dev` | Development app with hot reload |
-| `npm run typecheck` | Type-check main, preload, renderer and tests |
-| `npm run lint` | ESLint + Prettier rules |
-| `npm run format` | Format the code with Prettier |
-| `npm test` | Unit tests (Vitest) |
-| `npm run test:e2e` | Build, check the bundle, then run the end-to-end suites |
-| `npm run test:package` | Build the installer and smoke-test the packaged app |
-| `npm run build` | Type-check and build into `out/` |
-| `npm run build:win` / `build:mac` / `build:linux` | Build an installer into `dist/` |
+| Script                                            | What it does                                            |
+| ------------------------------------------------- | ------------------------------------------------------- |
+| `npm run dev`                                     | Development app with hot reload                         |
+| `npm run typecheck`                               | Type-check main, preload, renderer and tests            |
+| `npm run lint`                                    | ESLint + Prettier rules                                 |
+| `npm run format`                                  | Format the code with Prettier                           |
+| `npm test`                                        | Unit tests (Vitest)                                     |
+| `npm run test:e2e`                                | Build, check the bundle, then run the end-to-end suites |
+| `npm run test:package`                            | Build the installer and smoke-test the packaged app     |
+| `npm run build`                                   | Type-check and build into `out/`                        |
+| `npm run build:win` / `build:mac` / `build:linux` | Build an installer into `dist/`                         |
 
 ### Testing
 
@@ -111,7 +111,7 @@ npm run dev     # start the app with hot reload
   broker. Test runs set `MQTTIN_E2E=1` and a fresh `MQTTIN_USER_DATA_DIR`, so the window stays off-screen and
   your own profile is never touched. See [tests/e2e/README.md](tests/e2e/README.md).
 
-### Project structure
+### Project structuredsadas
 
 ```text
 src/
