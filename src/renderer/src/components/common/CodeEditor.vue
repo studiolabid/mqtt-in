@@ -8,7 +8,7 @@
  * borderless: wrap it in a container that draws the border and focus ring.
  */
 import { onBeforeUnmount, onMounted, ref, watch, type HTMLAttributes } from 'vue'
-import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
+import { closeBrackets, closeBracketsKeymap, type CompletionSource } from '@codemirror/autocomplete'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { bracketMatching, foldKeymap, indentOnInput } from '@codemirror/language'
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search'
@@ -39,7 +39,8 @@ import {
   type CodeEditorLanguage
 } from './lib/editor/extensions'
 import { changedLines, changeFlashExtension, flashLines, FLASH_MS } from './lib/editor/change-flash'
-import { templateExtension } from './lib/editor/templates'
+import { completionExtension } from './lib/editor/completion'
+import { templateCompletions, templateExtension } from './lib/editor/templates'
 import { editorAppearance } from './lib/editor/theme'
 import './syntax.css'
 
@@ -59,6 +60,11 @@ const props = withDefaults(
     autofocus?: boolean
     /** Highlight `{{template}}` tokens and complete them after typing `{{`. */
     templates?: boolean
+    /**
+     * Extra completion (e.g. saved messages), offered while typing and on Ctrl+Space; Enter or
+     * Tab accepts. Not in a read-only editor.
+     */
+    completion?: CompletionSource
     /** Accessible name of the content (e.g. `Payload`). */
     label?: string
     /**
@@ -103,6 +109,7 @@ const compartments = {
   readonly: new Compartment(),
   placeholder: new Compartment(),
   templates: new Compartment(),
+  completion: new Compartment(),
   label: new Compartment()
 }
 
@@ -153,11 +160,21 @@ function extensions(): Extension[] {
     compartments.wrap.of(props.wrap ? EditorView.lineWrapping : []),
     compartments.readonly.of(readonlyExtension(props.readonly)),
     compartments.placeholder.of(placeholderExtension(props.placeholder)),
-    compartments.templates.of(templateExtension(props.templates, props.readonly)),
+    compartments.templates.of(templateExtension(props.templates)),
+    compartments.completion.of(completionFor()),
     compartments.label.of(labelExtension(props.label)),
     changeFlashExtension,
     EditorView.updateListener.of(onUpdate)
   ]
+}
+
+/** The completion sources the props ask for (none while read-only). */
+function completionFor(): Extension {
+  if (props.readonly) return []
+  const sources: CompletionSource[] = []
+  if (props.templates) sources.push(templateCompletions)
+  if (props.completion) sources.push(props.completion)
+  return completionExtension(sources)
 }
 
 function reconfigure(compartment: Compartment, extension: Extension): void {
@@ -220,14 +237,15 @@ watch(
 )
 watch(
   () => props.readonly,
-  (readonly) => {
-    reconfigure(compartments.readonly, readonlyExtension(readonly))
-    reconfigure(compartments.templates, templateExtension(props.templates, readonly))
-  }
+  (readonly) => reconfigure(compartments.readonly, readonlyExtension(readonly))
 )
 watch(
   () => props.templates,
-  (enabled) => reconfigure(compartments.templates, templateExtension(enabled, props.readonly))
+  (enabled) => reconfigure(compartments.templates, templateExtension(enabled))
+)
+watch(
+  () => [props.readonly, props.templates, props.completion] as const,
+  () => reconfigure(compartments.completion, completionFor())
 )
 watch(
   () => props.placeholder,

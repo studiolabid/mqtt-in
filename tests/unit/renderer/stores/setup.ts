@@ -14,6 +14,7 @@ import { useLogsStore } from '@/stores/logs'
 import { useMessagesStore } from '@/stores/messages'
 import { usePinsStore } from '@/stores/pins'
 import { usePublishStore } from '@/stores/publish'
+import { useSavedMessagesStore } from '@/stores/saved-messages'
 import { useSessionsStore } from '@/stores/sessions'
 import { useSettingsStore } from '@/stores/settings'
 import { useSubscriptionsStore } from '@/stores/subscriptions'
@@ -31,6 +32,7 @@ const STORES = [
   useSubscriptionsStore,
   useSessionsStore,
   usePublishStore,
+  useSavedMessagesStore,
   useLogsStore,
   useMessagesStore,
   useConnectionsStore,

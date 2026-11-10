@@ -1,12 +1,14 @@
 /**
  * Command palette entries of the open connection's workspace (UX-09, A11Y-24, FP-4): views,
  * pause, edit, export, duplicate, delete, copy the broker URL or the draft as a command, and
- * keyboard focus shortcuts. Ids are stable hooks (CT-25): `pause`, `edit`, `export-json`,
- * `export-csv`, `duplicate`, `delete`, `copy-url`, `focus-publish`, `focus-messages`.
+ * keyboard focus shortcuts, and one entry per saved message (loads it into the draft). Ids are
+ * stable hooks (CT-25): `pause`, `edit`, `export-json`, `export-csv`, `duplicate`, `delete`,
+ * `copy-url`, `focus-publish`, `focus-messages`, `saved:<id>`.
  *
  * Must be called from a component `setup` (it uses the router through the connection actions).
  */
 import {
+  BookmarkIcon,
   CopyPlusIcon,
   EraserIcon,
   FileJsonIcon,
@@ -25,7 +27,13 @@ import {
   Trash2Icon
 } from '@lucide/vue'
 import { hostPlatform, useConnectionActions } from '@/composables'
-import { useConnectionsStore, useMessagesStore, usePublishStore, useUiStore } from '@/stores'
+import {
+  useConnectionsStore,
+  useMessagesStore,
+  usePublishStore,
+  useSavedMessagesStore,
+  useUiStore
+} from '@/stores'
 import type { WorkspaceTab } from '@/types'
 import { defaultCliShell } from '@/utils/cli-command'
 import { SHORTCUTS } from '@/utils/shortcuts'
@@ -48,6 +56,7 @@ export function usePaletteWorkspace(): (connectionId: string) => PaletteCommand[
   const messages = useMessagesStore()
   const connections = useConnectionsStore()
   const publish = usePublishStore()
+  const saved = useSavedMessagesStore()
   const actions = useConnectionActions()
   const shell = defaultCliShell(hostPlatform())
 
@@ -77,6 +86,20 @@ export function usePaletteWorkspace(): (connectionId: string) => PaletteCommand[
         }
       }
     })
+  }
+
+  function savedCommands(connectionId: string): PaletteCommand[] {
+    return saved.sorted.map((item) => ({
+      id: `saved:${item.id}`,
+      label: `Load saved message ${item.name}`,
+      icon: BookmarkIcon,
+      hint: item.topic || undefined,
+      keywords: `saved snippet alias payload ${item.topic}`,
+      run: () => {
+        publish.loadFromSaved(connectionId, item)
+        ui.requestPublishFocus(connectionId)
+      }
+    }))
   }
 
   return (connectionId) => {
@@ -162,6 +185,7 @@ export function usePaletteWorkspace(): (connectionId: string) => PaletteCommand[
         }
       },
       ...draftCommands(connectionId),
+      ...savedCommands(connectionId),
       {
         id: 'edit',
         label: 'Edit connection…',

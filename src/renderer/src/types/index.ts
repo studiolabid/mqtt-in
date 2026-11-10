@@ -97,6 +97,16 @@ export interface PublishHistoryItem extends PublishDraft {
   timestamp: number
 }
 
+/**
+ * A message saved under a short name (shared by every connection). It never carries retain:
+ * a saved message is loaded or sent without it. An empty `topic` keeps the draft's topic.
+ */
+export interface SavedMessage extends Omit<PublishDraft, 'retain'> {
+  id: string
+  /** The alias typed in the payload editor, e.g. `status` (no spaces, unique). */
+  name: string
+}
+
 export interface ConfirmOptions {
   title: string
   description?: string

@@ -1,5 +1,4 @@
 import {
-  autocompletion,
   pickedCompletion,
   type Completion,
   type CompletionContext,
@@ -65,20 +64,14 @@ const OPTIONS: readonly Completion[] = TEMPLATE_VARIABLES.map((variable) => ({
   apply: applyToken(variable.token)
 }))
 
-function templateCompletions(context: CompletionContext): CompletionResult | null {
+/** Completion source of `{{template}}` variables (after typing `{{`). */
+export function templateCompletions(context: CompletionContext): CompletionResult | null {
   const before = context.matchBefore(/\{\{\s*[A-Za-z]*$/)
   if (!before) return null
   return { from: before.from, options: OPTIONS, validFor: /^\{\{\s*[A-Za-z]*$/ }
 }
 
-const templateCompletion = autocompletion({
-  override: [templateCompletions],
-  icons: false,
-  activateOnTyping: true
-})
-
-/** Template variable support: highlighting always, completion only when editable. */
-export function templateExtension(enabled: boolean, readonly: boolean): Extension {
-  if (!enabled) return []
-  return readonly ? templateHighlighter : [templateHighlighter, templateCompletion]
+/** Highlighting of known `{{template}}` tokens (completion: `templateCompletions`). */
+export function templateExtension(enabled: boolean): Extension {
+  return enabled ? templateHighlighter : []
 }
