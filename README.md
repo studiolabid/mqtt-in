@@ -18,17 +18,18 @@ Windows · macOS · Linux &nbsp;|&nbsp; MQTT 3.1 · 3.1.1 · 5.0 · WebSocket ·
 
 ## Highlights
 
-|                           |                                                                                                                                                                                                                                                                                                                                                                                            |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Connections**           | Many brokers side by side, groups, import / export (also from MQTTX), paste a full URL like `wss://user:pass@host:443/mqtt` to fill the form at once                                                                                                                                                                                                                                       |
-| **Every option**          | MQTT 3.1 / 3.1.1 / 5.0, TLS (CA, client certificate and key, SNI, ALPN), WebSocket path, Last Will, keep-alive, auto-reconnect, connect on startup, MQTT 5 connect properties                                                                                                                                                                                                              |
-| **WebSocket & Socket.IO** | Monitor plain WebSocket servers (headers, subprotocols, topics from a JSON field) and Socket.IO servers 3 / 4 (namespace, auth, every event by name) in the same message list, topic tree, charts and publisher                                                                                                                                                                            |
-| **Subscriptions**         | QoS, color tags, aliases, enable / disable, MQTT 5 options (no local, retain as published, retain handling), granted QoS and refusals shown                                                                                                                                                                                                                                                |
-| **Live messages**         | Virtualized stream that stays smooth under load, filters (direction, topic wildcard, text, retained), pause, payload views: JSON, text, hex, base64, MessagePack, CBOR                                                                                                                                                                                                                     |
-| **Publishing**            | Payload editor with JSON formatting, templates (`{{uuid}}`, `{{random(1,9)}}`…), history, saved messages (type a saved name in the payload and press Tab, or publish it from the list), MQTT 5 properties, repeat publishing (interval and count). Retain never turns itself on: it is not restored after a restart nor copied from a received message, and a retained publish offers Undo |
-| **Topic explorer**        | Live topic tree with counts and last values (changed lines flash on update), history with diff, numeric charts, clear retained messages                                                                                                                                                                                                                                                    |
-| **Productivity**          | Command palette (<kbd>Ctrl</kbd> <kbd>K</kbd>), keyboard shortcuts, copy as `mosquitto_pub` / MQTTX command, light and dark theme                                                                                                                                                                                                                                                          |
-| **Privacy**               | Passwords are encrypted with the operating system keychain; everything stays on your machine                                                                                                                                                                                                                                                                                               |
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Connections**           | Many brokers side by side, groups, import / export (also from MQTTX), paste a full URL like `wss://user:pass@host:443/mqtt` to fill the form at once                                                                                                                                                                                                                                                                                                                           |
+| **Every option**          | MQTT 3.1 / 3.1.1 / 5.0, TLS (CA, client certificate and key, SNI, ALPN), WebSocket path, Last Will, keep-alive, auto-reconnect, connect on startup, MQTT 5 connect properties                                                                                                                                                                                                                                                                                                  |
+| **WebSocket & Socket.IO** | Monitor plain WebSocket servers (headers, subprotocols, topics from a JSON field) and Socket.IO servers 3 / 4 (namespace, auth, every event by name) in the same message list, topic tree, charts and publisher                                                                                                                                                                                                                                                                |
+| **Subscriptions**         | QoS, color tags, aliases, enable / disable, MQTT 5 options (no local, retain as published, retain handling), granted QoS and refusals shown                                                                                                                                                                                                                                                                                                                                    |
+| **Live messages**         | Virtualized stream that stays smooth under load, filters (direction, topic wildcard, text, retained), pause, payload views: JSON, text, hex, base64, MessagePack, CBOR                                                                                                                                                                                                                                                                                                         |
+| **Publishing**            | Payload editor with JSON formatting, templates (`{{uuid}}`, `{{random(1,9)}}`…), history, saved messages (type a saved name in the payload and press Tab, or publish it from the list), JSON lines disabled with `//` or `#` (<kbd>Ctrl</kbd> <kbd>/</kbd>) and never sent, MQTT 5 properties, repeat publishing (interval and count). Retain never turns itself on: it is not restored after a restart nor copied from a received message, and a retained publish offers Undo |
+| **Topic explorer**        | Live topic tree with counts and last values (changed lines flash on update), history with diff, numeric charts, clear retained messages                                                                                                                                                                                                                                                                                                                                        |
+| **Updates**               | Checks the GitHub releases, downloads a new version in the background and installs it on restart; connections, settings and history are kept                                                                                                                                                                                                                                                                                                                                   |
+| **Productivity**          | Command palette (<kbd>Ctrl</kbd> <kbd>K</kbd>), keyboard shortcuts, copy as `mosquitto_pub` / MQTTX command, light and dark theme                                                                                                                                                                                                                                                                                                                                              |
+| **Privacy**               | Passwords are encrypted with the operating system keychain; everything stays on your machine                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ## Screenshots
 
@@ -40,7 +41,12 @@ Windows · macOS · Linux &nbsp;|&nbsp; MQTT 3.1 · 3.1.1 · 5.0 · WebSocket ·
 
 ## Getting started
 
-There are no published installers yet: build mqtt-in from source.
+Download the Windows installer (`mqtt-in-<version>-setup.exe`) from the
+[releases](https://github.com/studiolabid/mqtt-in/releases). mqtt-in keeps itself up to date: it checks for a new
+version at startup and every few hours, downloads it in the background and offers **Restart now** (or installs it
+when you quit). Turn it off, or check by hand, in **Settings › About**.
+
+Or build it from source:
 
 ```bash
 git clone https://github.com/studiolabid/mqtt-in.git
@@ -60,13 +66,14 @@ npm run build:win     # or build:mac / build:linux, the installer lands in dist/
 
 ### Keyboard shortcuts
 
-| Action           | Shortcut                                      |
-| ---------------- | --------------------------------------------- |
-| Command palette  | <kbd>Ctrl</kbd> <kbd>K</kbd>                  |
-| New connection   | <kbd>Ctrl</kbd> <kbd>N</kbd>                  |
-| New subscription | <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>N</kbd> |
-| Publish          | <kbd>Ctrl</kbd> <kbd>Enter</kbd>              |
-| Search messages  | <kbd>Ctrl</kbd> <kbd>F</kbd>                  |
+| Action                    | Shortcut                                      |
+| ------------------------- | --------------------------------------------- |
+| Command palette           | <kbd>Ctrl</kbd> <kbd>K</kbd>                  |
+| New connection            | <kbd>Ctrl</kbd> <kbd>N</kbd>                  |
+| New subscription          | <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>N</kbd> |
+| Publish                   | <kbd>Ctrl</kbd> <kbd>Enter</kbd>              |
+| Disable JSON lines (`//`) | <kbd>Ctrl</kbd> <kbd>/</kbd>                  |
+| Search messages           | <kbd>Ctrl</kbd> <kbd>F</kbd>                  |
 
 On macOS use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>. The full list is under **All shortcuts** on the welcome screen.
 
@@ -111,7 +118,20 @@ npm run dev     # start the app with hot reload
   broker. Test runs set `MQTTIN_E2E=1` and a fresh `MQTTIN_USER_DATA_DIR`, so the window stays off-screen and
   your own profile is never touched. See [tests/e2e/README.md](tests/e2e/README.md).
 
-### Project structuredsadas
+### Releasing
+
+1. Bump `version` in `package.json` (`npm version <x.y.z> --no-git-tag-version`), commit and push.
+2. `npm run build:win` writes `mqtt-in-<version>-setup.exe`, its `.blockmap` and `latest.yml` to `dist/`.
+3. Create the GitHub release `v<version>` and attach **all three files**. The app's updater reads
+   `latest.yml` of the latest release; without it, installed copies do not see the new version.
+
+```bash
+gh release create v1.3.0 dist/mqtt-in-1.3.0-setup.exe dist/mqtt-in-1.3.0-setup.exe.blockmap dist/latest.yml   --title "mqtt-in 1.3.0" --notes-file notes.md
+```
+
+Updating never touches the profile folder (see _Where your data lives_).
+
+### Project structure
 
 ```text
 src/
