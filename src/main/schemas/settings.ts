@@ -22,7 +22,8 @@ const settingsFields: { [K in keyof AppSettings]: z.ZodType<AppSettings[K]> } = 
   showMilliseconds: z.boolean(),
   autoScroll: z.boolean(),
   wordWrap: z.boolean(),
-  confirmBeforeDelete: z.boolean()
+  confirmBeforeDelete: z.boolean(),
+  autoUpdate: z.boolean()
 }
 
 const settingsPatchSchema = z.strictObject(settingsFields).partial()

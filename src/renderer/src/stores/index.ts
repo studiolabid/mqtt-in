@@ -14,6 +14,7 @@ export { usePublishStore, MAX_PUBLISH_HISTORY, type PublishOptions } from './pub
 export { useSavedMessagesStore, SAVED_MESSAGES_KEY, type SaveResult } from './saved-messages'
 export { useLogsStore, MAX_LOG_ENTRIES } from './logs'
 export { useUiStore, type ConfirmState } from './ui'
+export { useUpdateStore } from './update'
 export {
   usePinsStore,
   MAX_PINS_PER_CONNECTION,

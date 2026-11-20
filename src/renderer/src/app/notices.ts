@@ -16,7 +16,8 @@ let mounted = false
 /** `kind|file|timestamp` of the storage notices already shown (fetched and pushed ones overlap). */
 const shownNotices = new Set<string>()
 
-function whenMounted(show: () => void): void {
+/** Runs `show` now when the app is mounted, else once it is (`flushStartupProblems`). */
+export function whenMounted(show: () => void): void {
   if (mounted) show()
   else queue.push(show)
 }

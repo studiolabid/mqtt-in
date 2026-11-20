@@ -67,3 +67,12 @@ linux:
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
+# Self-update (electron-updater, src/main/services/updater): the packaged app reads the GitHub
+# releases of this repository. Every release must carry, next to the installer, `latest.yml` and
+# `<installer>.blockmap` from dist/ (README › Releasing). The repository is public, so no token
+# is needed to read it.
+publish:
+  provider: github
+  owner: studiolabid
+  repo: mqtt-in
+  releaseType: release

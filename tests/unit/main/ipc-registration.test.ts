@@ -10,6 +10,7 @@ import type { WebFrameMain } from 'electron'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { IPC } from '@shared/ipc'
 import { registerIpc } from '../../../src/main/ipc'
+import type { UpdateService } from '../../../src/main/services/updater/update-service'
 import type { MqttManager } from '../../../src/main/services/mqtt/mqtt-manager'
 import { createStorage, type Storage } from '../../../src/main/services/storage'
 import { PLAIN_CIPHER } from '../../../src/main/services/storage/secrets'
@@ -43,7 +44,7 @@ let storage: Storage
 beforeAll(() => {
   dir = mkdtempSync(join(tmpdir(), 'mqtt-in-ipc-registration-'))
   storage = createStorage(dir, PLAIN_CIPHER)
-  registerIpc({ storage, manager: {} as MqttManager })
+  registerIpc({ storage, manager: {} as MqttManager, updates: {} as UpdateService })
 })
 
 afterAll(() => {

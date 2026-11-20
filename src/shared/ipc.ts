@@ -27,7 +27,8 @@ import type {
   StorageNotice,
   Subscription,
   SubscriptionEvent,
-  ThemeMode
+  ThemeMode,
+  UpdateState
 } from './models'
 
 /** Request/response channels (ipcMain.handle ↔ ipcRenderer.invoke). */
@@ -64,7 +65,11 @@ export const IPC = {
   appStorageNotices: 'app:storage-notices',
   appShowItemInFolder: 'app:show-item-in-folder',
 
-  windowSetTheme: 'window:set-theme'
+  windowSetTheme: 'window:set-theme',
+
+  updateGetState: 'update:get-state',
+  updateCheck: 'update:check',
+  updateInstall: 'update:install'
 } as const
 
 /** Push channels (webContents.send → ipcRenderer.on). */
@@ -74,7 +79,8 @@ export const IPC_EVENTS = {
   subscription: 'mqtt:event:subscription',
   log: 'mqtt:event:log',
   repeat: 'mqtt:event:repeat',
-  storageNotice: 'app:event:storage-notice'
+  storageNotice: 'app:event:storage-notice',
+  update: 'update:event:state'
 } as const
 
 export type IpcChannel = (typeof IPC)[keyof typeof IPC]
@@ -182,5 +188,21 @@ export interface MqttInApi {
   window: {
     /** Syncs `nativeTheme.themeSource` and the title-bar overlay symbol colors. */
     setTheme(theme: ThemeMode): Promise<void>
+  }
+
+  /** Self-update from the GitHub releases (see `UpdateState`). */
+  update: {
+    getState(): Promise<UpdateState>
+    /**
+     * Checks now (a newer version starts downloading). Resolves with the state after the check;
+     * failures end in the `error` phase instead of rejecting.
+     */
+    check(): Promise<UpdateState>
+    /**
+     * Saves everything, disconnects, quits and installs the downloaded version, then starts it
+     * again. Rejects when no update is ready.
+     */
+    install(): Promise<void>
+    onState(listener: (state: UpdateState) => void): Unsubscribe
   }
 }

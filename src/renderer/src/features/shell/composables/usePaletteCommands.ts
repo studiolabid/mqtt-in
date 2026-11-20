@@ -18,6 +18,7 @@ import {
   PanelLeftOpenIcon,
   PlugIcon,
   PlusIcon,
+  RefreshCwIcon,
   RotateCwIcon,
   SettingsIcon,
   SunIcon,
@@ -26,7 +27,13 @@ import {
 import type { ConnectionProfile, ConnectionStatus } from '@shared/models'
 import { brokerUrl } from '@shared/defaults'
 import { useNavigation } from '@/composables'
-import { useConnectionsStore, useSessionsStore, useSettingsStore, useUiStore } from '@/stores'
+import {
+  useConnectionsStore,
+  useSessionsStore,
+  useSettingsStore,
+  useUiStore,
+  useUpdateStore
+} from '@/stores'
 import { isActiveStatus } from '@/utils/connection'
 import { BROKER_PRESETS } from '@/utils/presets'
 import { SHORTCUTS } from '@/utils/shortcuts'
@@ -51,6 +58,7 @@ export function usePaletteCommands(): PaletteCommands {
   const settings = useSettingsStore()
   const connections = useConnectionsStore()
   const sessions = useSessionsStore()
+  const update = useUpdateStore()
   const nav = useNavigation()
   const sidebar = useSidebarLayout()
   const shortcuts = useShortcutsDialog()
@@ -152,9 +160,33 @@ export function usePaletteCommands(): PaletteCommands {
         keys: SHORTCUTS.settings.keys,
         keywords: 'preferences options accent',
         run: () => nav.openSettings()
-      }
+      },
+      updateCommand()
     ]
   })
+
+  /** "Restart to update" once a version is downloaded, else "Check for updates". */
+  function updateCommand(): PaletteCommand {
+    const state = update.state
+    if (state.phase === 'ready') {
+      return {
+        id: 'update',
+        label: `Restart to update to ${state.version ?? 'the new version'}`,
+        icon: RotateCwIcon,
+        keywords: 'upgrade install new version',
+        disabled: update.installing,
+        run: () => update.install()
+      }
+    }
+    return {
+      id: 'update',
+      label: state.phase === 'downloading' ? 'Downloading update…' : 'Check for updates',
+      icon: RefreshCwIcon,
+      keywords: 'upgrade new version release github',
+      disabled: state.phase === 'checking' || state.phase === 'downloading',
+      run: () => update.check()
+    }
+  }
 
   const presets: PaletteCommand[] = BROKER_PRESETS.map((preset) => ({
     id: `preset:${preset.id}`,

@@ -3,7 +3,7 @@
  * Import them from here (`@shared/models`); the types live in `./models/*` by area:
  * connection (profiles, primitives, import / export), message (messages, publishing, repeat
  * jobs, payload formats), runtime (session status and events), settings and app (app facts,
- * file dialogs, storage notices).
+ * file dialogs, storage notices) and update (self-update state).
  *
  * Rules:
  *  - Pure types only (no runtime imports from electron / node / vue).
@@ -15,3 +15,4 @@ export type * from './models/message'
 export type * from './models/runtime'
 export type * from './models/settings'
 export type * from './models/app'
+export type * from './models/update'

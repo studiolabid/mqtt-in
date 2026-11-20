@@ -17,9 +17,11 @@ import { usePublishStore } from '@/stores/publish'
 import { useSavedMessagesStore } from '@/stores/saved-messages'
 import { useSessionsStore } from '@/stores/sessions'
 import { useSettingsStore } from '@/stores/settings'
+import { useUpdateStore } from '@/stores/update'
 import { autoConnect, firstStartOfRun } from './auto-connect'
 import { registerIpcListeners } from './ipc-listeners'
 import { reportStartupProblem, reportStorageNotice } from './notices'
+import { watchUpdateReady } from './update-notices'
 
 async function attempt(problem: string, task: () => Promise<unknown> | unknown): Promise<boolean> {
   try {
@@ -41,7 +43,8 @@ async function attempt(problem: string, task: () => Promise<unknown> | unknown):
  * 4. the storage notices collected by the main process (one warning toast each),
  * 5. live sessions of the main process (survive renderer reloads),
  * 6. connects the "Connect on startup" profiles (once per app run, `./auto-connect`),
- * 7. reopens the last connection when the app starts on the welcome screen.
+ * 7. reopens the last connection when the app starts on the welcome screen,
+ * 8. the self-update state ("update ready" toast; quietly skipped when it cannot be read).
  */
 export async function initApp(router: Router): Promise<void> {
   const settings = useSettingsStore()
@@ -68,6 +71,7 @@ export async function initApp(router: Router): Promise<void> {
   }
 
   await showStorageNotices()
+  await loadUpdateState()
 
   await attempt('Could not restore the live sessions', async () => {
     useSessionsStore().hydrate(await api.mqtt.getSessions())
@@ -87,6 +91,16 @@ export async function initApp(router: Router): Promise<void> {
   leaveRemovedConnections(router)
   syncDocumentTitle(router)
   await restoreLastConnection(router)
+}
+
+/** The update state of the main process; announces a downloaded update (`watchUpdateReady`). */
+async function loadUpdateState(): Promise<void> {
+  try {
+    await useUpdateStore().load()
+  } catch (err) {
+    console.warn('[mqtt-in] could not read the update state:', err)
+  }
+  watchUpdateReady()
 }
 
 /**

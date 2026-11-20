@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
- * About: logo, name and version, runtime versions (copyable for bug reports) and credits.
+ * About: logo, name and version, updates (status, check, "Restart & update", automatic checks),
+ * runtime versions (copyable for bug reports) and credits.
  */
 import { computed } from 'vue'
 import { ClipboardCopyIcon } from '@lucide/vue'
@@ -11,7 +12,9 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAppInfo, useCopy } from '@/composables'
 import { api } from '@/services/api'
+import SettingSwitchRow from './SettingSwitchRow.vue'
 import SettingsSection from './SettingsSection.vue'
+import UpdateRow from './UpdateRow.vue'
 import { platformName } from '../utils/options'
 
 const { info, loading, error, reload } = useAppInfo()
@@ -79,6 +82,13 @@ function open(url: string): void {
         Copy details
       </Button>
     </div>
+
+    <UpdateRow />
+    <SettingSwitchRow
+      setting="autoUpdate"
+      label="Check for updates automatically"
+      description="At startup and every few hours; a new version downloads in the background and installs when you restart."
+    />
 
     <p v-if="error && !info" class="flex items-center gap-3 px-4 py-3 text-[13px]">
       <span class="min-w-0 flex-1 text-muted-foreground">

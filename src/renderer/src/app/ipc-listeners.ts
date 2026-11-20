@@ -9,6 +9,7 @@ import { useMessagesStore } from '@/stores/messages'
 import { usePublishStore } from '@/stores/publish'
 import { useSessionsStore } from '@/stores/sessions'
 import { useSubscriptionsStore } from '@/stores/subscriptions'
+import { useUpdateStore } from '@/stores/update'
 import { reportStorageNotice } from './notices'
 
 let registered: Unsubscribe[] | null = null
@@ -25,8 +26,8 @@ function guard<T>(name: string, handler: (payload: T) => void): (payload: T) => 
 }
 
 /**
- * Subscribes the stores to `onStatus`, `onMessages`, `onSubscription`, `onLog` and `onRepeat`,
- * and shows later storage problems (`app.onStorageNotice`, e.g. a failed write) as error
+ * Subscribes the stores to `onStatus`, `onMessages`, `onSubscription`, `onLog`, `onRepeat` and
+ * the update state (`update.onState`), and shows later storage problems (`app.onStorageNotice`, e.g. a failed write) as error
  * toasts. Calling it again is a no-op. Requires an active Pinia.
  *
  * @returns a function that removes every listener.
@@ -38,6 +39,7 @@ export function registerIpcListeners(): () => void {
     const subscriptions = useSubscriptionsStore()
     const logs = useLogsStore()
     const publish = usePublishStore()
+    const update = useUpdateStore()
     const { mqtt, app } = api
     registered = [
       mqtt.onStatus(guard('status', (event) => sessions.handleStatus(event))),
@@ -45,7 +47,10 @@ export function registerIpcListeners(): () => void {
       mqtt.onSubscription(guard('subscription', (event) => subscriptions.handleEvent(event))),
       mqtt.onLog(guard('log', (entry) => logs.handle(entry))),
       mqtt.onRepeat(guard('repeat', (event) => publish.handleRepeat(event))),
-      app.onStorageNotice(guard('storage notice', (notice) => reportStorageNotice(notice, 'error')))
+      app.onStorageNotice(
+        guard('storage notice', (notice) => reportStorageNotice(notice, 'error'))
+      ),
+      api.update.onState(guard('update', (state) => update.handle(state)))
     ]
     if (import.meta.hot) import.meta.hot.dispose(unregisterIpcListeners)
   }

@@ -14,7 +14,8 @@ import type {
   StatusEvent,
   StorageNotice,
   Subscription,
-  SubscriptionEvent
+  SubscriptionEvent,
+  UpdateState
 } from '@shared/models'
 import { DEFAULT_SETTINGS } from '@shared/defaults'
 
@@ -116,6 +117,7 @@ export interface FakeListeners {
   log: Array<(entry: LogEntry) => void>
   repeat: Array<(event: RepeatJobEvent) => void>
   storageNotice: Array<(notice: StorageNotice) => void>
+  update: Array<(state: UpdateState) => void>
 }
 
 export interface FakeBridge {
@@ -145,7 +147,8 @@ export function createFakeBridge(): FakeBridge {
     subscription: [],
     log: [],
     repeat: [],
-    storageNotice: []
+    storageNotice: [],
+    update: []
   }
   const stored: ConnectionProfile[] = []
   const storage = new Map<string, unknown>()
@@ -237,6 +240,18 @@ export function createFakeBridge(): FakeBridge {
     },
     window: {
       setTheme: vi.fn(async () => undefined)
+    },
+    update: {
+      getState: vi.fn(async (): Promise<UpdateState> => ({
+        phase: 'idle',
+        currentVersion: '1.0.0'
+      })),
+      check: vi.fn(async (): Promise<UpdateState> => ({
+        phase: 'up-to-date',
+        currentVersion: '1.0.0'
+      })),
+      install: vi.fn(async () => undefined),
+      onState: (listener) => track(listeners.update, listener)
     }
   }
   return { api, listeners, stored, storage, notices }

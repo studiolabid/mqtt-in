@@ -21,4 +21,6 @@ export interface AppSettings {
   autoScroll: boolean
   wordWrap: boolean
   confirmBeforeDelete: boolean
+  /** Check the GitHub releases for a newer version and download it in the background. */
+  autoUpdate: boolean
 }

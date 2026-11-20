@@ -74,6 +74,12 @@ const api: MqttInApi = {
   },
   window: {
     setTheme: (theme) => invoke(IPC.windowSetTheme, theme)
+  },
+  update: {
+    getState: () => invoke(IPC.updateGetState),
+    check: () => invoke(IPC.updateCheck),
+    install: () => invoke(IPC.updateInstall),
+    onState: (listener) => on(IPC_EVENTS.update, listener)
   }
 }
 

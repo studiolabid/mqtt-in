@@ -28,7 +28,7 @@ function current(): MqttInApi {
 
 /** Wraps every request so its arguments are plain, clone-safe copies. */
 function createSafeApi(raw: MqttInApi): MqttInApi {
-  const { connections, settings, storage, mqtt, dialog, app, window: win } = raw
+  const { connections, settings, storage, mqtt, dialog, app, window: win, update } = raw
   return {
     connections: {
       list: () => connections.list(),
@@ -81,6 +81,12 @@ function createSafeApi(raw: MqttInApi): MqttInApi {
     },
     window: {
       setTheme: (theme) => win.setTheme(theme)
+    },
+    update: {
+      getState: () => update.getState(),
+      check: () => update.check(),
+      install: () => update.install(),
+      onState: (listener) => update.onState(listener)
     }
   }
 }
@@ -110,6 +116,9 @@ export const api: MqttInApi = {
   },
   get window(): MqttInApi['window'] {
     return current().window
+  },
+  get update(): MqttInApi['update'] {
+    return current().update
   }
 }
 

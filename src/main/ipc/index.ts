@@ -3,6 +3,7 @@
  */
 import type { MqttManager } from '../services/mqtt/mqtt-manager'
 import type { Storage } from '../services/storage'
+import type { UpdateService } from '../services/updater/update-service'
 import { registerAppIpc } from './app'
 import { forwardStorageNotices } from './broadcast'
 import { registerConnectionsIpc } from './connections'
@@ -11,11 +12,13 @@ import { createRegistrar, createSenderGuard } from './handle'
 import { registerMqttIpc } from './mqtt'
 import { registerSettingsIpc } from './settings'
 import { registerStorageIpc } from './storage'
+import { registerUpdateIpc } from './update'
 import { registerWindowIpc } from './window'
 
 export interface IpcDeps {
   storage: Storage
   manager: MqttManager
+  updates: UpdateService
   /** Vite dev server URL (development only); its frames are trusted IPC senders. */
   devServerUrl?: string
 }
@@ -33,6 +36,7 @@ export function registerIpc(deps: IpcDeps): void {
   registerDialogIpc(register)
   registerAppIpc(register, { notices: deps.storage.notices })
   registerWindowIpc(register)
+  registerUpdateIpc(register, deps.updates)
   forwardStorageNotices(deps.storage.notices)
 }
 

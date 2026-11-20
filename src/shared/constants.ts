@@ -13,6 +13,14 @@ export const LEGACY_APP_NAME = 'mqtey'
 /** The studio behind mqtt-in (the "Powered by" credit). */
 export const APP_VENDOR = { name: 'studiolab.id', url: 'https://studiolab.id' } as const
 
+/** GitHub releases of mqtt-in: the update feed and the download page. */
+export const APP_RELEASES_URL = 'https://github.com/studiolabid/mqtt-in/releases'
+
+/** The release page of one version (`1.3.0` → …/releases/tag/v1.3.0). */
+export function releaseUrl(version: string): string {
+  return `${APP_RELEASES_URL}/tag/v${version}`
+}
+
 /** Neutral gray that reads on light and dark: the default color, matching the monochrome look. */
 export const NEUTRAL_COLOR = '#71717a'
 
@@ -68,7 +76,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showMilliseconds: true,
   autoScroll: true,
   wordWrap: true,
-  confirmBeforeDelete: true
+  confirmBeforeDelete: true,
+  autoUpdate: true
 }
 
 /**

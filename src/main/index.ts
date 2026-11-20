@@ -1,6 +1,7 @@
 /**
  * Main-process bootstrap: single instance, storage + MQTT services, IPC, menu, the `app://mqtt-in`
- * origin of the UI, the main window, graceful quit (flush storage, disconnect every session).
+ * origin of the UI, the main window, graceful quit (flush storage, disconnect every session) and
+ * self-update from the GitHub releases (installed after that same graceful shutdown).
  * Unexpected errors and crashed processes go to `<userData>/logs/main.log` (no stack-trace
  * dialogs).
  */
@@ -8,9 +9,15 @@ import { join } from 'node:path'
 import { app, BrowserWindow, dialog, Menu, nativeTheme, safeStorage, session } from 'electron'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { APP_NAME, LEGACY_APP_NAME } from '@shared/defaults'
-import { AUTOMATION_APP_USER_MODEL_ID, isAutomationRun, resolveUserDataDir } from './app-identity'
+import {
+  APP_VERSION,
+  AUTOMATION_APP_USER_MODEL_ID,
+  isAutomationRun,
+  resolveUserDataDir
+} from './app-identity'
 import { registerAppScheme, serveAppProtocol } from './app-protocol'
 import { createWindowEventSink, registerIpc } from './ipc'
+import { broadcastUpdateState } from './ipc/update'
 import { createMainLog, logUncaughtErrors } from './main-log'
 import { migrateLegacyProfile } from './profile-migration'
 import { errorMessage } from './utils/errors'
@@ -20,6 +27,8 @@ import { applySessionPolicy, guardNewWebContents } from './security'
 import { MqttManager } from './services/mqtt/mqtt-manager'
 import { createStorage, type Storage } from './services/storage'
 import { createSafeStorageCipher } from './services/storage/secrets'
+import { createElectronUpdaterBackend } from './services/updater/electron-backend'
+import { updateSupport, UpdateService } from './services/updater/update-service'
 import { createMainWindow } from './window'
 
 /** How long quitting waits for sessions to disconnect gracefully. */
@@ -106,8 +115,45 @@ function start(): void {
   let services: Services | null = null
   let mainWindow: BrowserWindow | null = null
   let quitting = false
+  let shutdownDone: Promise<void> | null = null
   /** mqtt-in was launched again while quitting: start again once this process has quit. */
   let relaunchRequested = false
+
+  /**
+   * Disconnects every session gracefully (bounded) and saves; run once, before any quit
+   * (a normal quit, or installing an update).
+   */
+  const shutdown = (): Promise<void> => {
+    if (shutdownDone) return shutdownDone
+    quitting = true
+    if (!services) return (shutdownDone = Promise.resolve())
+    const { storage, manager } = services
+    storage.flush()
+    shutdownDone = manager.disposeAll(QUIT_TIMEOUT_MS).finally(() => storage.flush())
+    return shutdownDone
+  }
+
+  const createUpdates = (): UpdateService => {
+    const log = (kind: string, detail?: unknown): void => mainLog.append(kind, detail)
+    const support = updateSupport({
+      packaged: app.isPackaged,
+      automated: background || isolated,
+      platform: process.platform,
+      appImage: process.env.APPIMAGE
+    })
+    return new UpdateService({
+      currentVersion: APP_VERSION,
+      backend: support.supported ? createElectronUpdaterBackend({ log }) : null,
+      unsupportedReason: support.supported ? undefined : support.reason,
+      autoCheck: () => services?.storage.settings.get().autoUpdate ?? false,
+      publish: broadcastUpdateState,
+      shutdown: async () => {
+        for (const win of BrowserWindow.getAllWindows()) win.hide()
+        await shutdown()
+      },
+      log
+    })
+  }
 
   /**
    * The UI could not load and the user was told: disconnect the sessions (a dropped connection
@@ -120,12 +166,7 @@ function start(): void {
       app.exit(1)
       return
     }
-    quitting = true
-    const { storage, manager } = services
-    void manager.disposeAll(QUIT_TIMEOUT_MS).finally(() => {
-      storage.flush()
-      app.exit(1)
-    })
+    void shutdown().finally(() => app.exit(1))
   }
 
   const openMainWindow = (): void => {
@@ -188,9 +229,16 @@ function start(): void {
       serveAppProtocol(join(__dirname, '../renderer'))
       services = createServices()
       nativeTheme.themeSource = services.storage.settings.get().theme
-      registerIpc({ storage: services.storage, manager: services.manager, devServerUrl })
+      const updates = createUpdates()
+      registerIpc({
+        storage: services.storage,
+        manager: services.manager,
+        updates,
+        devServerUrl
+      })
       Menu.setApplicationMenu(buildAppMenu(is.dev))
       openMainWindow()
+      updates.start()
 
       app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) openMainWindow()
@@ -211,11 +259,7 @@ function start(): void {
     if (quitting || !services) return
     // Defer the quit once: disconnect sessions gracefully (bounded), then quit for real.
     event.preventDefault()
-    quitting = true
-    const { storage, manager } = services
-    storage.flush()
-    void manager.disposeAll(QUIT_TIMEOUT_MS).finally(() => {
-      storage.flush()
+    void shutdown().finally(() => {
       if (relaunchRequested) app.relaunch()
       app.quit()
     })
