@@ -15,6 +15,7 @@ import {
   PencilIcon,
   PowerIcon,
   PowerOffIcon,
+  SendHorizontalIcon,
   TerminalIcon,
   Trash2Icon
 } from '@lucide/vue'
@@ -42,11 +43,14 @@ const props = defineProps<{
   enabled: boolean
   /** The filter has a literal prefix to open in the topic tree. */
   canShowTopic: boolean
+  /** The filter is a plain topic (no wildcards): offer "Publish to topic". */
+  canPublish?: boolean
 }>()
 
 const emit = defineEmits<{
   toggleFilter: []
   showTopic: []
+  publishTo: []
   copy: []
   edit: []
   duplicate: []
@@ -80,6 +84,14 @@ const keys = Object.fromEntries(
     <ContextMenuItem v-if="canShowTopic" @select="emit('showTopic')">
       <NetworkIcon />
       Show in topic tree
+    </ContextMenuItem>
+    <ContextMenuItem
+      v-if="canPublish"
+      data-testid="subscription-publish-to"
+      @select="emit('publishTo')"
+    >
+      <SendHorizontalIcon />
+      Publish to topic
     </ContextMenuItem>
     <ContextMenuItem @select="emit('copy')">
       <CopyIcon />

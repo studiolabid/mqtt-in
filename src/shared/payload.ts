@@ -4,7 +4,7 @@
  * environment agnostic (works in Node and the browser — no Buffer).
  *
  * The implementation lives in `./codec/*`: `bytes` (UTF-8, hex, base64), `json` (parse,
- * format, display JSON), `binary-json` (MessagePack / CBOR), `payload-codec` (formats,
+ * format, display JSON), `jsonc` (authored JSON with `//` comments), `binary-json` (MessagePack / CBOR), `payload-codec` (formats,
  * encode, decode, previews) and `errors` (PayloadError). Import from here.
  */
 export { PayloadError } from './codec/errors'
@@ -25,6 +25,7 @@ export {
   toDisplayJson,
   tryParseJson
 } from './codec/json'
+export { formatJsonc, jsonLineCommentStart, stripJsonComments } from './codec/jsonc'
 export {
   decodePayload,
   type DecodedPayload,

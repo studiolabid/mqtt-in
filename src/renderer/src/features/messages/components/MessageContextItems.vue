@@ -12,6 +12,7 @@ import {
   ListFilterIcon,
   ListTreeIcon,
   RepeatIcon,
+  SendHorizontalIcon,
   SquarePenIcon,
   TerminalIcon
 } from '@lucide/vue'
@@ -85,6 +86,10 @@ const commands = computed(() => command.itemsFor(props.message))
     </ContextMenuSubContent>
   </ContextMenuSub>
   <ContextMenuSeparator />
+  <ContextMenuItem data-testid="message-publish-to" @select="actions.publishTo(message.topic)">
+    <SendHorizontalIcon />
+    Publish to topic
+  </ContextMenuItem>
   <ContextMenuItem @select="actions.editAndPublish(message)">
     <SquarePenIcon />
     Edit &amp; publish

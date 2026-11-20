@@ -9,9 +9,10 @@ import { toValue, type MaybeRefOrGetter } from 'vue'
 import { toast } from 'vue-sonner'
 import type { Subscription } from '@shared/models'
 import { createSubscription } from '@shared/defaults'
+import { stripSharePrefix, validateTopicName } from '@shared/topic'
 import { useCopy } from '@/composables'
 import { ACTION_TOAST_DURATION } from '@/lib/toast-options'
-import { useSubscriptionsStore, useUiStore } from '@/stores'
+import { usePublishStore, useSubscriptionsStore, useUiStore } from '@/stores'
 import { toPlain } from '@/utils/plain'
 import { defaultSubscriptionColor } from '../utils/colors'
 import { duplicatePreset, messageOf } from '../utils/form'
@@ -31,6 +32,10 @@ export interface SubscriptionActions {
   copyFilter(sub: Subscription): void
   copyAllFilters(): void
   showInTopicTree(sub: Subscription): void
+  /** The topic to publish to for this subscription (no wildcards), or null. */
+  publishTopic(sub: Subscription): string | null
+  /** Puts the subscription's topic into the publisher and focuses it. */
+  publishTo(sub: Subscription): void
   /** Deletes (no confirm) and offers an undo toast; returns whether it was deleted. */
   remove(sub: Subscription): Promise<boolean>
   /** One-click subscription with default options (empty state). */
@@ -42,6 +47,7 @@ export function useSubscriptionActions(
 ): SubscriptionActions {
   const subscriptions = useSubscriptionsStore()
   const ui = useUiStore()
+  const publish = usePublishStore()
   const { copy } = useCopy()
   const id = (): string => toValue(connectionId)
 
@@ -75,6 +81,18 @@ export function useSubscriptionActions(
   function showInTopicTree(sub: Subscription): void {
     const prefix = filterPrefix(sub.topic)
     if (prefix) ui.showTopic(id(), prefix)
+  }
+
+  function publishTopic(sub: Subscription): string | null {
+    const topic = stripSharePrefix(sub.topic)
+    return validateTopicName(topic) === null ? topic : null
+  }
+
+  function publishTo(sub: Subscription): void {
+    const topic = publishTopic(sub)
+    if (topic === null) return
+    publish.updateDraft(id(), { topic })
+    ui.requestPublishFocus(id())
   }
 
   async function remove(sub: Subscription): Promise<boolean> {
@@ -123,6 +141,8 @@ export function useSubscriptionActions(
     copyFilter: (sub) => void copy(sub.topic, 'filter'),
     copyAllFilters,
     showInTopicTree,
+    publishTopic,
+    publishTo,
     remove,
     quickAdd
   }

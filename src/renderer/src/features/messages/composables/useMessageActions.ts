@@ -17,6 +17,8 @@ export interface MessageActions {
   copyPayload(message: MqttMessage, format?: ViewFormat, pretty?: boolean): Promise<boolean>
   copyTopic(message: MqttMessage): Promise<boolean>
   copyAsJson(message: MqttMessage): Promise<boolean>
+  /** Puts the topic into the publisher (payload and options untouched) and focuses it. */
+  publishTo(topic: string): void
   /** Loads the message into the publisher and focuses it. */
   editAndPublish(message: MqttMessage): void
   /** Publishes the same topic, payload, QoS, retain flag and properties again. */
@@ -39,6 +41,10 @@ export function useMessageActions(connectionId: MaybeRefOrGetter<string>): Messa
       copy(payloadText(message, format ?? ui.viewFormat(id()), pretty), 'payload'),
     copyTopic: (message) => copy(message.topic, 'topic'),
     copyAsJson: (message) => copy(messageAsJson(message, ui.viewFormat(id())), 'message as JSON'),
+    publishTo(topic) {
+      publish.updateDraft(id(), { topic })
+      ui.requestPublishFocus(id())
+    },
     editAndPublish(message) {
       publish.loadFromMessage(id(), message)
       ui.requestPublishFocus(id())

@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import * as payload from '@shared/payload'
 
-/** Every runtime export of `@shared/payload` before it became a barrel over `./codec/*`. */
+/**
+ * Every runtime export of `@shared/payload` before it became a barrel over `./codec/*`, plus
+ * the JSONC helpers of the payload editor.
+ */
 const PUBLIC_API = [
   'PAYLOAD_FORMATS',
   'PayloadError',
@@ -10,12 +13,15 @@ const PUBLIC_API = [
   'detectFormat',
   'encodePayload',
   'formatJson',
+  'formatJsonc',
   'fromBase64',
   'fromHex',
   'isPrintableText',
   'isValidUtf8',
+  'jsonLineCommentStart',
   'minifyJson',
   'payloadPreview',
+  'stripJsonComments',
   'toBase64',
   'toDisplayJson',
   'toHex',
@@ -32,6 +38,7 @@ describe('@shared/payload barrel', () => {
       'decodePayload',
       'detectFormat',
       'payloadPreview',
+      'stripJsonComments',
       'toHex',
       'fromHex'
     ]) {

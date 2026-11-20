@@ -18,6 +18,7 @@ import {
 import { errorMessage, PayloadError } from './errors'
 import { parseExactJson } from './exact-json'
 import { looksLikeJson, reindentJson, toDisplayJson, tryParseJson } from './json'
+import { stripJsonComments } from './jsonc'
 
 export const PAYLOAD_FORMATS: { value: PayloadFormat; label: string; binary: boolean }[] = [
   { value: 'json', label: 'JSON', binary: false },
@@ -40,17 +41,19 @@ export const VIEW_FORMATS: { value: ViewFormat; label: string }[] = [
 /**
  * Encodes authored text into bytes. Throws PayloadError with a friendly message on invalid input.
  * MessagePack / CBOR are written as JSON and keep every number exact (64-bit integers, -0); an
- * integer MessagePack cannot hold (beyond 64 bits) is refused instead of rounded.
+ * integer MessagePack cannot hold (beyond 64 bits) is refused instead of rounded. JSON-authored
+ * formats accept `//` line comments and trailing commas (JSONC); they are never sent.
  */
 export function encodePayload(input: string, format: PayloadFormat): Uint8Array {
   switch (format) {
     case 'text':
       return utf8Encode(input)
     case 'json': {
-      if (input.trim().length === 0) return new Uint8Array(0)
-      const parsed = tryParseJson(input)
+      const json = stripJsonComments(input)
+      if (json.trim().length === 0) return new Uint8Array(0)
+      const parsed = tryParseJson(json)
       if (!parsed.ok) throw new PayloadError(`Invalid JSON: ${parsed.error}`)
-      return utf8Encode(input)
+      return utf8Encode(json)
     }
     case 'hex':
       return fromHex(input)
@@ -60,9 +63,10 @@ export function encodePayload(input: string, format: PayloadFormat): Uint8Array 
     case 'cbor': {
       const codec = BINARY_JSON_CODECS[format]
       let value: unknown
+      const json = stripJsonComments(input)
       try {
         // Exact: integers beyond 2^53 become bigints instead of rounded doubles.
-        value = parseExactJson(input.trim().length === 0 ? 'null' : input)
+        value = parseExactJson(json.trim().length === 0 ? 'null' : json)
       } catch (err) {
         throw new PayloadError(`${codec.name} payloads are written as JSON: ${errorMessage(err)}`)
       }

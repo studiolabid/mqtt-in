@@ -202,12 +202,14 @@ async function quickAdd(topic: string): Promise<void> {
         :filtered="filteredId === sub.id"
         :active="focused && keyboardMode && activeId === sub.id"
         :count="counts.get(sub.id) ?? 0"
+        :can-publish="actions.publishTopic(sub) !== null"
         @toggle-filter="onRowToggle(sub)"
         @edit="actions.edit(sub)"
         @duplicate="actions.duplicate(sub)"
         @remove="remove(sub)"
         @copy="actions.copyFilter(sub)"
         @show-topic="actions.showInTopicTree(sub)"
+        @publish-to="actions.publishTo(sub)"
         @set-enabled="(enabled: boolean) => actions.setEnabled(sub, enabled)"
       />
     </div>

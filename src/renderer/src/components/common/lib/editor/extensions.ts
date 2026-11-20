@@ -7,6 +7,7 @@ import {
   lineNumbers,
   placeholder as placeholderExt
 } from '@codemirror/view'
+import { jsonComments } from './json-comments'
 
 /** Languages supported by `CodeEditor`. */
 export type CodeEditorLanguage = 'json' | 'text'
@@ -35,8 +36,9 @@ function foldMarker(open: boolean): HTMLElement {
   return wrapper
 }
 
+/** JSON is authored as JSONC: `//` line comments (Ctrl+/) are greyed out and never sent. */
 export function languageExtension(language: CodeEditorLanguage): Extension {
-  return language === 'json' ? json() : []
+  return language === 'json' ? [json(), jsonComments] : []
 }
 
 /** Line numbers (+ fold gutter for JSON) or nothing. */

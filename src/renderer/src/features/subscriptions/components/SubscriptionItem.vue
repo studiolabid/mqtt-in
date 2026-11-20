@@ -50,6 +50,8 @@ const props = defineProps<{
   active: boolean
   /** Messages received matching the filter (0 hides the counter). */
   count: number
+  /** The filter is a plain topic (no wildcards) the publisher can use. */
+  canPublish?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -59,6 +61,7 @@ const emit = defineEmits<{
   remove: []
   copy: []
   showTopic: []
+  publishTo: []
   setEnabled: [enabled: boolean]
 }>()
 
@@ -242,8 +245,10 @@ function onClick(event: MouseEvent): void {
       :filtered="filtered"
       :enabled="subscription.enabled"
       :can-show-topic="canShowTopic"
+      :can-publish="canPublish"
       @toggle-filter="emit('toggleFilter')"
       @show-topic="emit('showTopic')"
+      @publish-to="emit('publishTo')"
       @copy="emit('copy')"
       @edit="emit('edit')"
       @duplicate="emit('duplicate')"

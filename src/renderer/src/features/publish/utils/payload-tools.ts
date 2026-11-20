@@ -7,8 +7,10 @@ import {
   decodePayload,
   encodePayload,
   formatJson,
+  formatJsonc,
   isValidUtf8,
   minifyJson,
+  stripJsonComments,
   toBase64,
   toHex,
   tryParseJson,
@@ -71,11 +73,16 @@ function markerPrefix(text: string): string {
  * Pretty prints or minifies JSON that may contain `{{template}}` tokens (e.g. an unquoted
  * `{{random(1,9)}}`): every token is swapped for a unique number literal — valid as a bare
  * value and inside strings — the JSON is re-indented and the tokens are restored.
+ * `//` comments (Ctrl+/) are kept by Format and removed by Minify, like trailing commas.
  *
  * @throws PayloadError when the JSON is invalid.
  */
 export function reformatJson(text: string, mode: 'pretty' | 'minify'): string {
-  const run = (input: string): string => (mode === 'pretty' ? formatJson(input) : minifyJson(input))
+  const run = (input: string): string => {
+    const json = stripJsonComments(input)
+    if (mode === 'minify') return minifyJson(json)
+    return json === input ? formatJson(input) : formatJsonc(input)
+  }
   if (!text.includes('{{')) return run(text)
   const prefix = markerPrefix(text)
   const tokens: string[] = []

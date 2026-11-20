@@ -21,3 +21,10 @@
   --syntax-null: oklch(0.66 0.02 285);
   --syntax-punct: oklch(0.68 0.012 285);
 }
+
+/* `//` comments in the JSON editor (Ctrl+/): disabled lines, never sent. */
+.cm-json-comment,
+.cm-json-comment * {
+  color: var(--muted-foreground) !important;
+  font-style: italic;
+}

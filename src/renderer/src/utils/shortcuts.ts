@@ -112,6 +112,14 @@ export const SHORTCUTS = {
     group: 'Messages'
   },
   publish: { combo: 'mod+enter', keys: ['Mod', 'Enter'], label: 'Publish', group: 'Publish' },
+  /** Handled by the JSON payload editor (CodeMirror `toggleComment`). */
+  toggleComment: {
+    combo: 'mod+/',
+    keys: ['Mod', '/'],
+    label: 'Comment out JSON lines (not sent)',
+    group: 'Publish',
+    displayOnly: true
+  },
 
   // View: accelerators of the native View menu (src/main/menu.ts).
   zoomIn: {

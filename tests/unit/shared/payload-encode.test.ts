@@ -59,7 +59,12 @@ describe('encodePayload', () => {
       expect(encodePayload(input, 'json')).toEqual(new Uint8Array(0))
     })
 
-    it.each(['{"a":}', '{a:1}', "{'a':1}", '[1,]', 'undefined', '{"a":1} x'])(
+    it('sends JSONC (// comments, trailing commas) as plain JSON', () => {
+      expect(utf8Decode(encodePayload('[1,]', 'json'))).toBe('[1]')
+      expect(utf8Decode(encodePayload('{"a":1 // x\n}', 'json'))).toBe('{"a":1\n}')
+    })
+
+    it.each(['{"a":}', '{a:1}', "{'a':1}", '[,]', '/* a */ 1', 'undefined', '{"a":1} x'])(
       'rejects %j with a friendly PayloadError',
       (input) => {
         expect(() => encodePayload(input, 'json')).toThrow(PayloadError)
