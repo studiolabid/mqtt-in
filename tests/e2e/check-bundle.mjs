@@ -170,6 +170,19 @@ for (const part of ['main', 'preload']) {
     `${line} per line`
   )
 }
+// A framework module bundled twice runs twice: two Pinia instances (stores find no active Pinia:
+// blank window) or two Vue runtimes. It happened when the build ran from a lowercase drive
+// letter (`d:\…`, see electron.vite.config.ts), even with both copies in one chunk, so the copies
+// are counted by a piece of their code, not by file.
+const rendererCode = rendererJs.map((file) => readFileSync(join(RENDERER, file), 'utf8')).join('\n')
+for (const [name, signature] of [
+  ['pinia', '`patch object`'],
+  ['@vue/runtime-core', '@vue/runtime-core v']
+]) {
+  const copies = rendererCode.split(signature).length - 1
+  check(`${name} bundled once`, copies === 1, `${copies} copies`)
+}
+
 const maps = readdirSync(OUT, { recursive: true }).filter((file) => String(file).endsWith('.map'))
 check('no source maps in the build', maps.length === 0, maps.slice(0, 3).join(', '))
 

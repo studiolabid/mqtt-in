@@ -3,6 +3,18 @@ import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 
+/**
+ * Windows: a shell may report the working directory with a lowercase drive letter (`d:\mqttin`,
+ * e.g. Git Bash). Paths derived from it then differ in case from the ones Node resolves for
+ * node_modules, and the bundler treats them as different modules: Pinia was bundled twice, the
+ * stores found no active Pinia and the packaged window stayed blank. Always build from `D:\…`.
+ * tests/e2e/check-bundle.mjs checks that the framework packages are bundled once.
+ */
+const cwd = process.cwd()
+if (process.platform === 'win32' && /^[a-z]:/.test(cwd)) {
+  process.chdir(cwd[0].toUpperCase() + cwd.slice(1))
+}
+
 const shared = resolve('src/shared')
 
 /**
